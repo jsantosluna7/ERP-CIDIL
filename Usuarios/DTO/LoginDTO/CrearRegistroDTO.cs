@@ -1,8 +1,6 @@
-﻿using Usuarios.Modelos;
-
-namespace Usuarios.DTO.UsuarioDTO
+﻿namespace Usuarios.DTO.LoginDTO
 {
-    public class UsuarioDTO
+    public class CrearRegistroDTO
     {
         public int IdMatricula { get; set; }
 
@@ -11,6 +9,8 @@ namespace Usuarios.DTO.UsuarioDTO
         public string ApellidoUsuario { get; set; } = null!;
 
         public string CorreoInstitucional { get; set; } = null!;
+
+        public string ContrasenaHash { get; set; } = null!;
 
         public string? Telefono { get; set; }
 

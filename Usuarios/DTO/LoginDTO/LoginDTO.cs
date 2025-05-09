@@ -1,9 +1,9 @@
-﻿using Usuarios.Modelos;
-
-namespace Usuarios.DTO.UsuarioDTO
+﻿namespace Usuarios.DTO.LoginDTO
 {
-    public class UsuarioDTO
+    public class LoginDTO
     {
+        public int Id { get; set; }
+
         public int IdMatricula { get; set; }
 
         public string NombreUsuario { get; set; } = null!;

@@ -9,7 +9,6 @@
         public string ApellidoUsuario { get; set; } = null!;
 
         public string CorreoInstitucional { get; set; } = null!;
-        public string ContrasenaHash { get; set; } = null!;
 
         public string? Telefono { get; set; }
 

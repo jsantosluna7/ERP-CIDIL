@@ -34,13 +34,13 @@ namespace Usuarios.Controllers
             return Ok(usuario);
         }
 
-        [HttpPost]
-        public IActionResult CrearUsuario([FromBody] UsuarioDTO usuarioDTO)
-        {
-            // Llamar al servicio para crear un nuevo usuario
-            var nuevoUsuario = _servicioUsuarios.crearUsuario(usuarioDTO);
-            return Ok(nuevoUsuario);
-        }
+        //[HttpPost]
+        //public IActionResult CrearUsuario([FromBody] UsuarioDTO usuarioDTO)
+        //{
+        //    // Llamar al servicio para crear un nuevo usuario
+        //    var nuevoUsuario = _servicioUsuarios.crearUsuario(usuarioDTO);
+        //    return Ok(nuevoUsuario);
+        //}
 
         [HttpPut("{id}")]
         public IActionResult ActualizarUsuario(int id, [FromBody] ActualizarUsuarioDTO actualizarUsuarioDTO)

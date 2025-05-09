@@ -29,6 +29,10 @@ public partial class Usuario
 
     public DateTime? FechaUltimaModificacion { get; set; }
 
+    public string? ResetToken { get; set; }
+
+    public DateTime? ResetTokenExpira { get; set; }
+
     [JsonIgnore]
     public virtual Roles IdRolNavigation { get; set; } = null!;
 }

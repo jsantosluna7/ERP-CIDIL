@@ -36,7 +36,6 @@ namespace Usuarios.Implementaciones.Servicios
                     NombreUsuario = usuario.NombreUsuario,
                     ApellidoUsuario = usuario.ApellidoUsuario,
                     CorreoInstitucional = usuario.CorreoInstitucional,
-                    ContrasenaHash = usuario.ContrasenaHash,
                     Telefono = usuario.Telefono,
                     Direccion = usuario.Direccion,
                     IdRol = usuario.IdRol,
@@ -83,29 +82,29 @@ namespace Usuarios.Implementaciones.Servicios
         }
 
         // Método para crear un usuario
-        public UsuarioDTO crearUsuario(UsuarioDTO usuarioDTO)
-        {
-            // Obtener el usuario del repositorio
-            var usuario = _repositorioUsuario.crearUsuario(usuarioDTO);
+        //public UsuarioDTO crearUsuario(UsuarioDTO usuarioDTO)
+        //{
+        //    // Obtener el usuario del repositorio
+        //    var usuario = _repositorioUsuario.crearUsuario(usuarioDTO);
 
-            // Crear un nuevo usuario
-            var crearUsuarioDTO = new UsuarioDTO
-            {
-                IdMatricula = usuario.IdMatricula,
-                NombreUsuario = usuario.NombreUsuario,
-                ApellidoUsuario = usuario.ApellidoUsuario,
-                CorreoInstitucional = usuario.CorreoInstitucional,
-                ContrasenaHash = usuario.ContrasenaHash,
-                Telefono = usuario.Telefono,
-                Direccion = usuario.Direccion,
-                IdRol = usuario.IdRol,
-                FechaCreacion = usuario.FechaCreacion,
-                FechaUltimaModificacion = usuario.FechaUltimaModificacion
-            };
+        //    // Crear un nuevo usuario
+        //    var crearUsuarioDTO = new UsuarioDTO
+        //    {
+        //        IdMatricula = usuario.IdMatricula,
+        //        NombreUsuario = usuario.NombreUsuario,
+        //        ApellidoUsuario = usuario.ApellidoUsuario,
+        //        CorreoInstitucional = usuario.CorreoInstitucional,
+        //        ContrasenaHash = usuario.ContrasenaHash,
+        //        Telefono = usuario.Telefono,
+        //        Direccion = usuario.Direccion,
+        //        IdRol = usuario.IdRol,
+        //        FechaCreacion = usuario.FechaCreacion,
+        //        FechaUltimaModificacion = usuario.FechaUltimaModificacion
+        //    };
 
-            // Devolver el nuevo usuario creado
-            return crearUsuarioDTO;
-        }
+        //    // Devolver el nuevo usuario creado
+        //    return crearUsuarioDTO;
+        //}
 
         // Método para actualizar un usuario
         public UsuarioDTO actualizarUsuario(int id, ActualizarUsuarioDTO actualizarUsuarioDTO)
@@ -120,7 +119,6 @@ namespace Usuarios.Implementaciones.Servicios
                 NombreUsuario = usuario.NombreUsuario,
                 ApellidoUsuario = usuario.ApellidoUsuario,
                 CorreoInstitucional = usuario.CorreoInstitucional,
-                ContrasenaHash = usuario.ContrasenaHash,
                 Telefono = usuario.Telefono,
                 Direccion = usuario.Direccion,
                 IdRol = usuario.IdRol,

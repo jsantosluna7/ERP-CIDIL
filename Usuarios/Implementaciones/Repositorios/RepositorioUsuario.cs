@@ -33,37 +33,37 @@ namespace Usuarios.Implementaciones.Repositorios
         }
 
         //Método para crear un usuario
-        public Usuario crearUsuario(UsuarioDTO usuarioDTO)
-        {
-            // Verificar si el usuario ya existe
-            var usuarioExistente = _context.Usuarios.FirstOrDefault(u => u.IdMatricula == usuarioDTO.IdMatricula);
-            if (usuarioExistente != null)
-            {
-                throw new Exception("El usuario ya existe");
-            }
+        //public Usuario crearUsuario(UsuarioDTO usuarioDTO)
+        //{
+        //    // Verificar si el usuario ya existe
+        //    var usuarioExistente = _context.Usuarios.FirstOrDefault(u => u.IdMatricula == usuarioDTO.IdMatricula);
+        //    if (usuarioExistente != null)
+        //    {
+        //        throw new Exception("El usuario ya existe");
+        //    }
 
-            // Crear un nuevo usuario
-            var usuario = new Usuario
-            {
-                IdMatricula = usuarioDTO.IdMatricula,
-                NombreUsuario = usuarioDTO.NombreUsuario,
-                ApellidoUsuario = usuarioDTO.ApellidoUsuario,
-                CorreoInstitucional = usuarioDTO.CorreoInstitucional,
-                ContrasenaHash = usuarioDTO.ContrasenaHash,
-                Telefono = usuarioDTO.Telefono,
-                Direccion = usuarioDTO.Direccion,
-                IdRol = usuarioDTO.IdRol,
-                FechaCreacion = DateTime.UtcNow,
-                FechaUltimaModificacion = DateTime.UtcNow
-            };
+        //    // Crear un nuevo usuario
+        //    var usuario = new Usuario
+        //    {
+        //        IdMatricula = usuarioDTO.IdMatricula,
+        //        NombreUsuario = usuarioDTO.NombreUsuario,
+        //        ApellidoUsuario = usuarioDTO.ApellidoUsuario,
+        //        CorreoInstitucional = usuarioDTO.CorreoInstitucional,
+        //        ContrasenaHash = usuarioDTO.ContrasenaHash,
+        //        Telefono = usuarioDTO.Telefono,
+        //        Direccion = usuarioDTO.Direccion,
+        //        IdRol = usuarioDTO.IdRol,
+        //        FechaCreacion = DateTime.UtcNow,
+        //        FechaUltimaModificacion = DateTime.UtcNow
+        //    };
 
-            // Guardar el nuevo usuario en la base de datos
-            _context.Usuarios.Add(usuario);
-            _context.SaveChanges();
+        //    // Guardar el nuevo usuario en la base de datos
+        //    _context.Usuarios.Add(usuario);
+        //    _context.SaveChanges();
 
-            // Devolver el usuario creado
-            return usuario;
-        }
+        //    // Devolver el usuario creado
+        //    return usuario;
+        //}
 
         //Método para actualizar un usuario
         public Usuario actualizarUsuario(int id, ActualizarUsuarioDTO actualizarUsuarioDTO)
@@ -82,7 +82,6 @@ namespace Usuarios.Implementaciones.Repositorios
             usuarioExiste.NombreUsuario = actualizarUsuarioDTO.NombreUsuario ?? usuarioExiste.NombreUsuario;
             usuarioExiste.ApellidoUsuario = actualizarUsuarioDTO.ApellidoUsuario ?? usuarioExiste.ApellidoUsuario;
             usuarioExiste.CorreoInstitucional = actualizarUsuarioDTO.CorreoInstitucional ?? usuarioExiste.CorreoInstitucional;
-            usuarioExiste.ContrasenaHash = actualizarUsuarioDTO.ContrasenaHash ?? usuarioExiste.ContrasenaHash;
             usuarioExiste.Telefono = actualizarUsuarioDTO.Telefono ?? usuarioExiste.Telefono;
             usuarioExiste.Direccion = actualizarUsuarioDTO.Direccion ?? usuarioExiste.Direccion;
             usuarioExiste.IdRol = actualizarUsuarioDTO.IdRol ?? usuarioExiste.IdRol;

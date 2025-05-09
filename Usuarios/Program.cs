@@ -22,10 +22,18 @@ builder.Services.AddDbContext<DbErpContext>(Options => Options.UseNpgsql(builder
 //Añadimos los repositorios
 builder.Services.AddScoped<IRepositorioRoles, RepositorioRoles>();
 builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
+builder.Services.AddScoped<IRepositorioLogin, RepositorioLogin>();
+builder.Services.AddScoped<IRepositorioResetPassword, RepositorioResetPassword>();
 
 //Añadimos el servicio
 builder.Services.AddScoped<IServicioRoles, ServicioRoles>();
 builder.Services.AddScoped<IServicioUsuarios, ServicioUsuarios>();
+builder.Services.AddScoped<IServicioLogin, ServicioLogin>();
+builder.Services.AddScoped<IServicioResetPassword, ServicioResetPassword>();
+
+//Añadimos el servicio de email
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
+builder.Services.AddScoped<ServicioEmail>();
 
 ////Añadiendo al ensamblado principal
 //builder.Services.AddControllers()

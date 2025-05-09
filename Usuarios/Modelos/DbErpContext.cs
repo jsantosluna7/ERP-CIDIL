@@ -68,13 +68,18 @@ public partial class DbErpContext : DbContext
                 .HasColumnType("timestamp with time zone")
                 .HasColumnName("fecha_ultima_modificacion");
             entity.Property(e => e.IdMatricula).HasColumnName("id_matricula");
-            entity.Property(e => e.IdRol).HasColumnName("id_rol");
+            entity.Property(e => e.IdRol).HasColumnName("id_rol")
+                .HasDefaultValueSql("4");
             entity.Property(e => e.NombreUsuario)
                 .HasMaxLength(50)
                 .HasColumnName("nombre_usuario");
             entity.Property(e => e.Telefono)
                 .HasMaxLength(20)
                 .HasColumnName("telefono");
+            entity.Property(e => e.ResetToken).HasColumnName("reset_token");
+            entity.Property(e => e.ResetTokenExpira)
+                .HasColumnType("timestamp with time zone")
+                .HasColumnName("reset_token_expira");
 
             entity.HasOne(d => d.IdRolNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.IdRol)
