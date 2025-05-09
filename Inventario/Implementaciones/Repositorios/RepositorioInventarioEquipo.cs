@@ -19,7 +19,7 @@ namespace Inventario.Implementaciones.Repositorios
         public InventarioEquipo Actualizar(int id, ActualizarInventarioEquipoDTO actualizarInventarioEquipoDTO)
         {
             var invEquipoExiste = GetById(id);
-
+            
             invEquipoExiste.Nombre = actualizarInventarioEquipoDTO.Nombre;
             invEquipoExiste.NombreCorto = actualizarInventarioEquipoDTO.NombreCorto;
             invEquipoExiste.Perfil = actualizarInventarioEquipoDTO.Perfil;

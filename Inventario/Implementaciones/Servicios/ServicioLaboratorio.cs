@@ -61,7 +61,7 @@ namespace Inventario.Implementaciones.Servicios
             foreach(Laboratorio laboratorio1 in laboratorio)
             {
                 var nuevolaboratorioDTO = new LaboratorioDTO
-                {   
+                {   Id = laboratorio1.Id,
                     CodigoDeLab = laboratorio1 .CodigoDeLab,
                     Capacidad = laboratorio1.Capacidad,
                     Descripcion = laboratorio1.Descripcion,

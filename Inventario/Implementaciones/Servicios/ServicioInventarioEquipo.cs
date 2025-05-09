@@ -79,6 +79,7 @@ namespace Inventario.Implementaciones.Servicios
             {
                 var nuevoInvEquipo = new InventarioEquipoDTO
                 {
+                    Id = invEquipo.Id,
                     Nombre = invEquipo.Nombre,
                     NombreCorto = invEquipo.NombreCorto,
                     Perfil = invEquipo.Perfil,
