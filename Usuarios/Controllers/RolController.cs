@@ -17,19 +17,19 @@ namespace Usuarios.Controllers
         }
 
         [HttpGet]
-        public IActionResult ObtenerRoles()
+        public async Task<IActionResult> ObtenerRoles()
         {
-            var roles = _servicioRoles.obtenerRolesDTO();
+            var roles = await _servicioRoles.obtenerRolesDTO();
             return Ok(roles);
         }
 
         [HttpGet("{id}")]
-        public IActionResult ObtenerRolPorId(int id)
+        public async Task<IActionResult> ObtenerRolPorId(int id)
         {
-            var rol = _servicioRoles.obtenerRolesPorId(id);
+            var rol = await _servicioRoles.obtenerRolesPorId(id);
             if (rol == null)
             {
-                return NotFound();
+                return NotFound($"No se encontró el rol con el id {id}");
             }
             return Ok(rol);
         }

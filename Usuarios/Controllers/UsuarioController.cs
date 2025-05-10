@@ -19,18 +19,30 @@ namespace Usuarios.Controllers
         }
 
         [HttpGet]
-        public IActionResult ObtenerUsuarios()
+        public async Task<IActionResult> ObtenerUsuarios()
         {
             // Llamar al servicio para obtener la lista de usuarios
-            var usuarios = _servicioUsuarios.ObtenerUsuarios();
+            var usuarios = await _servicioUsuarios.ObtenerUsuarios();
+
+            // Verificar si la lista de usuarios está vacía
+            if (usuarios == null)
+            {
+                return NotFound("Lista de de usuarios vacía");
+            }
             return Ok(usuarios);
         }
 
         [HttpGet("{id}")]
-        public IActionResult ObtenerUsuarioPorId(int id)
+        public async Task<IActionResult> ObtenerUsuarioPorId(int id)
         {
             // Llamar al servicio para obtener un usuario por su ID
-            var usuario = _servicioUsuarios.ObtenerUsuarioPorId(id);
+            var usuario = await _servicioUsuarios.ObtenerUsuarioPorId(id);
+
+            // Verificar si el usuario existe
+            if (usuario == null)
+            {
+                return NotFound($"Usuario con ID {id} no encontrado");
+            }
             return Ok(usuario);
         }
 
@@ -43,19 +55,33 @@ namespace Usuarios.Controllers
         //}
 
         [HttpPut("{id}")]
-        public IActionResult ActualizarUsuario(int id, [FromBody] ActualizarUsuarioDTO actualizarUsuarioDTO)
+        public async Task<IActionResult> ActualizarUsuario(int id, [FromBody] ActualizarUsuarioDTO actualizarUsuarioDTO)
         {
             // Llamar al servicio para actualizar un usuario existente
-            var usuarioActualizado = _servicioUsuarios.actualizarUsuario(id, actualizarUsuarioDTO);
+            var usuarioActualizado = await _servicioUsuarios.actualizarUsuario(id, actualizarUsuarioDTO);
+
+            // Verificar si el usuario fue actualizado
+            if (usuarioActualizado == null)
+            {
+                return NotFound($"Usuario con ID {id} no encontrado");
+            }
             return Ok(usuarioActualizado);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult EliminarUsuario(int id)
+        public async Task<IActionResult> EliminarUsuario(int id)
         {
             // Llamar al servicio para eliminar un usuario por su ID
-            _servicioUsuarios.eliminarUsuario(id);
-            return Ok();
+            var usuario = await _servicioUsuarios.eliminarUsuario(id);
+
+            // Verificar si el usuario fue eliminado
+            if (usuario == null)
+            {
+                return NotFound($"Usuario con ID {id} no encontrado");
+            }
+
+            // Devolver una respuesta exitosa
+            return Ok($"Usuario con ID {id} eliminado");
         }
     }
 }

@@ -15,13 +15,13 @@ namespace Usuarios.Implementaciones.Servicios
         }
 
         // Método para obetener todos los usuarios
-        public List<UsuarioDTO> ObtenerUsuarios()
+        public async Task<List<UsuarioDTO>?> ObtenerUsuarios()
         {
             // Obtener todos los usuarios
-            var usuarios = _repositorioUsuario.obtenerUsuarios();
-            if (usuarios == null || !usuarios.Any())
+            var usuarios = await _repositorioUsuario.obtenerUsuarios();
+            if (usuarios == null || usuarios.Count == 0)
             {
-                throw new Exception("No se encontraron usuarios");
+                return null;
             }
 
             //Inicializar la lista de usuarios DTO
@@ -50,13 +50,13 @@ namespace Usuarios.Implementaciones.Servicios
         }
 
         // Método para obtener un usuario por su id
-        public Usuario ObtenerUsuarioPorId(int id)
+        public async Task<Usuario?> ObtenerUsuarioPorId(int id)
         {
             // Obtener el usuario por su id
-            var usuario = _repositorioUsuario.obtenerUsuarioPorId(id);
+            var usuario = await _repositorioUsuario.obtenerUsuarioPorId(id);
             if (usuario == null)
             {
-                throw new Exception("No se encontró el usuario");
+                return null;
             }
 
             // Devolver el usuario encontrado
@@ -107,10 +107,15 @@ namespace Usuarios.Implementaciones.Servicios
         //}
 
         // Método para actualizar un usuario
-        public UsuarioDTO actualizarUsuario(int id, ActualizarUsuarioDTO actualizarUsuarioDTO)
+        public async Task<UsuarioDTO?> actualizarUsuario(int id, ActualizarUsuarioDTO actualizarUsuarioDTO)
         {
             // Obtener el usuario del repositorio
-            var usuario = _repositorioUsuario.actualizarUsuario(id, actualizarUsuarioDTO);
+            var usuario = await _repositorioUsuario.actualizarUsuario(id, actualizarUsuarioDTO);
+
+            if (usuario == null)
+            {
+                return null;
+            }
 
             // Crear un actualizar el usuario
             var crearUsuarioDTO = new UsuarioDTO
@@ -131,16 +136,17 @@ namespace Usuarios.Implementaciones.Servicios
         }
 
         // Método para eliminar un usuario
-        public void eliminarUsuario(int id)
+        public async Task<bool?> eliminarUsuario(int id)
         {
             // Obtener el usuario del repositorio
-            var usuario = _repositorioUsuario.obtenerUsuarioPorId(id);
+            var usuario = await _repositorioUsuario.obtenerUsuarioPorId(id);
             if (usuario == null)
             {
-                throw new Exception("No se encontró el usuario");
+                return null;
             }
             // Eliminar el usuario
-            _repositorioUsuario.eliminarUsuario(id);
+            await _repositorioUsuario.eliminarUsuario(id);
+            return true;
         }
     }
 }

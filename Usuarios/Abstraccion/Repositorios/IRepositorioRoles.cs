@@ -4,7 +4,7 @@ namespace Usuarios.Abstraccion.Repositorios
 {
     public interface IRepositorioRoles
     {
-        List<Roles> obtenerRoles();
-        Roles obtenerRolesPorId(int id);
+        Task<List<Roles>> obtenerRoles();
+        Task<Roles?> obtenerRolesPorId(int id);
     }
 }

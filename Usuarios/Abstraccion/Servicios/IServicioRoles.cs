@@ -5,7 +5,7 @@ namespace Usuarios.Abstraccion.Servicios
 {
     public interface IServicioRoles
     {
-        List<rolDTO> obtenerRolesDTO();
-        Roles obtenerRolesPorId(int id);
+        Task<List<rolDTO>> obtenerRolesDTO();
+        Task<Roles?> obtenerRolesPorId(int id);
     }
 }

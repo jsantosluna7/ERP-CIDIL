@@ -13,14 +13,14 @@ namespace Usuarios.Implementaciones.Repositorios
             _contexto = contexto;
         }
 
-        public List<Roles> obtenerRoles()
+        public async Task<List<Roles>> obtenerRoles()
         {
-            return [.. _contexto.Roles];
+            return await _contexto.Roles.ToListAsync();
         }
 
-        public Roles obtenerRolesPorId(int id)
+        public async Task<Roles?> obtenerRolesPorId(int id)
         {
-            return _contexto.Roles.Include(r => r.Usuarios).Where(r => r.Id == id).FirstOrDefault();
+            return await _contexto.Roles.Include(r => r.Usuarios).Where(r => r.Id == id).FirstOrDefaultAsync();
         }
     }
 }

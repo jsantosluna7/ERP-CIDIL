@@ -5,10 +5,11 @@ namespace Usuarios.Abstraccion.Servicios
 {
     public interface IServicioUsuarios
     {
-        UsuarioDTO actualizarUsuario(int id, ActualizarUsuarioDTO actualizarUsuarioDTO);
+        Task<UsuarioDTO?> actualizarUsuario(int id, ActualizarUsuarioDTO actualizarUsuarioDTO);
+        Task<bool?> eliminarUsuario(int id);
+        Task<Usuario?> ObtenerUsuarioPorId(int id);
+
         //UsuarioDTO crearUsuario(UsuarioDTO usuarioDTO);
-        void eliminarUsuario(int id);
-        Usuario ObtenerUsuarioPorId(int id);
-        List<UsuarioDTO> ObtenerUsuarios();
+        Task<List<UsuarioDTO>?> ObtenerUsuarios();
     }
 }

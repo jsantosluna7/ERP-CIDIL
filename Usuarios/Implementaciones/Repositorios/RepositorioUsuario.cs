@@ -1,4 +1,5 @@
-﻿using Usuarios.Abstraccion.Repositorios;
+﻿using Microsoft.EntityFrameworkCore;
+using Usuarios.Abstraccion.Repositorios;
 using Usuarios.DTO.UsuarioDTO;
 using Usuarios.Modelos;
 
@@ -14,16 +15,16 @@ namespace Usuarios.Implementaciones.Repositorios
         }
 
         //Método para obtener todo los usuarios
-        public List<Usuario> obtenerUsuarios()
+        public async Task<List<Usuario>> obtenerUsuarios()
         {
-            return [.. _context.Usuarios];
+            return await _context.Usuarios.ToListAsync();
         }
 
         //Método para obtener un usuario por su id
-        public Usuario? obtenerUsuarioPorId(int id)
+        public async Task<Usuario?> obtenerUsuarioPorId(int id)
         {
             // Verificar si el usuario existe
-            var usuario = _context.Usuarios.FirstOrDefault(u => u.Id == id);
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == id);
             if (usuario == null)
             {
                 return null;
@@ -66,15 +67,15 @@ namespace Usuarios.Implementaciones.Repositorios
         //}
 
         //Método para actualizar un usuario
-        public Usuario actualizarUsuario(int id, ActualizarUsuarioDTO actualizarUsuarioDTO)
+        public async Task<Usuario?> actualizarUsuario(int id, ActualizarUsuarioDTO actualizarUsuarioDTO)
         {
             // Verificar si el usuario existe
-            var usuarioExiste = obtenerUsuarioPorId(id);
+            var usuarioExiste = await obtenerUsuarioPorId(id);
 
             // Si el usuario no existe, lanzar una excepción
             if (usuarioExiste == null)
             {
-                throw new Exception("El usuario no existe");
+                return null;
             }
 
             // Actualizar los campos del usuario, si tienen valores nuevos, si no, se deja el que ya tenia.
@@ -92,20 +93,22 @@ namespace Usuarios.Implementaciones.Repositorios
             _context.SaveChanges();
 
             // Devolver el usuario actualizado
-            var usuarioActualizado = obtenerUsuarioPorId(id);
+            var usuarioActualizado = await obtenerUsuarioPorId(id);
             return usuarioActualizado;
         }
 
         //Método para eliminar un usuario
-        public void eliminarUsuario(int id)
+        public async Task<bool?> eliminarUsuario(int id)
         {
             // Verificar si el usuario existe
-            var usuario = obtenerUsuarioPorId(id);
-            if (usuario != null)
+            var usuario = await obtenerUsuarioPorId(id);
+            if (usuario == null)
             {
-                _context.Remove(usuario);
-                _context.SaveChanges();
+                return null;
             }
+            _context.Remove(usuario);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
     }

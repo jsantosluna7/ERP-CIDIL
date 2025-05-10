@@ -5,10 +5,10 @@ namespace Usuarios.Abstraccion.Repositorios
 {
     public interface IRepositorioUsuario
     {
-        Usuario actualizarUsuario(int id, ActualizarUsuarioDTO actualizarUsuarioDTO);
+        Task<Usuario?> actualizarUsuario(int id, ActualizarUsuarioDTO actualizarUsuarioDTO);
         //Usuario crearUsuario(UsuarioDTO usuarioDTO);
-        void eliminarUsuario(int id);
-        Usuario? obtenerUsuarioPorId(int id);
-        List<Usuario> obtenerUsuarios();
+        Task<bool?> eliminarUsuario(int id);
+        Task<Usuario?> obtenerUsuarioPorId(int id);
+        Task<List<Usuario>> obtenerUsuarios();
     }
 }
