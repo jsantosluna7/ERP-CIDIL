@@ -18,7 +18,13 @@ namespace Reservas.Implementaciones.Servicios
 
         public async Task<Estado?> GetById(int id)
         {
-            return await _repositorioEstado.GetById(id);
+            var es = await _repositorioEstado.GetById(id);
+            return es = new Estado
+            {   
+                Id = es.Id,
+                Estado1 =es.Estado1,
+                PrestamosEquipos =es.PrestamosEquipos,
+            };
         }
 
         public async Task<List<EstadoDTO>?> GetEstado()
