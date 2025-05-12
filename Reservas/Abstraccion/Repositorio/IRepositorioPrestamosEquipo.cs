@@ -5,10 +5,10 @@ namespace Reservas.Abstraccion.Repositorio
 {
     public interface IRepositorioPrestamosEquipo
     {
-        List<PrestamosEquipo> GetPrestamosEquipo();
-        PrestamosEquipo GetById(int id);
-        PrestamosEquipo Crear(CrearPrestamosEquipoDTO crearPrestamosEquipoDTO);
-        PrestamosEquipo Actualizar(int  id, ActualizarPrestamosEquipoDTO actualizarPrestamosEquipoDTO);
-        void Eliminar(int id);
+        Task<List<PrestamosEquipo>?> GetPrestamosEquipo();
+        Task<PrestamosEquipo?> GetById(int id);
+        Task<PrestamosEquipo?> Crear(CrearPrestamosEquipoDTO crearPrestamosEquipoDTO);
+        Task<PrestamosEquipo?> Actualizar(int  id, ActualizarPrestamosEquipoDTO actualizarPrestamosEquipoDTO);
+        Task<bool?> Eliminar(int id);
     }
 }

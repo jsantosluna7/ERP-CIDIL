@@ -16,14 +16,18 @@ namespace Reservas.Implementaciones.Servicios
             this._repositorioEstado = repositorioEstado;
         }
 
-        public Estado GetById(int id)
+        public async Task<Estado?> GetById(int id)
         {
-            return _repositorioEstado.GetById(id);
+            return await _repositorioEstado.GetById(id);
         }
 
-        public List<EstadoDTO> GetEstado()
+        public async Task<List<EstadoDTO>?> GetEstado()
         {
-           var estado = _repositorioEstado.GetEstado();
+           var estado = await _repositorioEstado.GetEstado();
+            if (estado == null)
+            {
+                return null;
+            }
             var estadoDTO = new List<EstadoDTO>();
             foreach(Estado estado1 in estado)
             {

@@ -16,16 +16,24 @@ namespace Reservas.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetEstado()
+        public async Task<IActionResult?> GetEstado()
         {
-            var resultado = _servicioEstado.GetEstado();
+            var resultado = await _servicioEstado.GetEstado();
+            if (resultado == null)
+            {
+                return NotFound("Lista no encontrada");
+            }
             return Ok(resultado);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult?> GetById(int id)
         {
-            var resultado = _servicioEstado.GetById(id);
+            var resultado = await _servicioEstado.GetById(id);
+            if (resultado == null)
+            {
+                return NotFound("Lista No encontrada");
+            }
             return Ok(resultado);
         }
     }

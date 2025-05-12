@@ -1,4 +1,5 @@
-﻿using Reservas.Abstraccion.Repositorio;
+﻿using Microsoft.EntityFrameworkCore;
+using Reservas.Abstraccion.Repositorio;
 using Reservas.Modelos;
 
 namespace Reservas.Implementaciones.Repositorios
@@ -7,19 +8,25 @@ namespace Reservas.Implementaciones.Repositorios
     {
         private readonly DbErpContext _context;
 
-        public RepositorioEstado(DbErpContext context)
+        public  RepositorioEstado(DbErpContext context)
         {
             _context = context;
         }
 
-        public Estado GetById(int id)
+        public async Task<Estado?> GetById(int id)
         {
-            return _context.Estados.Where(e => e.Id == id).FirstOrDefault();
+            var estado = await _context.Estados.Where(e => e.Id == id).FirstOrDefaultAsync();
+
+            if (estado == null) 
+            {
+                return null;           
+            }
+            return estado;
         }
 
-        public List<Estado> GetEstado()
+        public async Task<List<Estado>?> GetEstado()
         {
-            return [.._context.Estados];
+            return await _context.Estados.ToListAsync();
         }
     }
 }

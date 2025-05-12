@@ -1,4 +1,5 @@
-﻿using Reservas.Abstraccion.Repositorio;
+﻿using Microsoft.EntityFrameworkCore;
+using Reservas.Abstraccion.Repositorio;
 using Reservas.DTO.DTOPrestamosEquipo;
 using Reservas.Modelos;
 
@@ -18,9 +19,14 @@ namespace Reservas.Implementaciones.Repositorios
 
 
 
-        public PrestamosEquipo Actualizar(int id, ActualizarPrestamosEquipoDTO actualizarPrestamosEquipoDTO)
+        public async Task<PrestamosEquipo?> Actualizar(int id, ActualizarPrestamosEquipoDTO actualizarPrestamosEquipoDTO)
         {
-           var pEquipoExiste = GetById(id);
+           var pEquipoExiste = await GetById(id);
+
+            if (pEquipoExiste == null)
+            {
+                return null;
+            }
 
             pEquipoExiste.IdUsuario = actualizarPrestamosEquipoDTO.IdUsuario;
             pEquipoExiste.IdInventario = actualizarPrestamosEquipoDTO.IdInventario;
@@ -34,14 +40,14 @@ namespace Reservas.Implementaciones.Repositorios
 
 
             _context.Update(pEquipoExiste);
-            _context.SaveChanges();
-            var pEquipoActualizado = GetById(id);
+            await _context.SaveChangesAsync();
+            var pEquipoActualizado = await GetById(id);
             return pEquipoActualizado;
 
 
         }
 
-        public PrestamosEquipo Crear(CrearPrestamosEquipoDTO crearPrestamosEquipoDTO)
+        public async Task<PrestamosEquipo?> Crear(CrearPrestamosEquipoDTO crearPrestamosEquipoDTO)
         {
             var pEquipo = new PrestamosEquipo
             {
@@ -58,25 +64,31 @@ namespace Reservas.Implementaciones.Repositorios
             };
 
             _context.PrestamosEquipos.Add(pEquipo);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return pEquipo;
         }
 
-        public void Eliminar(int id)
+        public async Task<bool?> Eliminar(int id)
         {
-           PrestamosEquipo prestamosEquipo = GetById(id);
-            _context.Remove(prestamosEquipo);
-            _context.SaveChanges();
+           var prestamos =   await GetById(id);
+
+            if (prestamos == null)
+            {
+                return null;
+            }
+            _context.Remove(prestamos);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public PrestamosEquipo GetById(int id)
+        public async Task<PrestamosEquipo?> GetById(int id)
         {
-            return _context.PrestamosEquipos.Where(p => p.Id == id).FirstOrDefault();
+            return await _context.PrestamosEquipos.Where(p => p.Id == id).FirstOrDefaultAsync();
         }
 
-        public List<PrestamosEquipo> GetPrestamosEquipo()
+        public async Task<List<PrestamosEquipo>?> GetPrestamosEquipo()
         {
-           return [.._context.PrestamosEquipos];
+           return await _context.PrestamosEquipos.ToListAsync();
         }
     }
 }
