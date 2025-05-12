@@ -15,7 +15,7 @@ namespace Inventario.Implementaciones.Repositorios
 
         public async Task<EstadoFisico?> GetById(int id)
         {
-           return await _context.EstadoFisicos.Where( e => e.Id == id).FirstOrDefaultAsync();
+           return await _context.EstadoFisicos.Include(i=>i.InventarioEquipos).Where( e => e.Id == id).FirstOrDefaultAsync();
         }
 
         public async Task<List<EstadoFisico>?> GetEstadoFisico()

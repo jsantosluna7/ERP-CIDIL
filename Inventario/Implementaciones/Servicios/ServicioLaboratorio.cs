@@ -63,7 +63,16 @@ namespace Inventario.Implementaciones.Servicios
         //Metodo para optener los laboratorios por ID
         public async Task<Laboratorio?> GetById(int id)
         {
-            return await repositorioLaboratorio.GetById(id);
+            var lab = await repositorioLaboratorio.GetById(id);
+            return new Laboratorio
+            {
+                Id = lab.Id,
+                CodigoDeLab = lab.CodigoDeLab,
+                Capacidad = lab.Capacidad,
+                Descripcion = lab.Descripcion,
+                Horarios=lab.Horarios,
+                InventarioEquipos = lab.InventarioEquipos,
+            };
         }
 
         // Metodo para llamar todos los registros de los laboratorios

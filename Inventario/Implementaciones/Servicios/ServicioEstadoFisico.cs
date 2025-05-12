@@ -15,7 +15,13 @@ namespace Inventario.Implementaciones.Servicios
         }
         public async Task<EstadoFisico?> GetById(int id)
         {
-          return await _repositorioEstadoFisico.GetById(id);
+          var est = await _repositorioEstadoFisico.GetById(id);
+            return new EstadoFisico
+            {
+                Id =est.Id,
+                EstadoFisico1=est.EstadoFisico1,
+                InventarioEquipos=est.InventarioEquipos,
+            };
           
         }
 

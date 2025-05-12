@@ -67,7 +67,10 @@ namespace Inventario.Implementaciones.Repositorios
         //Se optienen los registros por ID
         public async Task<Laboratorio?> GetById(int id)
         {
-            return await _context.Laboratorios.Where(l => l.Id == id).FirstOrDefaultAsync();
+            return await _context.Laboratorios
+                .Include(h => h.Horarios)
+                .Include(i => i.InventarioEquipos)
+                .Where(l => l.Id == id).FirstOrDefaultAsync();
         }
 
 
