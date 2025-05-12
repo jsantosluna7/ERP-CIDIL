@@ -2,9 +2,7 @@
 {
     public class InventarioEquipoDTO
     {
-
         public int Id { get; set; }
-
         public string Nombre { get; set; } = null!;
 
         public string? NombreCorto { get; set; }
@@ -29,6 +27,10 @@
 
         public byte[]? ImagenEquipo { get; set; }
 
-        public bool? Estado { get; set; }
+        public bool? Disponible { get; set; }
+
+        public int IdEstadoFisico { get; set; }
+
+        public bool? ValidacionPrestamo { get; set; }
     }
 }

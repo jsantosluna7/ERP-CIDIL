@@ -1,6 +1,7 @@
 ﻿using Inventario.Abstraccion.Repositorio;
 using Inventario.DTO.InventarioEquipoDTO;
 using Inventario.Modelos;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Inventario.Implementaciones.Repositorios
@@ -16,9 +17,13 @@ namespace Inventario.Implementaciones.Repositorios
         }
 
         //Se utiliza el metodo Actualizar para actualizar los equipos del inventario
-        public InventarioEquipo Actualizar(int id, ActualizarInventarioEquipoDTO actualizarInventarioEquipoDTO)
+        public async Task<InventarioEquipo?> Actualizar(int id, ActualizarInventarioEquipoDTO actualizarInventarioEquipoDTO)
         {
-            var invEquipoExiste = GetById(id);
+            var invEquipoExiste = await GetById(id);
+            if (invEquipoExiste == null)
+            {
+                return null;
+            }
             
             invEquipoExiste.Nombre = actualizarInventarioEquipoDTO.Nombre;
             invEquipoExiste.NombreCorto = actualizarInventarioEquipoDTO.NombreCorto;
@@ -32,18 +37,20 @@ namespace Inventario.Implementaciones.Repositorios
             invEquipoExiste.Departamento = actualizarInventarioEquipoDTO.Departamento;
             invEquipoExiste.ImporteActivo = actualizarInventarioEquipoDTO.ImporteActivo;
             invEquipoExiste.ImagenEquipo = actualizarInventarioEquipoDTO.ImagenEquipo;
-            invEquipoExiste.Estado = actualizarInventarioEquipoDTO.Estado;
+            invEquipoExiste.Disponible = actualizarInventarioEquipoDTO.Disponible;
+            invEquipoExiste.IdEstadoFisico = actualizarInventarioEquipoDTO.IdEstadoFisico;
+            invEquipoExiste.ValidacionPrestamo = actualizarInventarioEquipoDTO.ValidacionPrestamo;
 
 
 
             _context.Update(invEquipoExiste);
             _context.SaveChanges();
-            var invEquipoActualizado = GetById(id);
+            var invEquipoActualizado = await GetById(id);
             return invEquipoActualizado;
         }
 
         //Se utiliza el metodo Crear para crear introducir los enquipos en el Base de Datos
-        public InventarioEquipo Crear(CrearInventarioEquipoDTO crearInventarioEquipoDTO)
+        public async  Task<InventarioEquipo?> Crear(CrearInventarioEquipoDTO crearInventarioEquipoDTO)
         {
 
             var invEquipo = new InventarioEquipo
@@ -60,34 +67,41 @@ namespace Inventario.Implementaciones.Repositorios
                 Departamento = crearInventarioEquipoDTO.Departamento,
                 ImporteActivo = crearInventarioEquipoDTO.ImporteActivo,
                 ImagenEquipo = crearInventarioEquipoDTO.ImagenEquipo,
-                Estado = crearInventarioEquipoDTO.Estado
+                Disponible = crearInventarioEquipoDTO.Disponible,
+                IdEstadoFisico = crearInventarioEquipoDTO.IdEstadoFisico,
+                ValidacionPrestamo = crearInventarioEquipoDTO.ValidacionPrestamo,
             };
 
-            _context.InventarioEquipos.Add(invEquipo);
-            _context.SaveChanges();
+             _context.InventarioEquipos.Add(invEquipo);
+            await _context.SaveChangesAsync();
             return invEquipo;
 
 
         }
 
         //Se utiliza el metodo Eliminar para Borrar los equipos deseados 
-        public void Eliminar(int id)
+        public async Task<bool?> Eliminar(int id)
         {
-            InventarioEquipo inventarioEquipo = GetById(id);
-            _context.Remove(inventarioEquipo);
-            _context.SaveChanges();
+            var inventarioEquipo = await GetById(id);
+            if (inventarioEquipo == null)
+            {
+                return null;
+            }
+             _context.Remove(inventarioEquipo);
+           await _context.SaveChangesAsync();
+            return true;
         }
 
         // Metodo para llamar los equipos por ID
-        public InventarioEquipo GetById(int id)
+        public async Task<InventarioEquipo?> GetById(int id)
         {
-            return _context.InventarioEquipos.Where(i => i.Id == id).FirstOrDefault();
+            return await _context.InventarioEquipos.Where(i => i.Id == id).FirstOrDefaultAsync();
         }
 
         //Metodo para optener todos los quipos reguistrados
-        public List<InventarioEquipo> GetInventarioEquipos()
+        public async Task<List<InventarioEquipo>?> GetInventarioEquipos()
         {
-           return [.._context.InventarioEquipos];
+           return await _context.InventarioEquipos.ToListAsync();
         }
     }
 }

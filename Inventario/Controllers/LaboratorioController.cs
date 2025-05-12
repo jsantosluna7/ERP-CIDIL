@@ -20,42 +20,58 @@ namespace Inventario.Controllers
 
         //Controlador para  optener el inventario del los equipos
         [HttpGet]
-        public IActionResult GetLaboratorio() 
+        public async Task<IActionResult?> GetLaboratorio() 
         {
-            var resultado = _servicioLaboratorio.GetLaboratorio();
+            var resultado =await _servicioLaboratorio.GetLaboratorio();
+            if (resultado == null)
+            {
+                return NotFound("Lista no encontrada");
+            }
             return Ok(resultado);
         }
         //Controlador para  incertar los equipos en el inventario 
         [HttpPost]
-        public IActionResult Crear(CrearLaboratorioDTO crearLaboratorioDTO)
+        public async Task<IActionResult?> Crear(CrearLaboratorioDTO crearLaboratorioDTO)
         {
-            var resultado = _servicioLaboratorio.Crear(crearLaboratorioDTO);
+            var resultado =await _servicioLaboratorio.Crear(crearLaboratorioDTO);
+            if (resultado == null)
+            {
+                return NotFound("Lista no encontrada");
+            }
             return Ok(resultado);
         }
 
         //Controlador para  Actualizar el inventario del los equipos
         [HttpPut("{id}")]
-        public IActionResult Actualizar(int id,ActualizarLaboratorioDTO actualizarLaboratorioDTO)
+        public async Task<IActionResult?> Actualizar(int id,ActualizarLaboratorioDTO actualizarLaboratorioDTO)
         {
-            var resultado = _servicioLaboratorio.Actualizar(id, actualizarLaboratorioDTO);
+            var resultado =await _servicioLaboratorio.Actualizar(id, actualizarLaboratorioDTO);
+            if (resultado == null)
+            {
+                return NotFound("Lista no encontrada");
+            }
             return Ok(resultado);
         }
 
         //Controlador para  optener el inventario del los equipos por ID
 
         [HttpGet("{id}")]
-        public IActionResult GetByid(int id)
+        public async Task<IActionResult?> GetByid(int id)
         {
-            var resultado = _servicioLaboratorio.GetById(id);
+            var resultado =await _servicioLaboratorio.GetById(id);
+            if (resultado == null)
+            {
+                return NotFound("Lista no encontrada");
+            }
             return Ok(resultado);
         }
 
         //Controlador para Borrar los equipos por ID
 
         [HttpDelete("{id}")]
-        public IActionResult Eliminar(int id)
+        public async Task<IActionResult?> Eliminar(int id)
         {
-            _servicioLaboratorio.Eliminar(id);
+          await  _servicioLaboratorio.Eliminar(id);
             return Ok();
         }
     }

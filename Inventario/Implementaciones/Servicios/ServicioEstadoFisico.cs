@@ -1,0 +1,43 @@
+﻿using Inventario.Abstraccion.Repositorio;
+using Inventario.Abstraccion.Servicios;
+using Inventario.DTO.EstadoFisicoDTO;
+using Inventario.Modelos;
+
+
+namespace Inventario.Implementaciones.Servicios
+{
+    public class ServicioEstadoFisico : IServicioEstadoFisico
+    {
+        private readonly IRepositorioEstadoFisico _repositorioEstadoFisico;
+        public ServicioEstadoFisico(IRepositorioEstadoFisico repositorioEstadoFisico)
+        {
+            _repositorioEstadoFisico = repositorioEstadoFisico;
+        }
+        public async Task<EstadoFisico?> GetById(int id)
+        {
+          return await _repositorioEstadoFisico.GetById(id);
+          
+        }
+
+        public async Task<List<EstadoFisicoDTO>?> GetEstadoFisico()
+        {
+            var eF = await _repositorioEstadoFisico.GetEstadoFisico();
+            if (eF == null)
+            {
+                return null;
+            }
+            var efDTO = new List<EstadoFisicoDTO>();
+            foreach(EstadoFisico estadoFisico in eF)
+            {
+                var nuevoEF = new EstadoFisicoDTO
+                {
+                    Id = estadoFisico.Id,
+                    EstadoFisico1 =estadoFisico.EstadoFisico1,
+                };
+                efDTO.Add(nuevoEF);
+
+            }
+            return efDTO;
+        }
+    }
+}

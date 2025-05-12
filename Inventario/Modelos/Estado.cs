@@ -11,5 +11,5 @@ public partial class Estado
 
     public virtual ICollection<PrestamosEquipo> PrestamosEquipos { get; set; } = new List<PrestamosEquipo>();
 
-    public virtual ICollection<PrestamosEspacio> PrestamosEspacios { get; set; } = new List<PrestamosEspacio>();
+    public virtual ICollection<ReservaDeEspacio> ReservaDeEspacios { get; set; } = new List<ReservaDeEspacio>();
 }

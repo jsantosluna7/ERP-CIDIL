@@ -19,41 +19,57 @@ namespace Inventario.Controllers
 
         //Controlador para  optener el inventario del los equipos
         [HttpGet]
-        public IActionResult GetInventarioEquipo()
+        public async Task<IActionResult?> GetInventarioEquipo()
         {
-            var resultado = _servicioInventarioEquipo.GetInventarioEquipo();
+            var resultado =await _servicioInventarioEquipo.GetInventarioEquipo();
+            if (resultado == null)
+            {
+                return NotFound("Lista no encontrada");
+            }
             return Ok(resultado);
         }
         //Controlador para  incertar  los equipos
         [HttpPost]
-        public IActionResult CrearInventarioEquipo(CrearInventarioEquipoDTO crearInventarioEquipoDTO)
+        public async Task<IActionResult?> CrearInventarioEquipo(CrearInventarioEquipoDTO crearInventarioEquipoDTO)
         {
-            var resultado =_servicioInventarioEquipo.Crear(crearInventarioEquipoDTO);
+            var resultado =await _servicioInventarioEquipo.Crear(crearInventarioEquipoDTO);
+            if (resultado == null)
+            {
+                return NotFound("Lista no encontrada");
+            }
             return Ok(resultado);
         }
 
         //Controlador para  Actualizar el inventario del los equipos
         [HttpPut("{id}")]
 
-        public IActionResult Actualizar(int id,ActualizarInventarioEquipoDTO actualizarInventarioEquipoDTO) 
+        public async Task<IActionResult?> Actualizar(int id,ActualizarInventarioEquipoDTO actualizarInventarioEquipoDTO) 
         {
-            var resultado = _servicioInventarioEquipo.Actualizar(id, actualizarInventarioEquipoDTO);
+            var resultado =await _servicioInventarioEquipo.Actualizar(id, actualizarInventarioEquipoDTO);
+            if (resultado == null)
+            {
+                return NotFound("Lista no encontrada");
+            }
             return Ok(resultado);
         }
 
         //Controlador para  optener por ID el inventario del los equipos
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult?> GetById(int id)
         { 
-            var resultado= _servicioInventarioEquipo.GetById(id);
+            var resultado=await _servicioInventarioEquipo.GetById(id);
+            if (resultado == null)
+            {
+                return NotFound("Lista no encontrada");
+            }
             return Ok(resultado);
         }
 
         //Controlador para  Eliminar el inventario del los equipos por ID
         [HttpDelete("{id}")]
-        public IActionResult DeleteById(int id) 
+        public async Task<IActionResult?> DeleteById(int id) 
         { 
-            _servicioInventarioEquipo.Eliminar(id);
+           await _servicioInventarioEquipo.Eliminar(id);
             return Ok();
         }
 

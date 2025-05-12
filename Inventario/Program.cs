@@ -20,10 +20,12 @@ builder.Services.AddSwaggerGen();
 // Añadir los Repositorios
 builder.Services.AddScoped<IRepositorioInventarioEquipo, RepositorioInventarioEquipo>();
 builder.Services.AddScoped<IRepositorioLaboratorio, RepositorioLaboratorio>();
+builder.Services.AddScoped<IRepositorioEstadoFisico, RepositorioEstadoFisico>();
 
 //Añadir los Servicios
 builder.Services.AddScoped<IServicioInventarioEquipo, ServicioInventarioEquipo>();
 builder.Services.AddScoped<IServicioLaboratorio, ServicioLaboratorio>();
+builder.Services.AddScoped<IServicioEstadoFisico, ServicioEstadoFisico>();
 
 
 builder.Services.AddCors(options =>

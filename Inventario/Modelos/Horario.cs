@@ -19,5 +19,7 @@ public partial class Horario
 
     public string Dia { get; set; } = null!;
 
+    public bool? Activo { get; set; }
+
     public virtual Laboratorio IdLaboratorioNavigation { get; set; } = null!;
 }

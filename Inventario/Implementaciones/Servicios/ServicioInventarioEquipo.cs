@@ -16,9 +16,13 @@ namespace Inventario.Implementaciones.Servicios
         }
 
         //Usamos el metodo actualizar los componentes 
-        public InventarioEquipoDTO Actualizar(int id, ActualizarInventarioEquipoDTO actualizarInventarioEquipoDTO)
+        public async Task<InventarioEquipoDTO?> Actualizar(int id, ActualizarInventarioEquipoDTO actualizarInventarioEquipoDTO)
         {
-           var invEquipo = repositorioInventarioEquipo.Actualizar(id, actualizarInventarioEquipoDTO);
+           var invEquipo =await repositorioInventarioEquipo.Actualizar(id, actualizarInventarioEquipoDTO);
+            if (invEquipo == null)
+            {
+                return null;
+            }
             var invEquipoDTO = new InventarioEquipoDTO
             {
                  Nombre = invEquipo.Nombre,
@@ -31,16 +35,24 @@ namespace Inventario.Implementaciones.Servicios
                  DescripcionLarga = invEquipo.DescripcionLarga,
                  ImporteActivo = invEquipo.ImporteActivo,
                  ImagenEquipo = invEquipo.ImagenEquipo,
-                 Estado = invEquipo.Estado,
+                 Disponible = invEquipo.Disponible,
+                 IdEstadoFisico = invEquipo.IdEstadoFisico,
+                 ValidacionPrestamo =invEquipo.ValidacionPrestamo,
+                 FechaTransaccion = invEquipo.FechaTransaccion,
+                 Departamento = invEquipo.Departamento,
             };
             return invEquipoDTO;
         }
 
 
         //Usamos el metodo para crear el registro de los equipos
-        public InventarioEquipoDTO Crear(CrearInventarioEquipoDTO crearInventarioEquipoDTO)
+        public async Task<InventarioEquipoDTO?> Crear(CrearInventarioEquipoDTO crearInventarioEquipoDTO)
         {
-            var invEquipo = repositorioInventarioEquipo.Crear(crearInventarioEquipoDTO);
+            var invEquipo =await repositorioInventarioEquipo.Crear(crearInventarioEquipoDTO);
+            if (invEquipo == null)
+            {
+                return null;
+            }
             var invEquipoDTO = new InventarioEquipoDTO
             {
                 Nombre = invEquipo.Nombre,
@@ -53,27 +65,40 @@ namespace Inventario.Implementaciones.Servicios
                 DescripcionLarga = invEquipo.DescripcionLarga,
                 ImporteActivo = invEquipo.ImporteActivo,
                 ImagenEquipo = invEquipo.ImagenEquipo,
-                Estado = invEquipo.Estado,
+                Disponible = invEquipo.Disponible,
+                IdEstadoFisico= invEquipo.IdEstadoFisico,
+                ValidacionPrestamo=invEquipo.ValidacionPrestamo,
+                FechaTransaccion=invEquipo.FechaTransaccion,
+                Departamento = invEquipo.Departamento,
             };
 
             return invEquipoDTO;
         }
 
         //Usamos el metodo para eliminar los registros
-        public void Eliminar(int id)
+        public async Task<bool?> Eliminar(int id)
         {
-            repositorioInventarioEquipo.Eliminar(id);
+         var r =  await repositorioInventarioEquipo.Eliminar(id);
+            if (r == null)
+            {
+                return null;
+            }
+            return r;
         }
         //Metodo para llamar los equipos por ID
-        public InventarioEquipo GetById(int id)
+        public async Task<InventarioEquipo?> GetById(int id)
         {
-            return repositorioInventarioEquipo.GetById(id);
+            return await repositorioInventarioEquipo.GetById(id);
         }
 
         //Metodo para llamar todos los registros de los equipos 
-        public List<InventarioEquipoDTO> GetInventarioEquipo()
+        public async Task<List<InventarioEquipoDTO>?> GetInventarioEquipo()
         {
-           var invEquipos = repositorioInventarioEquipo.GetInventarioEquipos();
+           var invEquipos =await repositorioInventarioEquipo.GetInventarioEquipos();
+            if(invEquipos == null)
+            {
+                return null;
+            }
            var invEquipoDTO =  new List<InventarioEquipoDTO>();
            foreach(InventarioEquipo invEquipo in invEquipos)
             {
@@ -90,7 +115,11 @@ namespace Inventario.Implementaciones.Servicios
                     DescripcionLarga = invEquipo.DescripcionLarga,
                     ImporteActivo = invEquipo.ImporteActivo,
                     ImagenEquipo = invEquipo.ImagenEquipo,
-                    Estado = invEquipo.Estado,
+                    Disponible = invEquipo.Disponible,
+                    IdEstadoFisico = invEquipo.IdEstadoFisico,
+                    ValidacionPrestamo =invEquipo.ValidacionPrestamo,
+                    FechaTransaccion = invEquipo.FechaTransaccion,
+                    Departamento = invEquipo.Departamento,
                 };
                 invEquipoDTO.Add(nuevoInvEquipo);
             }

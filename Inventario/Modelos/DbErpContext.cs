@@ -17,6 +17,8 @@ public partial class DbErpContext : DbContext
 
     public virtual DbSet<Estado> Estados { get; set; }
 
+    public virtual DbSet<EstadoFisico> EstadoFisicos { get; set; }
+
     public virtual DbSet<Horario> Horarios { get; set; }
 
     public virtual DbSet<InventarioEquipo> InventarioEquipos { get; set; }
@@ -27,7 +29,7 @@ public partial class DbErpContext : DbContext
 
     public virtual DbSet<PrestamosEquipo> PrestamosEquipos { get; set; }
 
-    public virtual DbSet<PrestamosEspacio> PrestamosEspacios { get; set; }
+    public virtual DbSet<ReservaDeEspacio> ReservaDeEspacios { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
 
@@ -35,7 +37,7 @@ public partial class DbErpContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=10.122.120.30;Database=dbERP;Username=jean;Password=1701");
+        => optionsBuilder.UseNpgsql("Host=10.122.120.52;Database=dbERP;Username=jean;Password=1701");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -53,6 +55,20 @@ public partial class DbErpContext : DbContext
                 .HasColumnName("estado");
         });
 
+        modelBuilder.Entity<EstadoFisico>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("estado_fisico_pkey");
+
+            entity.ToTable("estado_fisico");
+
+            entity.HasIndex(e => e.EstadoFisico1, "estado_fisico_estado_fisico_key").IsUnique();
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.EstadoFisico1)
+                .HasMaxLength(50)
+                .HasColumnName("estado_fisico");
+        });
+
         modelBuilder.Entity<Horario>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("horario_pkey");
@@ -60,6 +76,9 @@ public partial class DbErpContext : DbContext
             entity.ToTable("horario");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
             entity.Property(e => e.Asignatura).HasColumnName("asignatura");
             entity.Property(e => e.Dia)
                 .HasMaxLength(10)
@@ -88,9 +107,9 @@ public partial class DbErpContext : DbContext
                 .HasMaxLength(100)
                 .HasColumnName("departamento");
             entity.Property(e => e.DescripcionLarga).HasColumnName("descripcion_larga");
-            entity.Property(e => e.Estado)
+            entity.Property(e => e.Disponible)
                 .HasDefaultValue(true)
-                .HasColumnName("estado");
+                .HasColumnName("disponible");
             entity.Property(e => e.Fabricante)
                 .HasMaxLength(100)
                 .HasColumnName("fabricante");
@@ -98,6 +117,9 @@ public partial class DbErpContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp with time zone")
                 .HasColumnName("fecha_transaccion");
+            entity.Property(e => e.IdEstadoFisico)
+                .HasDefaultValue(1)
+                .HasColumnName("id_estado_fisico");
             entity.Property(e => e.IdLaboratorio).HasColumnName("id_laboratorio");
             entity.Property(e => e.ImagenEquipo).HasColumnName("imagen_equipo");
             entity.Property(e => e.ImporteActivo)
@@ -116,6 +138,14 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.Serial)
                 .HasMaxLength(100)
                 .HasColumnName("serial");
+            entity.Property(e => e.ValidacionPrestamo)
+                .HasDefaultValue(true)
+                .HasColumnName("validacion_prestamo");
+
+            entity.HasOne(d => d.IdEstadoFisicoNavigation).WithMany(p => p.InventarioEquipos)
+                .HasForeignKey(d => d.IdEstadoFisico)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("inventario_equipos_id_estado_fisico_fkey");
 
             entity.HasOne(d => d.IdLaboratorioNavigation).WithMany(p => p.InventarioEquipos)
                 .HasForeignKey(d => d.IdLaboratorio)
@@ -171,15 +201,9 @@ public partial class DbErpContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.ComentarioAprobacion).HasColumnName("comentario_aprobacion");
-            entity.Property(e => e.FechaEntrega)
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("fecha_entrega");
-            entity.Property(e => e.FechaFinal)
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("fecha_final");
-            entity.Property(e => e.FechaInicio)
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("fecha_inicio");
+            entity.Property(e => e.FechaEntrega).HasColumnName("fecha_entrega");
+            entity.Property(e => e.FechaFinal).HasColumnName("fecha_final");
+            entity.Property(e => e.FechaInicio).HasColumnName("fecha_inicio");
             entity.Property(e => e.IdEstado).HasColumnName("id_estado");
             entity.Property(e => e.IdInventario).HasColumnName("id_inventario");
             entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
@@ -191,11 +215,6 @@ public partial class DbErpContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("prestamos_equipos_id_estado_fkey");
 
-            entity.HasOne(d => d.IdInventarioNavigation).WithMany(p => p.PrestamosEquipos)
-                .HasForeignKey(d => d.IdInventario)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("prestamos_equipos_id_inventario_fkey");
-
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.PrestamosEquipoIdUsuarioNavigations)
                 .HasForeignKey(d => d.IdUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -206,49 +225,44 @@ public partial class DbErpContext : DbContext
                 .HasConstraintName("prestamos_equipos_id_usuario_aprobador_fkey");
         });
 
-        modelBuilder.Entity<PrestamosEspacio>(entity =>
+        modelBuilder.Entity<ReservaDeEspacio>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("prestamos_espacios_pkey");
 
-            entity.ToTable("prestamos_espacios");
+            entity.ToTable("reserva_de_espacios");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("nextval('prestamos_espacios_id_seq'::regclass)")
+                .HasColumnName("id");
             entity.Property(e => e.ComentarioAprobacion).HasColumnName("comentario_aprobacion");
-            entity.Property(e => e.FechaAprobacion)
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("fecha_aprobacion");
+            entity.Property(e => e.FechaAprobacion).HasColumnName("fecha_aprobacion");
             entity.Property(e => e.FechaSolicitud)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
                 .HasColumnName("fecha_solicitud");
-            entity.Property(e => e.HoraFinal)
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("hora_final");
-            entity.Property(e => e.HoraInicio)
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("hora_inicio");
+            entity.Property(e => e.HoraFinal).HasColumnName("hora_final");
+            entity.Property(e => e.HoraInicio).HasColumnName("hora_inicio");
             entity.Property(e => e.IdEstado).HasColumnName("id_estado");
             entity.Property(e => e.IdLaboratorio).HasColumnName("id_laboratorio");
             entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
             entity.Property(e => e.IdUsuarioAprobador).HasColumnName("id_usuario_aprobador");
             entity.Property(e => e.Motivo).HasColumnName("motivo");
 
-            entity.HasOne(d => d.IdEstadoNavigation).WithMany(p => p.PrestamosEspacios)
+            entity.HasOne(d => d.IdEstadoNavigation).WithMany(p => p.ReservaDeEspacios)
                 .HasForeignKey(d => d.IdEstado)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("prestamos_espacios_id_estado_fkey");
 
-            entity.HasOne(d => d.IdLaboratorioNavigation).WithMany(p => p.PrestamosEspacios)
+            entity.HasOne(d => d.IdLaboratorioNavigation).WithMany(p => p.ReservaDeEspacios)
                 .HasForeignKey(d => d.IdLaboratorio)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("prestamos_espacios_id_laboratorio_fkey");
 
-            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.PrestamosEspacioIdUsuarioNavigations)
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.ReservaDeEspacioIdUsuarioNavigations)
                 .HasForeignKey(d => d.IdUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("prestamos_espacios_id_usuario_fkey");
 
-            entity.HasOne(d => d.IdUsuarioAprobadorNavigation).WithMany(p => p.PrestamosEspacioIdUsuarioAprobadorNavigations)
+            entity.HasOne(d => d.IdUsuarioAprobadorNavigation).WithMany(p => p.ReservaDeEspacioIdUsuarioAprobadorNavigations)
                 .HasForeignKey(d => d.IdUsuarioAprobador)
                 .HasConstraintName("prestamos_espacios_id_usuario_aprobador_fkey");
         });
@@ -288,24 +302,25 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.Direccion).HasColumnName("direccion");
             entity.Property(e => e.FechaCreacion)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
                 .HasColumnName("fecha_creacion");
             entity.Property(e => e.FechaUltimaModificacion)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
                 .HasColumnName("fecha_ultima_modificacion");
             entity.Property(e => e.IdMatricula).HasColumnName("id_matricula");
-            entity.Property(e => e.IdRol).HasColumnName("id_rol");
+            entity.Property(e => e.IdRol)
+                .HasDefaultValue(4)
+                .HasColumnName("id_rol");
             entity.Property(e => e.NombreUsuario)
                 .HasMaxLength(50)
                 .HasColumnName("nombre_usuario");
+            entity.Property(e => e.ResetToken).HasColumnName("reset_token");
+            entity.Property(e => e.ResetTokenExpira).HasColumnName("reset_token_expira");
             entity.Property(e => e.Telefono)
                 .HasMaxLength(20)
                 .HasColumnName("telefono");
 
             entity.HasOne(d => d.IdRolNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.IdRol)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("usuarios_id_rol_fkey");
         });
 

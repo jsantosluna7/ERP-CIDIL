@@ -7,10 +7,10 @@ namespace Inventario.Abstraccion.Repositorio
     {
 
         //Creamos los metodos para Crear, actualizar, Eliminar y Optener
-        List<InventarioEquipo> GetInventarioEquipos();
-        InventarioEquipo GetById(int id);
-        InventarioEquipo Crear(CrearInventarioEquipoDTO crearInventarioEquipoDTO);
-        InventarioEquipo Actualizar(int id, ActualizarInventarioEquipoDTO actualizarInventarioEquipoDTO);
-        void Eliminar(int  id);
+         Task<List<InventarioEquipo>?> GetInventarioEquipos();
+         Task<InventarioEquipo?> GetById(int id);
+         Task<InventarioEquipo?> Crear(CrearInventarioEquipoDTO crearInventarioEquipoDTO);
+         Task<InventarioEquipo?> Actualizar(int id, ActualizarInventarioEquipoDTO actualizarInventarioEquipoDTO);
+         Task<bool?> Eliminar(int  id);
     }
 }

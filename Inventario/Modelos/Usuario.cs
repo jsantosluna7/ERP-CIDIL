@@ -21,19 +21,23 @@ public partial class Usuario
 
     public string? Direccion { get; set; }
 
-    public int IdRol { get; set; }
+    public int? IdRol { get; set; }
 
     public DateTime? FechaCreacion { get; set; }
 
     public DateTime? FechaUltimaModificacion { get; set; }
 
-    public virtual Role IdRolNavigation { get; set; } = null!;
+    public string? ResetToken { get; set; }
+
+    public DateTime? ResetTokenExpira { get; set; }
+
+    public virtual Role? IdRolNavigation { get; set; }
 
     public virtual ICollection<PrestamosEquipo> PrestamosEquipoIdUsuarioAprobadorNavigations { get; set; } = new List<PrestamosEquipo>();
 
     public virtual ICollection<PrestamosEquipo> PrestamosEquipoIdUsuarioNavigations { get; set; } = new List<PrestamosEquipo>();
 
-    public virtual ICollection<PrestamosEspacio> PrestamosEspacioIdUsuarioAprobadorNavigations { get; set; } = new List<PrestamosEspacio>();
+    public virtual ICollection<ReservaDeEspacio> ReservaDeEspacioIdUsuarioAprobadorNavigations { get; set; } = new List<ReservaDeEspacio>();
 
-    public virtual ICollection<PrestamosEspacio> PrestamosEspacioIdUsuarioNavigations { get; set; } = new List<PrestamosEspacio>();
+    public virtual ICollection<ReservaDeEspacio> ReservaDeEspacioIdUsuarioNavigations { get; set; } = new List<ReservaDeEspacio>();
 }

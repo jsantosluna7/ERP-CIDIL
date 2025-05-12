@@ -1,6 +1,7 @@
 ﻿using Inventario.Abstraccion.Repositorio;
 using Inventario.DTO.LaboratorioDTO;
 using Inventario.Modelos;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inventario.Implementaciones.Repositorios
 {
@@ -16,23 +17,27 @@ namespace Inventario.Implementaciones.Repositorios
 
         // se utliliza el metodo para actualizar los laboratorios
         
-        public Laboratorio Actualizar(int id, ActualizarLaboratorioDTO actualizarLaboratorioDTO)
+        public async Task<Laboratorio?> Actualizar(int id, ActualizarLaboratorioDTO actualizarLaboratorioDTO)
         {
-          var laboratorioExistente = GetById(id);
+          var laboratorioExistente = await GetById(id);
+            if (laboratorioExistente == null)
+            {
+                return null;
+            };
 
 
             laboratorioExistente.CodigoDeLab= actualizarLaboratorioDTO.CodigoDeLab;
             laboratorioExistente.Capacidad = actualizarLaboratorioDTO.Capacidad;
             laboratorioExistente.Descripcion= actualizarLaboratorioDTO.Descripcion;
 
-            _context.Update(laboratorioExistente);
-            _context.SaveChanges();
-            var laboratorioActualizado = GetById(id);
+             _context.Update(laboratorioExistente);
+            await _context.SaveChangesAsync();
+            var laboratorioActualizado = await GetById(id);
             return laboratorioActualizado;
         }
 
         // Se utiliza el metodo Para crear los laboratorios
-        public Laboratorio Crear(CrearLaboratorioDTO crearlaboratorioDTO)
+        public async Task<Laboratorio?> Crear(CrearLaboratorioDTO crearlaboratorioDTO)
         {
             var laboratorio = new Laboratorio
             {
@@ -41,33 +46,35 @@ namespace Inventario.Implementaciones.Repositorios
                 Descripcion = crearlaboratorioDTO.Descripcion,
             };
             _context.Laboratorios.Add(laboratorio);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return laboratorio;
-
-
-
         }
 
 
         //Se utiliza el metodo para eliminar el registro por ID
-        public void Eliminar(int id)
+        public async Task<bool?> Eliminar(int id)
         {
-          Laboratorio laboratorio = GetById(id);
+          var laboratorio =await GetById(id);
+            if (laboratorio == null)
+            {
+                return null;
+            }
             _context.Remove(laboratorio);
-            _context.SaveChanges();
+           await _context.SaveChangesAsync();
+            return true;
         }
 
         //Se optienen los registros por ID
-        public Laboratorio GetById(int id)
+        public async Task<Laboratorio?> GetById(int id)
         {
-            return _context.Laboratorios.Where(l => l.Id == id).FirstOrDefault();
+            return await _context.Laboratorios.Where(l => l.Id == id).FirstOrDefaultAsync();
         }
 
 
         //Se optienen todos los registros
-        public List<Laboratorio> GetLaboratorio()
+        public async Task<List<Laboratorio>?> GetLaboratorio()
         {
-           return [.. _context.Laboratorios];
+           return await _context.Laboratorios.ToListAsync();
         }
     }
 }

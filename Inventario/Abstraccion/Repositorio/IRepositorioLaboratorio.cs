@@ -6,10 +6,10 @@ namespace Inventario.Abstraccion.Repositorio
     public interface IRepositorioLaboratorio
     {
         //Creamos los metodos para Crear, actualizar, Eliminar y Optener
-        List<Laboratorio> GetLaboratorio();
-        Laboratorio GetById(int id);
-        Laboratorio Crear(CrearLaboratorioDTO laboratorioDTO);
-        Laboratorio Actualizar(int id, ActualizarLaboratorioDTO actualizarLaboratorioDTO);
-        void Eliminar(int id);
+        Task<List<Laboratorio>?> GetLaboratorio();
+        Task<Laboratorio?> GetById(int id);
+        Task<Laboratorio?> Crear(CrearLaboratorioDTO laboratorioDTO);
+        Task<Laboratorio?> Actualizar(int id, ActualizarLaboratorioDTO actualizarLaboratorioDTO);
+        Task<bool?> Eliminar(int id);
     }
 }

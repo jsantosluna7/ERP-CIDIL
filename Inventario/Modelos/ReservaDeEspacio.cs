@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Inventario.Modelos;
 
-public partial class PrestamosEspacio
+public partial class ReservaDeEspacio
 {
     public int Id { get; set; }
 

@@ -16,9 +16,13 @@ namespace Inventario.Implementaciones.Servicios
         }   
 
         //Metodo para actualizar los laboratorios
-        public LaboratorioDTO Actualizar(int id, ActualizarLaboratorioDTO actualizarlaboratorioDTO)
+        public async Task<LaboratorioDTO?> Actualizar(int id, ActualizarLaboratorioDTO actualizarlaboratorioDTO)
         {
-           var laboratorio = repositorioLaboratorio.Actualizar(id,actualizarlaboratorioDTO);
+           var laboratorio =await repositorioLaboratorio.Actualizar(id,actualizarlaboratorioDTO);
+            if (laboratorio == null)
+            {
+                return null;
+            }
             var laboratorioDTO = new LaboratorioDTO
             {
                 CodigoDeLab = laboratorio.CodigoDeLab,
@@ -29,9 +33,13 @@ namespace Inventario.Implementaciones.Servicios
         }
 
         //Metodo para crear los espcacios de los laboratorios
-        public LaboratorioDTO Crear(CrearLaboratorioDTO crearlaboratorioDTO)
+        public async Task<LaboratorioDTO?> Crear(CrearLaboratorioDTO crearlaboratorioDTO)
         {
-            var laboratorio = repositorioLaboratorio .Crear(crearlaboratorioDTO);
+            var laboratorio = await repositorioLaboratorio .Crear(crearlaboratorioDTO);
+            if (laboratorio == null)
+            {
+                return null;
+            }
             var laboratorioDTO = new LaboratorioDTO
             {
                 CodigoDeLab = laboratorio .CodigoDeLab,
@@ -42,21 +50,30 @@ namespace Inventario.Implementaciones.Servicios
         }
 
         //Metodo para eliminar el reguistro de los laboratotio
-        public void Eliminar(int id)
+        public async Task<bool?>  Eliminar(int id)
         {
-            repositorioLaboratorio.Eliminar(id);
+           var r = await repositorioLaboratorio.Eliminar(id);
+            if (r == null)
+            {
+                return null;
+            }
+            return r;
         }
 
         //Metodo para optener los laboratorios por ID
-        public Laboratorio GetById(int id)
+        public async Task<Laboratorio?> GetById(int id)
         {
-            return repositorioLaboratorio.GetById(id);
+            return await repositorioLaboratorio.GetById(id);
         }
 
         // Metodo para llamar todos los registros de los laboratorios
-        public List<LaboratorioDTO> GetLaboratorio()
+        public async Task<List<LaboratorioDTO>?> GetLaboratorio()
         {
-            var laboratorio = repositorioLaboratorio.GetLaboratorio();
+            var laboratorio =await repositorioLaboratorio.GetLaboratorio();
+            if (laboratorio == null)
+            {
+                return null ;
+            }
             var laboratorioDTO = new List<LaboratorioDTO>();
             foreach(Laboratorio laboratorio1 in laboratorio)
             {

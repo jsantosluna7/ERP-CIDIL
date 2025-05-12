@@ -27,6 +27,10 @@
 
         public byte[]? ImagenEquipo { get; set; }
 
-        public bool? Estado { get; set; }
+        public bool? Disponible { get; set; }
+
+        public int IdEstadoFisico { get; set; }
+
+        public bool? ValidacionPrestamo { get; set; }
     }
 }
