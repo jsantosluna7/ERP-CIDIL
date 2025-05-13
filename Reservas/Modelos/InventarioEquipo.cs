@@ -40,4 +40,6 @@ public partial class InventarioEquipo
     public virtual EstadoFisico IdEstadoFisicoNavigation { get; set; } = null!;
 
     public virtual Laboratorio IdLaboratorioNavigation { get; set; } = null!;
+
+    public virtual ICollection<SolicitudPrestamosDeEquipo> SolicitudPrestamosDeEquipos { get; set; } = new List<SolicitudPrestamosDeEquipo>();
 }

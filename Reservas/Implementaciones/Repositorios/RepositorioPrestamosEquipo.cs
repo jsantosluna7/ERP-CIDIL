@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Reservas.Abstraccion.Repositorio;
 using Reservas.DTO.DTOPrestamosEquipo;
+using Reservas.Implementaciones.Servicios;
 using Reservas.Modelos;
 
 namespace Reservas.Implementaciones.Repositorios
@@ -10,14 +11,16 @@ namespace Reservas.Implementaciones.Repositorios
 
 
         private readonly DbErpContext _context;
+        private readonly ServicioEmail _servicioEmail;
 
-        public RepositorioPrestamosEquipo(DbErpContext context)
+        public RepositorioPrestamosEquipo(DbErpContext context, ServicioEmail servicioEmail)
         {
             _context = context;
+            _servicioEmail = servicioEmail;
         }
 
 
-
+        
 
         public async Task<PrestamosEquipo?> Actualizar(int id, ActualizarPrestamosEquipoDTO actualizarPrestamosEquipoDTO)
         {
@@ -86,9 +89,13 @@ namespace Reservas.Implementaciones.Repositorios
             return await _context.PrestamosEquipos.Where(p => p.Id == id).FirstOrDefaultAsync();
         }
 
+        
+
         public async Task<List<PrestamosEquipo>?> GetPrestamosEquipo()
         {
            return await _context.PrestamosEquipos.ToListAsync();
         }
+
+       
     }
 }
