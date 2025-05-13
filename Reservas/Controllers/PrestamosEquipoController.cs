@@ -18,37 +18,54 @@ namespace Reservas.Controllers
 
 
         [HttpGet]
-        public IActionResult GetPrestamosEquipo()
+        public async Task<IActionResult?> GetPrestamosEquipo()
         {
-            var resultado = _prestamosEquipo.GetPrestamosEquipo();
+            var resultado = await _prestamosEquipo.GetPrestamosEquipo();
+            if (resultado == null)
+            {
+                return NotFound("Lista de Prestamos no encontrada");
+            }
             return Ok(resultado);
         }
 
         [HttpPost]
-        public IActionResult Crear(CrearPrestamosEquipoDTO crearPrestamosEquipoDTO)
+        public async Task<IActionResult?> Crear(CrearPrestamosEquipoDTO crearPrestamosEquipoDTO)
         {
-            var resultado = _prestamosEquipo.Crear(crearPrestamosEquipoDTO);
+            var resultado = await _prestamosEquipo.Crear(crearPrestamosEquipoDTO);
+            if (resultado == null)
+            {
+                return NotFound("No se pudo crear su solicitud");
+            }
             return Ok(resultado);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Actualizar(int id, ActualizarPrestamosEquipoDTO actualizarPrestamosEquipoDTO)
+        public async Task<IActionResult?> Actualizar(int id, ActualizarPrestamosEquipoDTO actualizarPrestamosEquipoDTO)
         {
-            var resultado = _prestamosEquipo.Actualizar(id, actualizarPrestamosEquipoDTO);
+            var resultado = await _prestamosEquipo.Actualizar(id, actualizarPrestamosEquipoDTO);
+            if (resultado == null)
+            {
+                return NotFound("No se pudo actualizar su solicitud");
+            }
             return Ok(resultado);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult?> GetById(int id)
         {
-            var resultado = _prestamosEquipo.GetById(id);
+            var resultado = await _prestamosEquipo.GetById(id);
+            if (resultado == null)
+            {
+                return NotFound("La Lista de Prestamos de Equipos no fue encontrada");
+            }
             return Ok(resultado);
+            
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteById(int id)
+        public async  Task<IActionResult?> DeleteById(int id)
         {
-            _prestamosEquipo.Eliminar(id);
+           await _prestamosEquipo.Eliminar(id);
             return Ok();
         }
     }

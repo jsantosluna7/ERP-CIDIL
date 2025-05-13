@@ -2,6 +2,7 @@
 using Reservas.Abstraccion.Servicios;
 using Reservas.DTO.DTOPrestamosEquipo;
 using Reservas.Modelos;
+using System.Xml;
 
 namespace Reservas.Implementaciones.Servicios
 {
@@ -18,11 +19,13 @@ namespace Reservas.Implementaciones.Servicios
         }
 
 
-
-
-        public PrestamosEquipoDTO Actualizar(int id, ActualizarPrestamosEquipoDTO actualizarPrestamosEquipoDTO)
+        public async Task<PrestamosEquipoDTO?> Actualizar(int id, ActualizarPrestamosEquipoDTO actualizarPrestamosEquipoDTO)
         {
-           var pEquipo = repositorioPrestamosEquipo.Actualizar(id,actualizarPrestamosEquipoDTO);
+           var pEquipo = await repositorioPrestamosEquipo.Actualizar(id,actualizarPrestamosEquipoDTO);
+            if (pEquipo == null)
+            {
+                return null;
+            }
             var pEquipoDTO = new PrestamosEquipoDTO
             {
                 IdUsuario = pEquipo.IdUsuario,
@@ -39,9 +42,13 @@ namespace Reservas.Implementaciones.Servicios
             return pEquipoDTO;
         }
 
-        public PrestamosEquipoDTO Crear(CrearPrestamosEquipoDTO crearPrestamosEquipoDTO)
+        public async Task<PrestamosEquipoDTO?> Crear(CrearPrestamosEquipoDTO crearPrestamosEquipoDTO)
         {
-            var pEquipo = repositorioPrestamosEquipo.Crear(crearPrestamosEquipoDTO);
+            var pEquipo = await repositorioPrestamosEquipo.Crear(crearPrestamosEquipoDTO);
+            if (pEquipo == null)
+            {
+                return null;
+            }
             var pEquipoDTO = new PrestamosEquipoDTO
             {
                 IdUsuario = pEquipo.IdUsuario,
@@ -57,20 +64,33 @@ namespace Reservas.Implementaciones.Servicios
             return pEquipoDTO;
         }
 
-        public void Eliminar(int id)
+        public async Task<bool?> Eliminar(int id)
         {
-            repositorioPrestamosEquipo.Eliminar(id);
+          var e = await repositorioPrestamosEquipo.Eliminar(id);
+            if (e == null)
+            {
+                return null;
+            }
+            return e;
         }
 
-        public PrestamosEquipo GetById(int id)
+        public async Task<PrestamosEquipo?> GetById(int id)
         {
-            return repositorioPrestamosEquipo.GetById(id);
+            return await repositorioPrestamosEquipo.GetById(id);
         }
 
-        public List<PrestamosEquipoDTO> GetPrestamosEquipo()
+        public async Task<List<PrestamosEquipoDTO>?> GetPrestamosEquipo()
         {
-            var pEquipo = repositorioPrestamosEquipo.GetPrestamosEquipo();
+            var pEquipo = await repositorioPrestamosEquipo.GetPrestamosEquipo();
+            if (pEquipo == null)
+            {
+                return null;
+            }
             var pEquipoDTO = new List<PrestamosEquipoDTO>();
+            foreach (var p in pEquipo)
+            {
+                return pEquipoDTO;
+            }
             foreach(PrestamosEquipo prestamosEquipo in pEquipo)
             {
                 var nuevoPEquipo = new PrestamosEquipoDTO
