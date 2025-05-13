@@ -1,0 +1,15 @@
+﻿using Inventario.DTO.LaboratorioDTO;
+using Inventario.Modelos;
+
+namespace Inventario.Abstraccion.Repositorio
+{
+    public interface IRepositorioLaboratorio
+    {
+        //Creamos los metodos para Crear, actualizar, Eliminar y Optener
+        Task<List<Laboratorio>?> GetLaboratorio();
+        Task<Laboratorio?> GetById(int id);
+        Task<Laboratorio?> Crear(CrearLaboratorioDTO laboratorioDTO);
+        Task<Laboratorio?> Actualizar(int id, ActualizarLaboratorioDTO actualizarLaboratorioDTO);
+        Task<bool?> Eliminar(int id);
+    }
+}
