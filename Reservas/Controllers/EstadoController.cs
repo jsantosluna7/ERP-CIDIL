@@ -21,7 +21,7 @@ namespace Reservas.Controllers
             var resultado = await _servicioEstado.GetEstado();
             if (resultado == null)
             {
-                return NotFound("Lista no encontrada");
+                return NotFound("Lista de estado no encontrada");
             }
             return Ok(resultado);
         }
@@ -32,7 +32,7 @@ namespace Reservas.Controllers
             var resultado = await _servicioEstado.GetById(id);
             if (resultado == null)
             {
-                return NotFound("Lista No encontrada");
+                return NotFound("Lista de Estado No encontrada");
             }
             return Ok(resultado);
         }

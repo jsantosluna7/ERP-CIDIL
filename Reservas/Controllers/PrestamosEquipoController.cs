@@ -23,7 +23,7 @@ namespace Reservas.Controllers
             var resultado = await _prestamosEquipo.GetPrestamosEquipo();
             if (resultado == null)
             {
-                return NotFound("Lista no encontrada");
+                return NotFound("Lista de Prestamos no encontrada");
             }
             return Ok(resultado);
         }
@@ -34,7 +34,7 @@ namespace Reservas.Controllers
             var resultado = await _prestamosEquipo.Crear(crearPrestamosEquipoDTO);
             if (resultado == null)
             {
-                return NotFound("Lista no encontrada");
+                return NotFound("No se pudo crear su solicitud");
             }
             return Ok(resultado);
         }
@@ -45,7 +45,7 @@ namespace Reservas.Controllers
             var resultado = await _prestamosEquipo.Actualizar(id, actualizarPrestamosEquipoDTO);
             if (resultado == null)
             {
-                return NotFound("Lista no encontrada");
+                return NotFound("No se pudo actualizar su solicitud");
             }
             return Ok(resultado);
         }
@@ -56,7 +56,7 @@ namespace Reservas.Controllers
             var resultado = await _prestamosEquipo.GetById(id);
             if (resultado == null)
             {
-                return NotFound("Lista no encontrada");
+                return NotFound("La Lista de Prestamos de Equipos no fue encontrada");
             }
             return Ok(resultado);
             
