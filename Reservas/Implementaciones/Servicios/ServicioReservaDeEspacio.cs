@@ -52,39 +52,6 @@ namespace Reservas.Implementaciones.Servicios
             return reservasDTO;
         }
 
-        // Método para obtener las solicitudes de reserva
-        public async Task<List<SolicitudDeReservaDTO>?> ObtenerSolicitudesReservas()
-        {
-            var solicitudes = await _repositorioReservaDeEspacio.ObtenerSolicitudesReservas();
-
-            if (solicitudes == null || solicitudes.Count == 0)
-            {
-                return null;
-            }
-
-            var solicitudesDTO = new List<SolicitudDeReservaDTO>();
-
-            // Recorrer la lista de solicitudes y convertir cada una a SolicitudDeReservaDTO
-            foreach (var solicitud in solicitudes)
-            {
-                var solicitudDTO = new SolicitudDeReservaDTO()
-                {
-                    Id = solicitud.Id,
-                    IdUsuario = solicitud.IdUsuario,
-                    IdLaboratorio = solicitud.IdLaboratorio,
-                    HoraInicio = solicitud.HoraInicio,
-                    HoraFinal = solicitud.HoraFinal,
-                    Motivo = solicitud.Motivo,
-                    FechaSolicitud = solicitud.FechaSolicitud,
-                    IdEstado = solicitud.IdEstado
-                };
-                // Agregar la solicitudDTO a la lista de solicitudesDTO
-                solicitudesDTO.Add(solicitudDTO);
-            }
-
-            return solicitudesDTO;
-        }
-
         // Método para obtener una reserva por id
         public async Task<ReservaDeEspacioDTO?> ObtenerReservaPorId(int id)
         {
@@ -108,28 +75,6 @@ namespace Reservas.Implementaciones.Servicios
                 ComentarioAprobacion = reserva.ComentarioAprobacion
             };
             return reservaDTO;
-        }
-
-        // Método para obtener una solicitud de reserva por id
-        public async Task<SolicitudDeReservaDTO?> ObtenerSolicitudReservaPorId(int id)
-        {
-            var solicitud = await _repositorioReservaDeEspacio.ObtenerSolicitudReservaPorId(id);
-            if (solicitud == null)
-            {
-                return null;
-            }
-            var solicitudDTO = new SolicitudDeReservaDTO()
-            {
-                Id = solicitud.Id,
-                IdUsuario = solicitud.IdUsuario,
-                IdLaboratorio = solicitud.IdLaboratorio,
-                HoraInicio = solicitud.HoraInicio,
-                HoraFinal = solicitud.HoraFinal,
-                Motivo = solicitud.Motivo,
-                FechaSolicitud = solicitud.FechaSolicitud,
-                IdEstado = solicitud.IdEstado
-            };
-            return solicitudDTO;
         }
 
         // Método para crear una reserva
@@ -161,26 +106,6 @@ namespace Reservas.Implementaciones.Servicios
             return reservaDTO;
         }
 
-        // Método para solicitar una reserva
-        public async Task<CrearSolicitudDeReservaDTO?> SolicitarCrearReserva(CrearSolicitudDeReservaDTO crearSolicitudDeReservaDTO)
-        {
-            var solicitud = await _repositorioReservaDeEspacio.SolicitarCrearReserva(crearSolicitudDeReservaDTO);
-            if (solicitud == null)
-            {
-                return null;
-            }
-            var solicitudDTO = new CrearSolicitudDeReservaDTO()
-            {
-                IdUsuario = solicitud.IdUsuario,
-                IdLaboratorio = solicitud.IdLaboratorio,
-                HoraInicio = solicitud.HoraInicio,
-                HoraFinal = solicitud.HoraFinal,
-                Motivo = solicitud.Motivo,
-                FechaSolicitud = solicitud.FechaSolicitud
-            };
-            return solicitudDTO;
-        }
-
         // Método para editar una reserva
         public async Task<ActualizarReservaDeEspacioDTO?> EditarReserva(int id, ActualizarReservaDeEspacioDTO actualizarReservaDeEspacioDTO)
         {
@@ -205,40 +130,10 @@ namespace Reservas.Implementaciones.Servicios
             return reservaDTO;
         }
 
-        // Método para editar una solicitud de reserva
-        public async Task<ActualizarSolicitudDeReservaDTO?> EditarSolicitudReserva(int id, ActualizarSolicitudDeReservaDTO actualizarSolicitudDeReservaDTO)
-        {
-            var solicitud = await _repositorioReservaDeEspacio.EditarSolicitudReserva(id, actualizarSolicitudDeReservaDTO);
-            if (solicitud == null)
-            {
-                return null;
-            }
-            var solicitudDTO = new ActualizarSolicitudDeReservaDTO()
-            {
-                IdLaboratorio = solicitud.IdLaboratorio,
-                HoraInicio = solicitud.HoraInicio,
-                HoraFinal = solicitud.HoraFinal,
-                Motivo = solicitud.Motivo,
-                FechaSolicitud = solicitud.FechaSolicitud
-            };
-            return solicitudDTO;
-        }
-
         // Método para cancelar una reserva
         public async Task<bool?> CancelarReserva(int id)
         {
             var resultado = await _repositorioReservaDeEspacio.CancelarReserva(id);
-            if (resultado == null)
-            {
-                return null;
-            }
-            return resultado;
-        }
-
-        // Método para cancelar una solicitud de reserva
-        public async Task<bool?> CancelarSolicitudReserva(int id)
-        {
-            var resultado = await _repositorioReservaDeEspacio.CancelarSolicitudReserva(id);
             if (resultado == null)
             {
                 return null;

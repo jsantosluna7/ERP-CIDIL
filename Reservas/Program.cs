@@ -24,6 +24,7 @@ builder.Services.AddScoped<IRepositorioPrestamosEquipo, RepositorioPrestamosEqui
 builder.Services.AddScoped<IRepositorioEstado, RepositorioEstado>();
 builder.Services.AddScoped<IRepositorioHorario, RepositorioHorario>();
 builder.Services.AddScoped<IRepositorioReservaDeEspacio, RepositorioReservaDeEspacio>();
+builder.Services.AddScoped<IRepositorioSolicitudDeReserva, RepositorioSolicitudDeReserva>();
 
 //Añadir Servicios
 
@@ -31,10 +32,12 @@ builder.Services.AddScoped<IServicioPrestamosEquipo, ServicioPrestamosEquipo>();
 builder.Services.AddScoped<IServicioEstado, ServicioEstado>();
 builder.Services.AddScoped<IServicioHorario, ServicioHorario>();
 builder.Services.AddScoped<IServicioReservaDeEspacio, ServicioReservaDeEspacio>();
+builder.Services.AddScoped<IServicioSolicitudDeReserva, ServicioSolicitudDeReserva>();
 
 //Añadimos el servicio de email
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
 builder.Services.AddScoped<ServicioEmail>();
+builder.Services.AddScoped<ServicioConflictos>();
 
 
 //builder.Services.AddCors(options =>

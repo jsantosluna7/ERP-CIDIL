@@ -1,0 +1,127 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Reservas.Abstraccion.Repositorio;
+using Reservas.DTO.DTOSolicitudDeReserva;
+using Reservas.Implementaciones.Servicios;
+using Reservas.Modelos;
+
+namespace Reservas.Implementaciones.Repositorios
+{
+    public class RepositorioSolicitudDeReserva : IRepositorioSolicitudDeReserva
+    {
+        private readonly DbErpContext _context;
+        private readonly ServicioEmail _servicioEmail;
+        private readonly ServicioConflictos _servicioConflictos;
+        public RepositorioSolicitudDeReserva(DbErpContext context, ServicioEmail servicioEmail, ServicioConflictos servicioConflictos)
+        {
+            _context = context;
+            _servicioEmail = servicioEmail;
+            _servicioConflictos = servicioConflictos;
+        }
+
+        //Método para obtener todas las solicitudes de reserva
+        public async Task<List<SolicitudReservaDeEspacio>> ObtenerSolicitudesReservas()
+        {
+            return await _context.SolicitudReservaDeEspacios.ToListAsync();
+        }
+
+        //Método para obtener todas las solicitudes de reserva por id
+        public async Task<SolicitudReservaDeEspacio?> ObtenerSolicitudReservaPorId(int id)
+        {
+            var solicitudReserva = await _context.SolicitudReservaDeEspacios.FirstOrDefaultAsync(r => r.Id == id);
+            if (solicitudReserva == null)
+            {
+                return null;
+            }
+            return solicitudReserva;
+        }
+
+        //Método para que el usuario solicite una reserva
+        public async Task<SolicitudReservaDeEspacio?> SolicitarCrearReserva(CrearSolicitudDeReservaDTO crearSolicitudDeReservaDTO)
+        {
+            //verificar si la reserva ya existe
+            bool conflictoCompleto = await _servicioConflictos.conflictoReserva(crearSolicitudDeReservaDTO.IdLaboratorio, crearSolicitudDeReservaDTO.HoraInicio, crearSolicitudDeReservaDTO.HoraFinal, crearSolicitudDeReservaDTO.FechaSolicitud);
+
+            if (!conflictoCompleto)
+            {
+                return null;
+            }
+
+            //Crear la reserva
+            var solicitudReservaCrear = new SolicitudReservaDeEspacio
+            {
+                IdUsuario = crearSolicitudDeReservaDTO.IdUsuario,
+                IdLaboratorio = crearSolicitudDeReservaDTO.IdLaboratorio,
+                HoraInicio = crearSolicitudDeReservaDTO.HoraInicio,
+                HoraFinal = crearSolicitudDeReservaDTO.HoraFinal,
+                Motivo = crearSolicitudDeReservaDTO.Motivo,
+                FechaSolicitud = DateTime.UtcNow
+            };
+
+            var usuario = await _context.Usuarios.Where(u => u.IdRol == 2).ToListAsync();
+
+            foreach (var usuarios in usuario)
+            {
+                await _servicioEmail.EnviarCorreoReserva(usuarios.CorreoInstitucional); //Agregar la url que porque el usuario aprobador podra acceder al id de la solicitud
+            }
+
+            _context.SolicitudReservaDeEspacios.Add(solicitudReservaCrear);
+            await _context.SaveChangesAsync();
+
+            return solicitudReservaCrear;
+        }
+
+        //Método para que el usuario cancele una solicitud de reserva
+        public async Task<bool?> CancelarSolicitudReserva(int id)
+        {
+            var solicitudReserva = await ObtenerSolicitudReservaPorId(id);
+            if (solicitudReserva == null)
+            {
+                return null;
+            }
+            _context.SolicitudReservaDeEspacios.Remove(solicitudReserva);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        //Método para que el usuario edite una solicitud de reserva
+        public async Task<SolicitudReservaDeEspacio?> EditarSolicitudReserva(int id, ActualizarSolicitudDeReservaDTO actualizarSolicitudDeReservaDTO)
+        {
+            var solicitudReserva = await ObtenerSolicitudReservaPorId(id);
+            if (solicitudReserva == null)
+            {
+                return null;
+            }
+
+            solicitudReserva.IdLaboratorio = actualizarSolicitudDeReservaDTO.IdLaboratorio ?? solicitudReserva.IdLaboratorio;
+            solicitudReserva.HoraInicio = actualizarSolicitudDeReservaDTO.HoraInicio ?? solicitudReserva.HoraInicio;
+            solicitudReserva.HoraFinal = actualizarSolicitudDeReservaDTO.HoraFinal ?? solicitudReserva.HoraFinal;
+            solicitudReserva.Motivo = actualizarSolicitudDeReservaDTO.Motivo ?? solicitudReserva.Motivo;
+            solicitudReserva.FechaSolicitud = DateTime.UtcNow;
+
+            //verificar si la reserva ya existe
+            bool conflicto = await _servicioConflictos.conflictoReservaActualizar(solicitudReserva.Id, solicitudReserva.IdLaboratorio, solicitudReserva.HoraInicio, solicitudReserva.HoraFinal, solicitudReserva.FechaSolicitud);
+
+            if (!conflicto)
+            {
+                return null; //si la reserva ya existe retorna null
+            }
+
+            var usuario = await _context.Usuarios.Where(u => u.IdRol == 2).ToListAsync();
+
+            var usuarioSolicitante = await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == solicitudReserva.IdUsuario);
+
+            foreach (var usuarios in usuario)
+            {
+                await _servicioEmail.EnviarCorreoReservaMoficación(usuarios.CorreoInstitucional, usuarioSolicitante.NombreUsuario, usuarioSolicitante.ApellidoUsuario);
+            }
+
+            //Actualizar la reserva
+            _context.Update(solicitudReserva);
+            await _context.SaveChangesAsync();
+
+            // Obtener la solicitud de reserva actualizada
+            var solicitudActualizada = await ObtenerSolicitudReservaPorId(id);
+            return solicitudActualizada;
+        }
+    }
+}
