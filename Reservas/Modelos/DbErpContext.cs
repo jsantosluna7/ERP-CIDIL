@@ -298,14 +298,15 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.FechaSolicitud)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("fecha_solicitud");
-            entity.Property(e => e.IdEstado).HasColumnName("id_estado");
+            entity.Property(e => e.IdEstado)
+                .HasDefaultValue(2)
+                .HasColumnName("id_estado");
             entity.Property(e => e.IdInventario).HasColumnName("id_inventario");
             entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
             entity.Property(e => e.Motivo).HasColumnName("motivo");
 
             entity.HasOne(d => d.IdEstadoNavigation).WithMany(p => p.SolicitudPrestamosDeEquipos)
                 .HasForeignKey(d => d.IdEstado)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("solicitud_prestamos_de_equipos_id_estado_fkey");
 
             entity.HasOne(d => d.IdInventarioNavigation).WithMany(p => p.SolicitudPrestamosDeEquipos)
