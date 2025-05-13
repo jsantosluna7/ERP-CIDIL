@@ -25,7 +25,7 @@ namespace Inventario.Controllers
             var resultado =await _servicioLaboratorio.GetLaboratorio();
             if (resultado == null)
             {
-                return NotFound("Lista no encontrada");
+                return NotFound("No se Pudo Encontrar la Lista de Laboratorios");
             }
             return Ok(resultado);
         }
@@ -36,7 +36,7 @@ namespace Inventario.Controllers
             var resultado =await _servicioLaboratorio.Crear(crearLaboratorioDTO);
             if (resultado == null)
             {
-                return NotFound("Lista no encontrada");
+                return NotFound("No se pudo Crear la lista de Laboratorio");
             }
             return Ok(resultado);
         }
@@ -48,7 +48,7 @@ namespace Inventario.Controllers
             var resultado =await _servicioLaboratorio.Actualizar(id, actualizarLaboratorioDTO);
             if (resultado == null)
             {
-                return NotFound("Lista no encontrada");
+                return NotFound("No se pudo Actualizar la lista de Laboratorios");
             }
             return Ok(resultado);
         }
@@ -61,7 +61,7 @@ namespace Inventario.Controllers
             var resultado =await _servicioLaboratorio.GetById(id);
             if (resultado == null)
             {
-                return NotFound("Lista no encontrada");
+                return NotFound($"No se pudo encontrar el Laboratorio con el ID:{id}");
             }
             return Ok(resultado);
         }

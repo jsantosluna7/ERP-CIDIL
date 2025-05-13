@@ -21,7 +21,7 @@ namespace Inventario.Controllers
             var resultado = await _estadoFisico.GetEstadoFisico();
             if (resultado == null)
             {
-                return NotFound("Lista no encontrada");
+                return NotFound("Lista de estado no encontrada");
             }
             return Ok(resultado);
         }
@@ -32,7 +32,7 @@ namespace Inventario.Controllers
             var resultado = await _estadoFisico.GetById(id);
             if (resultado == null)
             {
-                return NotFound("Lista no encontrada");
+                return NotFound("Lista de estado no encontrada");
             }
             return Ok(resultado);
         }

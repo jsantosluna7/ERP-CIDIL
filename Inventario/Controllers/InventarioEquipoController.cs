@@ -24,7 +24,7 @@ namespace Inventario.Controllers
             var resultado =await _servicioInventarioEquipo.GetInventarioEquipo();
             if (resultado == null)
             {
-                return NotFound("Lista no encontrada");
+                return NotFound("Lista de Inventario de Equipos no encontrada");
             }
             return Ok(resultado);
         }
@@ -35,7 +35,7 @@ namespace Inventario.Controllers
             var resultado =await _servicioInventarioEquipo.Crear(crearInventarioEquipoDTO);
             if (resultado == null)
             {
-                return NotFound("Lista no encontrada");
+                return NotFound("No se pudo crear el inventario de Equipos");
             }
             return Ok(resultado);
         }
@@ -48,7 +48,7 @@ namespace Inventario.Controllers
             var resultado =await _servicioInventarioEquipo.Actualizar(id, actualizarInventarioEquipoDTO);
             if (resultado == null)
             {
-                return NotFound("Lista no encontrada");
+                return NotFound("No se Pudo Actualizar el Inventario");
             }
             return Ok(resultado);
         }
@@ -60,7 +60,7 @@ namespace Inventario.Controllers
             var resultado=await _servicioInventarioEquipo.GetById(id);
             if (resultado == null)
             {
-                return NotFound("Lista no encontrada");
+                return NotFound("No se pudo Encontrar el inventario ");
             }
             return Ok(resultado);
         }
