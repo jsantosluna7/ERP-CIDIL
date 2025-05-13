@@ -7,17 +7,21 @@ public partial class Horario
 {
     public int Id { get; set; }
 
-    public string Asignatura { get; set; } = null!;
+    public string? Asignatura { get; set; }
 
-    public string Profesor { get; set; } = null!;
+    public string? Profesor { get; set; }
 
-    public int IdLaboratorio { get; set; }
+    public int? IdLaboratorio { get; set; }
 
-    public TimeOnly HoraInicio { get; set; }
+    public TimeOnly? HoraInicio { get; set; }
 
-    public TimeOnly HoraFinal { get; set; }
+    public TimeOnly? HoraFinal { get; set; }
 
-    public string Dia { get; set; } = null!;
+    public string? Dia { get; set; }
 
-    public virtual Laboratorio IdLaboratorioNavigation { get; set; } = null!;
+    public bool? Activo { get; set; }
+
+    public DateTime? FechaCreacion { get; set; }
+
+    public virtual Laboratorio? IdLaboratorioNavigation { get; set; }
 }

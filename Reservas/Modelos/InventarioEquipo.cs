@@ -31,9 +31,13 @@ public partial class InventarioEquipo
 
     public byte[]? ImagenEquipo { get; set; }
 
-    public bool? Estado { get; set; }
+    public bool? Disponible { get; set; }
+
+    public int IdEstadoFisico { get; set; }
+
+    public bool? ValidacionPrestamo { get; set; }
+
+    public virtual EstadoFisico IdEstadoFisicoNavigation { get; set; } = null!;
 
     public virtual Laboratorio IdLaboratorioNavigation { get; set; } = null!;
-
-    public virtual ICollection<PrestamosEquipo> PrestamosEquipos { get; set; } = new List<PrestamosEquipo>();
 }

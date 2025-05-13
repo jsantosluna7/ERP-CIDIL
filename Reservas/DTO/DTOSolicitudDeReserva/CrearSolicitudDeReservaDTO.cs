@@ -1,6 +1,6 @@
-﻿namespace Reservas.DTO.DTOReservaDeEspacio
+﻿namespace Reservas.DTO.DTOSolicitudDeReserva
 {
-    public class CrearReservaDeEspacioDTO
+    public class CrearSolicitudDeReservaDTO
     {
         public int IdUsuario { get; set; }
 
@@ -10,17 +10,9 @@
 
         public TimeOnly HoraFinal { get; set; }
 
-        public int IdEstado { get; set; }
-
         public string Motivo { get; set; } = null!;
 
         public DateTime? FechaSolicitud { get; set; }
-
-        public int? IdUsuarioAprobador { get; set; }
-
-        public DateTime? FechaAprobacion { get; set; }
-
-        public string? ComentarioAprobacion { get; set; }
-
+        //public int? IdEstado { get; set; }
     }
 }

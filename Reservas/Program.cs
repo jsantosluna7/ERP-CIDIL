@@ -22,21 +22,30 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IRepositorioPrestamosEquipo, RepositorioPrestamosEquipo>();
 builder.Services.AddScoped<IRepositorioEstado, RepositorioEstado>();
+builder.Services.AddScoped<IRepositorioHorario, RepositorioHorario>();
+builder.Services.AddScoped<IRepositorioReservaDeEspacio, RepositorioReservaDeEspacio>();
 
 //Añadir Servicios
 
 builder.Services.AddScoped<IServicioPrestamosEquipo, ServicioPrestamosEquipo>();
 builder.Services.AddScoped<IServicioEstado, ServicioEstado>();
+builder.Services.AddScoped<IServicioHorario, ServicioHorario>();
+builder.Services.AddScoped<IServicioReservaDeEspacio, ServicioReservaDeEspacio>();
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("PermitirFrontend", policy =>
-    {
-        policy.WithOrigins("https://localhost:7253/swagger/index.html") // o el puerto donde corre tu frontend
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
+//Añadimos el servicio de email
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
+builder.Services.AddScoped<ServicioEmail>();
+
+
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("PermitirFrontend", policy =>
+//    {
+//        policy.WithOrigins("https://localhost:7253/swagger/index.html") // o el puerto donde corre tu frontend
+//              .AllowAnyHeader()
+//              .AllowAnyMethod();
+//    });
+//});
 
 
 var app = builder.Build();

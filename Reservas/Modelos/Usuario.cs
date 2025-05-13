@@ -21,7 +21,7 @@ public partial class Usuario
 
     public string? Direccion { get; set; }
 
-    public int IdRol { get; set; }
+    public int? IdRol { get; set; }
 
     public DateTime? FechaCreacion { get; set; }
 
@@ -29,9 +29,9 @@ public partial class Usuario
 
     public string? ResetToken { get; set; }
 
-    public DateTimeOffset? ResetTokenExpira { get; set; }
+    public DateTime? ResetTokenExpira { get; set; }
 
-    public virtual Role IdRolNavigation { get; set; } = null!;
+    public virtual Role? IdRolNavigation { get; set; }
 
     public virtual ICollection<PrestamosEquipo> PrestamosEquipoIdUsuarioAprobadorNavigations { get; set; } = new List<PrestamosEquipo>();
 
@@ -40,4 +40,6 @@ public partial class Usuario
     public virtual ICollection<ReservaDeEspacio> ReservaDeEspacioIdUsuarioAprobadorNavigations { get; set; } = new List<ReservaDeEspacio>();
 
     public virtual ICollection<ReservaDeEspacio> ReservaDeEspacioIdUsuarioNavigations { get; set; } = new List<ReservaDeEspacio>();
+
+    public virtual ICollection<SolicitudReservaDeEspacio> SolicitudReservaDeEspacios { get; set; } = new List<SolicitudReservaDeEspacio>();
 }

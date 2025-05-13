@@ -27,8 +27,6 @@ public partial class PrestamosEquipo
 
     public virtual Estado IdEstadoNavigation { get; set; } = null!;
 
-    public virtual InventarioEquipo IdInventarioNavigation { get; set; } = null!;
-
     public virtual Usuario? IdUsuarioAprobadorNavigation { get; set; }
 
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
