@@ -20,4 +20,6 @@ public partial class Laboratorio
     public virtual ICollection<Iot> Iots { get; set; } = new List<Iot>();
 
     public virtual ICollection<ReservaDeEspacio> ReservaDeEspacios { get; set; } = new List<ReservaDeEspacio>();
+
+    public virtual ICollection<SolicitudReservaDeEspacio> SolicitudReservaDeEspacios { get; set; } = new List<SolicitudReservaDeEspacio>();
 }

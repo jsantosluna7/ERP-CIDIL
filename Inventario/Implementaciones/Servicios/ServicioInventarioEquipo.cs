@@ -120,6 +120,7 @@ namespace Inventario.Implementaciones.Servicios
                     ValidacionPrestamo =invEquipo.ValidacionPrestamo,
                     FechaTransaccion = invEquipo.FechaTransaccion,
                     Departamento = invEquipo.Departamento,
+                    Cantidad = invEquipo.Cantidad,
                 };
                 invEquipoDTO.Add(nuevoInvEquipo);
             }

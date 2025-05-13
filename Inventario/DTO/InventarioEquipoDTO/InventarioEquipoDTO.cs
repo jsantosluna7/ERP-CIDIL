@@ -32,5 +32,6 @@
         public int IdEstadoFisico { get; set; }
 
         public bool? ValidacionPrestamo { get; set; }
+        public int? Cantidad { get; set; }
     }
 }

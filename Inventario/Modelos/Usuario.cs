@@ -40,4 +40,8 @@ public partial class Usuario
     public virtual ICollection<ReservaDeEspacio> ReservaDeEspacioIdUsuarioAprobadorNavigations { get; set; } = new List<ReservaDeEspacio>();
 
     public virtual ICollection<ReservaDeEspacio> ReservaDeEspacioIdUsuarioNavigations { get; set; } = new List<ReservaDeEspacio>();
+
+    public virtual ICollection<SolicitudPrestamosDeEquipo> SolicitudPrestamosDeEquipos { get; set; } = new List<SolicitudPrestamosDeEquipo>();
+
+    public virtual ICollection<SolicitudReservaDeEspacio> SolicitudReservaDeEspacios { get; set; } = new List<SolicitudReservaDeEspacio>();
 }
