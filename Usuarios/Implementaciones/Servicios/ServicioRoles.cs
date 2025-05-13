@@ -20,7 +20,7 @@ namespace Usuarios.Implementaciones.Servicios
             var roles = await _repositorioRoles.obtenerRoles();
             var rolesDTO = new List<rolDTO>();
 
-            foreach (Roles rol in roles)
+            foreach (Role rol in roles)
             {
                 var todosLosRoles = new rolDTO
                 {
@@ -32,7 +32,7 @@ namespace Usuarios.Implementaciones.Servicios
             return rolesDTO;
         }
 
-        public async Task<Roles?> obtenerRolesPorId(int id)
+        public async Task<Role?> obtenerRolesPorId(int id)
         {
             var rol = await _repositorioRoles.obtenerRolesPorId(id);
             if (rol == null)
@@ -40,7 +40,7 @@ namespace Usuarios.Implementaciones.Servicios
                 return null;
             }
 
-            return new Roles
+            return new Role
             {
                 Id = rol.Id,
                 Rol = rol.Rol,

@@ -32,6 +32,7 @@ namespace Usuarios.Implementaciones.Servicios
             {
                 var usuarioDTO = new UsuarioDTO
                 {
+                    Id = usuario.Id,
                     IdMatricula = usuario.IdMatricula,
                     NombreUsuario = usuario.NombreUsuario,
                     ApellidoUsuario = usuario.ApellidoUsuario,
@@ -120,6 +121,7 @@ namespace Usuarios.Implementaciones.Servicios
             // Crear un actualizar el usuario
             var crearUsuarioDTO = new UsuarioDTO
             {
+                Id = usuario.Id,
                 IdMatricula = usuario.IdMatricula,
                 NombreUsuario = usuario.NombreUsuario,
                 ApellidoUsuario = usuario.ApellidoUsuario,

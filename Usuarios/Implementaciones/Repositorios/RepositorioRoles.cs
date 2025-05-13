@@ -13,14 +13,27 @@ namespace Usuarios.Implementaciones.Repositorios
             _contexto = contexto;
         }
 
-        public async Task<List<Roles>> obtenerRoles()
+        public async Task<List<Role>> obtenerRoles()
         {
             return await _contexto.Roles.ToListAsync();
         }
 
-        public async Task<Roles?> obtenerRolesPorId(int id)
+        public async Task<Role?> obtenerRolesPorId(int id)
         {
-            return await _contexto.Roles.Include(r => r.Usuarios).Where(r => r.Id == id).FirstOrDefaultAsync();
+            return await _contexto.Roles
+                .Include(r => r.Usuarios)
+                    .ThenInclude(u => u.PrestamosEquipoIdUsuarioAprobador)
+                .Include(r => r.Usuarios)
+                    .ThenInclude(u => u.PrestamosEquipoIdUsuario)
+                .Include(r => r.Usuarios)
+                    .ThenInclude(u => u.ReservaDeEspacioIdUsuarioAprobador)
+                .Include(r => r.Usuarios)
+                    .ThenInclude(u => u.ReservaDeEspacioIdUsuario)
+                .Include(r => r.Usuarios)
+                    .ThenInclude(u => u.SolicitudPrestamosDeEquipos)
+                .Include(r => r.Usuarios)
+                    .ThenInclude(u => u.SolicitudReservaDeEspacios)
+                .Where(r => r.Id == id).FirstOrDefaultAsync();
         }
     }
 }

@@ -16,7 +16,7 @@
 
         public string? Direccion { get; set; }
 
-        public int IdRol { get; set; }
+        public int? IdRol { get; set; }
 
         public DateTime? FechaCreacion { get; set; }
 

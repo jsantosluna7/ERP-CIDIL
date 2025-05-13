@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Usuarios.Modelos;
 
-public partial class Roles
+public partial class Role
 {
     public int Id { get; set; }
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using Usuarios.Modelos;
 
 namespace Usuarios.Modelos;
 
@@ -23,7 +22,7 @@ public partial class Usuario
 
     public string? Direccion { get; set; }
 
-    public int IdRol { get; set; }
+    public int? IdRol { get; set; }
 
     public DateTime? FechaCreacion { get; set; }
 
@@ -34,5 +33,17 @@ public partial class Usuario
     public DateTime? ResetTokenExpira { get; set; }
 
     [JsonIgnore]
-    public virtual Roles IdRolNavigation { get; set; } = null!;
+    public virtual Role? IdRolNavigation { get; set; }
+
+    public virtual ICollection<PrestamosEquipo> PrestamosEquipoIdUsuarioAprobador { get; set; } = new List<PrestamosEquipo>();
+
+    public virtual ICollection<PrestamosEquipo> PrestamosEquipoIdUsuario { get; set; } = new List<PrestamosEquipo>();
+
+    public virtual ICollection<ReservaDeEspacio> ReservaDeEspacioIdUsuarioAprobador { get; set; } = new List<ReservaDeEspacio>();
+
+    public virtual ICollection<ReservaDeEspacio> ReservaDeEspacioIdUsuario { get; set; } = new List<ReservaDeEspacio>();
+
+    public virtual ICollection<SolicitudPrestamosDeEquipo> SolicitudPrestamosDeEquipos { get; set; } = new List<SolicitudPrestamosDeEquipo>();
+
+    public virtual ICollection<SolicitudReservaDeEspacio> SolicitudReservaDeEspacios { get; set; } = new List<SolicitudReservaDeEspacio>();
 }

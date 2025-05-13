@@ -1,4 +1,6 @@
-﻿namespace Usuarios.DTO.LoginDTO
+﻿using Usuarios.Modelos;
+
+namespace Usuarios.DTO.LoginDTO
 {
     public class LoginDTO
     {
@@ -16,10 +18,11 @@
 
         public string? Direccion { get; set; }
 
-        public int IdRol { get; set; }
+        public int? IdRol { get; set; }
 
         public DateTime? FechaCreacion { get; set; }
 
         public DateTime? FechaUltimaModificacion { get; set; }
+
     }
 }

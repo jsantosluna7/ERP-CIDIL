@@ -24,7 +24,14 @@ namespace Usuarios.Implementaciones.Repositorios
         public async Task<Usuario?> obtenerUsuarioPorId(int id)
         {
             // Verificar si el usuario existe
-            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == id);
+            var usuario = await _context.Usuarios
+                .Include(usuario => usuario.PrestamosEquipoIdUsuarioAprobador)
+                .Include(usuario => usuario.PrestamosEquipoIdUsuario)
+                .Include(usuario => usuario.ReservaDeEspacioIdUsuarioAprobador)
+                .Include(usuario => usuario.ReservaDeEspacioIdUsuario)
+                .Include(usuario => usuario.SolicitudPrestamosDeEquipos)
+                .Include(usuario => usuario.SolicitudReservaDeEspacios)
+                .FirstOrDefaultAsync(u => u.Id == id);
             if (usuario == null)
             {
                 return null;
