@@ -33,13 +33,15 @@ public partial class DbErpContext : DbContext
 
     public virtual DbSet<Role> Roles { get; set; }
 
+    public virtual DbSet<SolicitudPrestamosDeEquipo> SolicitudPrestamosDeEquipos { get; set; }
+
     public virtual DbSet<SolicitudReservaDeEspacio> SolicitudReservaDeEspacios { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=localhost;Database=dbERP;Username=postgres;Password=060408");
+        => optionsBuilder.UseNpgsql("Host=10.122.120.30;Database=dbERP;Username=jean;Password=1701");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -282,6 +284,39 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.Rol)
                 .HasMaxLength(50)
                 .HasColumnName("rol");
+        });
+
+        modelBuilder.Entity<SolicitudPrestamosDeEquipo>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("solicitud_prestamos_de_equipos_pkey");
+
+            entity.ToTable("solicitud_prestamos_de_equipos");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.FechaFinal).HasColumnName("fecha_final");
+            entity.Property(e => e.FechaInicio).HasColumnName("fecha_inicio");
+            entity.Property(e => e.FechaSolicitud)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("fecha_solicitud");
+            entity.Property(e => e.IdEstado).HasColumnName("id_estado");
+            entity.Property(e => e.IdInventario).HasColumnName("id_inventario");
+            entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
+            entity.Property(e => e.Motivo).HasColumnName("motivo");
+
+            entity.HasOne(d => d.IdEstadoNavigation).WithMany(p => p.SolicitudPrestamosDeEquipos)
+                .HasForeignKey(d => d.IdEstado)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("solicitud_prestamos_de_equipos_id_estado_fkey");
+
+            entity.HasOne(d => d.IdInventarioNavigation).WithMany(p => p.SolicitudPrestamosDeEquipos)
+                .HasForeignKey(d => d.IdInventario)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("solicitud_prestamos_de_equipos_id_inventario_fkey");
+
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.SolicitudPrestamosDeEquipos)
+                .HasForeignKey(d => d.IdUsuario)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("solicitud_prestamos_de_equipos_id_usuario_fkey");
         });
 
         modelBuilder.Entity<SolicitudReservaDeEspacio>(entity =>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Reservas.Modelos;
 
-public partial class PrestamosEquipo
+public partial class SolicitudPrestamosDeEquipo
 {
     public int Id { get; set; }
 
@@ -11,23 +11,19 @@ public partial class PrestamosEquipo
 
     public int IdInventario { get; set; }
 
-    public int IdEstado { get; set; }
-
     public DateTime FechaInicio { get; set; }
 
     public DateTime FechaFinal { get; set; }
 
-    public DateTime? FechaEntrega { get; set; }
-
-    public int? IdUsuarioAprobador { get; set; }
-
     public string Motivo { get; set; } = null!;
 
-    public string? ComentarioAprobacion { get; set; }
+    public DateTime? FechaSolicitud { get; set; }
+
+    public int IdEstado { get; set; }
 
     public virtual Estado IdEstadoNavigation { get; set; } = null!;
 
-    public virtual Usuario? IdUsuarioAprobadorNavigation { get; set; }
+    public virtual InventarioEquipo IdInventarioNavigation { get; set; } = null!;
 
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
 }
