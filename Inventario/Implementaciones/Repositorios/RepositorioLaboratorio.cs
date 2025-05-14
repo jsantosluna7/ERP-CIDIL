@@ -70,6 +70,9 @@ namespace Inventario.Implementaciones.Repositorios
             return await _context.Laboratorios
                 .Include(h => h.Horarios)
                 .Include(i => i.InventarioEquipos)
+                .Include(i => i.Iots)
+                .Include(i => i.ReservaDeEspacios)
+                .Include(i => i.SolicitudReservaDeEspacios)
                 .Where(l => l.Id == id).FirstOrDefaultAsync();
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Inventario.Modelos;
 
@@ -26,12 +27,12 @@ public partial class ReservaDeEspacio
     public DateTime? FechaAprobacion { get; set; }
 
     public string? ComentarioAprobacion { get; set; }
-
+    [JsonIgnore]
     public virtual Estado IdEstadoNavigation { get; set; } = null!;
-
+    [JsonIgnore]
     public virtual Laboratorio IdLaboratorioNavigation { get; set; } = null!;
-
+    [JsonIgnore]
     public virtual Usuario? IdUsuarioAprobadorNavigation { get; set; }
-
+    [JsonIgnore]
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
 }

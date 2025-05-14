@@ -95,7 +95,7 @@ namespace Inventario.Implementaciones.Repositorios
         // Metodo para llamar los equipos por ID
         public async Task<InventarioEquipo?> GetById(int id)
         {
-            return await _context.InventarioEquipos.Where(i => i.Id == id).FirstOrDefaultAsync();
+            return await _context.InventarioEquipos.Include(i => i.SolicitudPrestamosDeEquipos).Where(i => i.Id == id).FirstOrDefaultAsync();
         }
 
         //Metodo para optener todos los quipos reguistrados
