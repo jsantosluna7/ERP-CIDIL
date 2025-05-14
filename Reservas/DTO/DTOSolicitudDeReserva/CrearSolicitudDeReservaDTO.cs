@@ -2,6 +2,7 @@
 {
     public class CrearSolicitudDeReservaDTO
     {
+
         public int IdUsuario { get; set; }
 
         public int IdLaboratorio { get; set; }

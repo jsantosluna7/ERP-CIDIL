@@ -49,7 +49,6 @@ namespace Reservas.Implementaciones.Repositorios
                 FechaFinal = crearSolicitudPrestamosDeEquiposDTO.FechaFinal,
                 Motivo = crearSolicitudPrestamosDeEquiposDTO.Motivo,
                 FechaSolicitud = crearSolicitudPrestamosDeEquiposDTO.FechaSolicitud,
-                IdEstado = crearSolicitudPrestamosDeEquiposDTO.IdEstado,
             };
 
             _context.SolicitudPrestamosDeEquipos.Add(crearReservas);
@@ -73,7 +72,6 @@ namespace Reservas.Implementaciones.Repositorios
             prestamoEquipo.FechaFinal = actualizarSolicitudPrestamosDeEquiposDTO.FechaFinal;
             prestamoEquipo.Motivo = actualizarSolicitudPrestamosDeEquiposDTO.Motivo;
             prestamoEquipo.FechaSolicitud = actualizarSolicitudPrestamosDeEquiposDTO.FechaSolicitud;
-            prestamoEquipo.IdEstado = actualizarSolicitudPrestamosDeEquiposDTO.IdEstado;
 
 
 

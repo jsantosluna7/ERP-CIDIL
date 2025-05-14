@@ -16,6 +16,6 @@
 
         public DateTime? FechaSolicitud { get; set; }
 
-        public int IdEstado { get; set; }
+        
     }
 }
