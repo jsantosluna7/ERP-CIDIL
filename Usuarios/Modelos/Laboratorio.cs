@@ -7,7 +7,7 @@ public partial class Laboratorio
 {
     public int Id { get; set; }
 
-    public string CodigoDeLab { get; set; } = null!;
+    public string? CodigoDeLab { get; set; }
 
     public int? Capacidad { get; set; }
 

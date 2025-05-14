@@ -109,6 +109,9 @@ public partial class DbErpContext : DbContext
             entity.HasIndex(e => e.Serial, "inventario_equipos_serial_key").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Cantidad)
+                .HasDefaultValue(1)
+                .HasColumnName("cantidad");
             entity.Property(e => e.Departamento)
                 .HasMaxLength(100)
                 .HasColumnName("departamento");
@@ -298,14 +301,15 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.FechaSolicitud)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("fecha_solicitud");
-            entity.Property(e => e.IdEstado).HasColumnName("id_estado");
+            entity.Property(e => e.IdEstado)
+                .HasDefaultValue(2)
+                .HasColumnName("id_estado");
             entity.Property(e => e.IdInventario).HasColumnName("id_inventario");
             entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
             entity.Property(e => e.Motivo).HasColumnName("motivo");
 
             entity.HasOne(d => d.IdEstadoNavigation).WithMany(p => p.SolicitudPrestamosDeEquipos)
                 .HasForeignKey(d => d.IdEstado)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("solicitud_prestamos_de_equipos_id_estado_fkey");
 
             entity.HasOne(d => d.IdInventarioNavigation).WithMany(p => p.SolicitudPrestamosDeEquipos)
@@ -364,6 +368,9 @@ public partial class DbErpContext : DbContext
             entity.HasIndex(e => e.IdMatricula, "usuarios_id_matricula_key").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activado)
+                .HasDefaultValue(true)
+                .HasColumnName("activado");
             entity.Property(e => e.ApellidoUsuario)
                 .HasMaxLength(50)
                 .HasColumnName("apellido_usuario");
@@ -390,6 +397,7 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.Telefono)
                 .HasMaxLength(20)
                 .HasColumnName("telefono");
+            entity.Property(e => e.UltimaSesion).HasColumnName("ultima_sesion");
 
             entity.HasOne(d => d.IdRolNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.IdRol)

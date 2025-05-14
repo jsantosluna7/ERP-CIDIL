@@ -10,6 +10,8 @@
 
         public string CorreoInstitucional { get; set; } = null!;
 
+        public string ContrasenaHash { get; set; } = null!;
+
         public string? Telefono { get; set; }
 
         public string? Direccion { get; set; }
