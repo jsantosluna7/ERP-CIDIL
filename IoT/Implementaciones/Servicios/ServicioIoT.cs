@@ -8,12 +8,14 @@ namespace IoT.Implementaciones.Servicios
 {
     public class ServicioIoT : IServicioIoT
     {
+        //Se hace una inyeccion de dependencia
         private readonly IRepositorioIoT _repositorio;
         public ServicioIoT(IRepositorioIoT repositorio)
         {
             _repositorio = repositorio;
         }
 
+        //Se usa el metodo Eliminar para borrar los registros por ID
         public async Task<bool?> Eliminar(int id)
         {
             var r = await _repositorio.Eliminar(id);
@@ -23,7 +25,7 @@ namespace IoT.Implementaciones.Servicios
             }
             return r;
         }
-
+        //Se usa el metodo para optener los registros por ID
         public async Task<Iot?> GetByIdIoT(int id)
         {
             var ioT = await _repositorio.GetByIdIot(id);
@@ -41,7 +43,7 @@ namespace IoT.Implementaciones.Servicios
 
             };
         }
-
+        //Se usa el metodo optener para llamar a todos los registros disponibles
         public async Task<List<IoTDTO>?> GetIot()
         {
             var ioT = await _repositorio.GetIot();

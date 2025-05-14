@@ -8,12 +8,15 @@ namespace IoT.Controllers
     [ApiController]
     public class IoTController : ControllerBase
     {
+        //Inyeccion de dependencia 
         private readonly IServicioIoT _ioT;
 
         public IoTController(IServicioIoT ioT)
         {
             _ioT = ioT;
         }
+
+        //Controlador para optener todos los registros
 
         [HttpGet]
         public async Task<IActionResult> GetIot()
@@ -25,7 +28,7 @@ namespace IoT.Controllers
             }
             return Ok(resultado);
         }
-
+        //Controlador para optener todos los registros por ID
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdIot(int id)
         {
@@ -37,6 +40,7 @@ namespace IoT.Controllers
             }
             return Ok(resultado);
         }
+        //Controlador para Eliminar el registro por ID
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Eliminar(int id)
