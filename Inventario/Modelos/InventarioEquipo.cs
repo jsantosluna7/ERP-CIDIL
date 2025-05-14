@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace Inventario.Modelos;
 
@@ -39,9 +38,9 @@ public partial class InventarioEquipo
     public bool? ValidacionPrestamo { get; set; }
 
     public int? Cantidad { get; set; }
-    [JsonIgnore]
+
     public virtual EstadoFisico IdEstadoFisicoNavigation { get; set; } = null!;
-    [JsonIgnore]
+
     public virtual Laboratorio IdLaboratorioNavigation { get; set; } = null!;
 
     public virtual ICollection<SolicitudPrestamosDeEquipo> SolicitudPrestamosDeEquipos { get; set; } = new List<SolicitudPrestamosDeEquipo>();

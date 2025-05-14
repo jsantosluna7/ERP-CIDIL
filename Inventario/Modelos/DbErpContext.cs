@@ -194,11 +194,18 @@ public partial class DbErpContext : DbContext
             entity.HasIndex(e => e.CodigoDeLab, "laboratorios_codigo_de_lab_key").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activado)
+                .HasDefaultValue(true)
+                .HasColumnName("activado");
             entity.Property(e => e.Capacidad).HasColumnName("capacidad");
             entity.Property(e => e.CodigoDeLab)
                 .HasMaxLength(50)
                 .HasColumnName("codigo_de_lab");
             entity.Property(e => e.Descripcion).HasColumnName("descripcion");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .HasColumnName("nombre");
+            entity.Property(e => e.Piso).HasColumnName("piso");
         });
 
         modelBuilder.Entity<PrestamosEquipo>(entity =>
@@ -368,6 +375,9 @@ public partial class DbErpContext : DbContext
             entity.HasIndex(e => e.IdMatricula, "usuarios_id_matricula_key").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activado)
+                .HasDefaultValue(true)
+                .HasColumnName("activado");
             entity.Property(e => e.ApellidoUsuario)
                 .HasMaxLength(50)
                 .HasColumnName("apellido_usuario");
@@ -394,6 +404,9 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.Telefono)
                 .HasMaxLength(20)
                 .HasColumnName("telefono");
+            entity.Property(e => e.UltimaSesion)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("ultima_sesion");
 
             entity.HasOne(d => d.IdRolNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.IdRol)

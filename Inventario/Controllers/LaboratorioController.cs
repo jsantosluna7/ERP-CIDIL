@@ -74,5 +74,16 @@ namespace Inventario.Controllers
           await  _servicioLaboratorio.Eliminar(id);
             return Ok();
         }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult?> DesactivarLaboratorio(int id)
+        {
+           var laboratorioAct = await _servicioLaboratorio.DesactivarLaboratorio(id);
+            if(laboratorioAct == null)
+            {
+                return NotFound($"No se pudo encontrar el Laboratorio con el ID:{id}");
+            }
+            return Ok();
+        }
     }
 }

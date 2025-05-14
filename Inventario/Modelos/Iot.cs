@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace Inventario.Modelos;
 
@@ -23,6 +22,6 @@ public partial class Iot
     public float? Sensor5 { get; set; }
 
     public bool? Actuador { get; set; }
-    [JsonIgnore]
+
     public virtual Laboratorio IdLaboratorioNavigation { get; set; } = null!;
 }
