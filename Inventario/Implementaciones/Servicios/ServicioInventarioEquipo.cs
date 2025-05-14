@@ -1,6 +1,7 @@
 ﻿using Inventario.Abstraccion.Repositorio;
 using Inventario.Abstraccion.Servicios;
 using Inventario.DTO.InventarioEquipoDTO;
+using Inventario.Implementaciones.Repositorios;
 using Inventario.Modelos;
 
 namespace Inventario.Implementaciones.Servicios
@@ -85,6 +86,18 @@ namespace Inventario.Implementaciones.Servicios
             }
             return r;
         }
+
+        public async Task<bool?> DesactivarEquipo(int id)
+        {
+            var equipo = await repositorioInventarioEquipo.GetById(id);
+            if (equipo == null)
+            {
+                return null;
+            }
+            equipo.Activado = false;
+            await repositorioInventarioEquipo.DesactivarEquipo(id);
+            return true;
+        }
         //Metodo para llamar los equipos por ID
         public async Task<InventarioEquipo?> GetById(int id)
         {
@@ -121,6 +134,7 @@ namespace Inventario.Implementaciones.Servicios
                     FechaTransaccion = invEquipo.FechaTransaccion,
                     Departamento = invEquipo.Departamento,
                     Cantidad = invEquipo.Cantidad,
+                    Activado = invEquipo.Activado,
                 };
                 invEquipoDTO.Add(nuevoInvEquipo);
             }

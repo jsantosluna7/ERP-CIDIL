@@ -109,6 +109,9 @@ public partial class DbErpContext : DbContext
             entity.HasIndex(e => e.Serial, "inventario_equipos_serial_key").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activado)
+                .HasDefaultValue(true)
+                .HasColumnName("activado");
             entity.Property(e => e.Cantidad)
                 .HasDefaultValue(1)
                 .HasColumnName("cantidad");

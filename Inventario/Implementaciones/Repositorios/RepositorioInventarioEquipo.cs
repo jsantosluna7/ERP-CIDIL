@@ -92,6 +92,19 @@ namespace Inventario.Implementaciones.Repositorios
             return true;
         }
 
+        public async Task<bool?> DesactivarEquipo(int id)
+        {
+            var equipo = await GetById(id);
+            if (equipo == null)
+            {
+                return null;
+            }
+            equipo.Activado = false;
+            _context.Update(equipo);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         // Metodo para llamar los equipos por ID
         public async Task<InventarioEquipo?> GetById(int id)
         {
@@ -101,7 +114,7 @@ namespace Inventario.Implementaciones.Repositorios
         //Metodo para optener todos los quipos reguistrados
         public async Task<List<InventarioEquipo>?> GetInventarioEquipos()
         {
-           return await _context.InventarioEquipos.ToListAsync();
+           return await _context.InventarioEquipos.Where(e => e.Activado==true).ToListAsync();
         }
     }
 }

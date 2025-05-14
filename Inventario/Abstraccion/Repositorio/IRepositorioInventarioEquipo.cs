@@ -12,5 +12,6 @@ namespace Inventario.Abstraccion.Repositorio
          Task<InventarioEquipo?> Crear(CrearInventarioEquipoDTO crearInventarioEquipoDTO);
          Task<InventarioEquipo?> Actualizar(int id, ActualizarInventarioEquipoDTO actualizarInventarioEquipoDTO);
          Task<bool?> Eliminar(int  id);
+        Task<bool?> DesactivarEquipo(int id);
     }
 }
