@@ -23,5 +23,7 @@ namespace Usuarios.DTO.UsuarioDTO
         public DateTime? FechaCreacion { get; set; }
 
         public DateTime? FechaUltimaModificacion { get; set; }
+
+        public DateTime? UltimaSesion { get; set; }
     }
 }

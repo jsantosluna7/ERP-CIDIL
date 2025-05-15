@@ -83,5 +83,19 @@ namespace Usuarios.Controllers
             // Devolver una respuesta exitosa
             return Ok($"Usuario con ID {id} eliminado");
         }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> DesactivarUsuario(int id)
+        {
+            // Llamar al servicio para desactivar un usuario por su ID
+            var usuarioDesactivado = await _servicioUsuarios.desactivarUsuario(id);
+            // Verificar si el usuario fue desactivado
+            if (usuarioDesactivado == null)
+            {
+                return NotFound($"Usuario con ID {id} no encontrado");
+            }
+            // Devolver una respuesta exitosa
+            return Ok($"Usuario con ID {id} desactivado");
+        }
     }
 }

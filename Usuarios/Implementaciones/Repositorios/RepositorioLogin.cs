@@ -38,6 +38,11 @@ namespace Usuarios.Implementaciones.Repositorios
                 return null;
             }
 
+            // Actualizar la fecha de la última sesión
+            usuario.UltimaSesion = DateTime.UtcNow;
+            _context.Usuarios.Update(usuario);
+            await _context.SaveChangesAsync();
+
             // Devolver el usuario encontrado
             return usuario;
         }
@@ -73,7 +78,8 @@ namespace Usuarios.Implementaciones.Repositorios
                 Direccion = crearRegistroDTO.Direccion,
                 IdRol = crearRegistroDTO.IdRol,
                 FechaCreacion = DateTime.UtcNow,
-                FechaUltimaModificacion = DateTime.UtcNow
+                FechaUltimaModificacion = DateTime.UtcNow,
+                UltimaSesion = DateTime.UtcNow
             };
 
 

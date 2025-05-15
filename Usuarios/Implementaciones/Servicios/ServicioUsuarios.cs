@@ -41,7 +41,8 @@ namespace Usuarios.Implementaciones.Servicios
                     Direccion = usuario.Direccion,
                     IdRol = usuario.IdRol,
                     FechaCreacion = usuario.FechaCreacion,
-                    FechaUltimaModificacion = usuario.FechaUltimaModificacion
+                    FechaUltimaModificacion = usuario.FechaUltimaModificacion,
+                    UltimaSesion = usuario.UltimaSesion
                 };
                 usuariosDTO.Add(usuarioDTO);
             }
@@ -108,7 +109,7 @@ namespace Usuarios.Implementaciones.Servicios
         //}
 
         // Método para actualizar un usuario
-        public async Task<UsuarioDTO?> actualizarUsuario(int id, ActualizarUsuarioDTO actualizarUsuarioDTO)
+        public async Task<ActualizarUsuarioDTO?> actualizarUsuario(int id, ActualizarUsuarioDTO actualizarUsuarioDTO)
         {
             // Obtener el usuario del repositorio
             var usuario = await _repositorioUsuario.actualizarUsuario(id, actualizarUsuarioDTO);
@@ -119,13 +120,13 @@ namespace Usuarios.Implementaciones.Servicios
             }
 
             // Crear un actualizar el usuario
-            var crearUsuarioDTO = new UsuarioDTO
+            var crearUsuarioDTO = new ActualizarUsuarioDTO
             {
-                Id = usuario.Id,
                 IdMatricula = usuario.IdMatricula,
                 NombreUsuario = usuario.NombreUsuario,
                 ApellidoUsuario = usuario.ApellidoUsuario,
                 CorreoInstitucional = usuario.CorreoInstitucional,
+                ContrasenaHash = usuario.ContrasenaHash,
                 Telefono = usuario.Telefono,
                 Direccion = usuario.Direccion,
                 IdRol = usuario.IdRol,
@@ -148,6 +149,21 @@ namespace Usuarios.Implementaciones.Servicios
             }
             // Eliminar el usuario
             await _repositorioUsuario.eliminarUsuario(id);
+            return true;
+        }
+
+        // Método para desactivar un usuario
+        public async Task<bool?> desactivarUsuario(int id)
+        {
+            // Obtener el usuario del repositorio
+            var usuario = await _repositorioUsuario.obtenerUsuarioPorId(id);
+            if (usuario == null)
+            {
+                return null;
+            }
+            // Desactivar el usuario
+            usuario.Activado = false;
+            await _repositorioUsuario.desactivarUsuario(id);
             return true;
         }
     }

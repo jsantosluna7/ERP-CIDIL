@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace Usuarios.Modelos;
 
@@ -32,7 +31,10 @@ public partial class Usuario
 
     public DateTime? ResetTokenExpira { get; set; }
 
-    [JsonIgnore]
+    public bool? Activado { get; set; }
+
+    public DateTime? UltimaSesion { get; set; }
+
     public virtual Role? IdRolNavigation { get; set; }
 
     public virtual ICollection<PrestamosEquipo> PrestamosEquipoIdUsuarioAprobador { get; set; } = new List<PrestamosEquipo>();
