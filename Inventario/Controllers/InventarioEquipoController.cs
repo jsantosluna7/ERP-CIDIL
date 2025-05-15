@@ -1,5 +1,6 @@
 ﻿using Inventario.Abstraccion.Servicios;
 using Inventario.DTO.InventarioEquipoDTO;
+using Inventario.Implementaciones.Servicios;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -70,6 +71,17 @@ namespace Inventario.Controllers
         public async Task<IActionResult?> DeleteById(int id) 
         { 
            await _servicioInventarioEquipo.Eliminar(id);
+            return Ok();
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult?> DesactivarEquipo(int id)
+        {
+            var equipo = await _servicioInventarioEquipo.DesactivarEquipo(id);
+            if (equipo == null)
+            {
+                return NotFound($"No se pudo encontrar el Equipo con el ID:{id}");
+            }
             return Ok();
         }
 

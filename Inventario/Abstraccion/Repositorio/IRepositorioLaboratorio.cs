@@ -11,5 +11,7 @@ namespace Inventario.Abstraccion.Repositorio
         Task<Laboratorio?> Crear(CrearLaboratorioDTO laboratorioDTO);
         Task<Laboratorio?> Actualizar(int id, ActualizarLaboratorioDTO actualizarLaboratorioDTO);
         Task<bool?> Eliminar(int id);
+        Task<bool?> DesactivarLaboratorio(int id);
+        Task<List<Laboratorio>?> GetPisos(int piso);
     }
 }

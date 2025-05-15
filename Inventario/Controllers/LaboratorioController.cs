@@ -66,7 +66,18 @@ namespace Inventario.Controllers
             return Ok(resultado);
         }
 
-        //Controlador para Borrar los equipos por ID
+        [HttpGet("pisos/{piso}")]
+        public async Task<IActionResult?> GetPisos(int piso)
+        {
+            var resultado = await _servicioLaboratorio.GetPisos(piso);
+            if (resultado == null)
+            {
+                return NotFound("El piso no existe o no fue encontrado");
+            }
+            return Ok(resultado);
+        }
+
+        //Controlador para Borrar los Laboratorios por ID
 
         [HttpDelete("{id}")]
         public async Task<IActionResult?> Eliminar(int id)
@@ -74,5 +85,18 @@ namespace Inventario.Controllers
           await  _servicioLaboratorio.Eliminar(id);
             return Ok();
         }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult?> DesactivarLaboratorio(int id)
+        {
+           var laboratorioAct = await _servicioLaboratorio.DesactivarLaboratorio(id);
+            if(laboratorioAct == null)
+            {
+                return NotFound($"No se pudo encontrar el Laboratorio con el ID:{id}");
+            }
+            return Ok();
+        }
+
+
     }
 }

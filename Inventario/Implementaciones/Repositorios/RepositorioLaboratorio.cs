@@ -29,6 +29,9 @@ namespace Inventario.Implementaciones.Repositorios
             laboratorioExistente.CodigoDeLab= actualizarLaboratorioDTO.CodigoDeLab;
             laboratorioExistente.Capacidad = actualizarLaboratorioDTO.Capacidad;
             laboratorioExistente.Descripcion= actualizarLaboratorioDTO.Descripcion;
+            laboratorioExistente.Nombre= actualizarLaboratorioDTO.Nombre;
+            laboratorioExistente.Piso= actualizarLaboratorioDTO.Piso;
+            
 
              _context.Update(laboratorioExistente);
             await _context.SaveChangesAsync();
@@ -70,14 +73,37 @@ namespace Inventario.Implementaciones.Repositorios
             return await _context.Laboratorios
                 .Include(h => h.Horarios)
                 .Include(i => i.InventarioEquipos)
+                .Include(i => i.Iots)
+                .Include(i => i.ReservaDeEspacios)
+                .Include(i => i.SolicitudReservaDeEspacios)
                 .Where(l => l.Id == id).FirstOrDefaultAsync();
         }
 
+        //Se optienen los registros por ID de los Pisos
+        public async Task<List<Laboratorio>?> GetPisos(int piso)
+        {
+            return await _context.Laboratorios.Where(p => p.Piso == piso).ToListAsync();
+
+        }
+
+
+        public async Task<bool?> DesactivarLaboratorio(int id)
+        {   
+            var laboratorio = await GetById(id);
+            if (laboratorio == null)
+            {
+                return null;
+            }
+            laboratorio.Activado = false;
+            _context.Update(laboratorio);
+            await _context.SaveChangesAsync();
+            return true;
+        }
 
         //Se optienen todos los registros
         public async Task<List<Laboratorio>?> GetLaboratorio()
         {
-           return await _context.Laboratorios.ToListAsync();
+           return await _context.Laboratorios.Where(l => l.Activado == true).ToListAsync();
         }
     }
 }

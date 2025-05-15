@@ -2,6 +2,7 @@
 using Inventario.Abstraccion.Servicios;
 using Inventario.DTO.LaboratorioDTO;
 using Inventario.Modelos;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inventario.Implementaciones.Servicios
 {
@@ -28,6 +29,7 @@ namespace Inventario.Implementaciones.Servicios
                 CodigoDeLab = laboratorio.CodigoDeLab,
                 Capacidad = laboratorio.Capacidad,
                 Descripcion = laboratorio.Descripcion,
+                
             };
             return laboratorioDTO;
         }
@@ -45,6 +47,8 @@ namespace Inventario.Implementaciones.Servicios
                 CodigoDeLab = laboratorio .CodigoDeLab,
                 Capacidad = laboratorio.Capacidad,
                 Descripcion = laboratorio.Descripcion,
+                Nombre= laboratorio.Nombre,
+                Piso = laboratorio.Piso,
             };
             return laboratorioDTO;
         }
@@ -58,6 +62,18 @@ namespace Inventario.Implementaciones.Servicios
                 return null;
             }
             return r;
+        }
+
+        public async Task<bool?> DesactivarLaboratorio(int id)
+        {
+            var laboratorio = await repositorioLaboratorio.GetById(id);
+            if (laboratorio == null)
+            {
+                return null;
+            }
+            laboratorio.Activado = false;
+            await repositorioLaboratorio.DesactivarLaboratorio(id);
+            return true;
         }
 
         //Metodo para optener los laboratorios por ID
@@ -96,6 +112,34 @@ namespace Inventario.Implementaciones.Servicios
                 laboratorioDTO.Add(nuevolaboratorioDTO);
             }
             return laboratorioDTO;
+        }
+
+        //Se optienen los registros por ID de los Pisos
+        public async Task<List<LaboratorioDTO>?> GetPisos(int piso)
+        {
+
+            var p = await repositorioLaboratorio.GetPisos(piso);
+            if(p == null)
+            {
+                return null;
+            }
+            var pDTO = new List<LaboratorioDTO>();
+            foreach(Laboratorio pisos in p)
+            {
+                var nuevopDTO = new LaboratorioDTO
+                {
+                    Id = pisos.Id,
+                    CodigoDeLab = pisos.CodigoDeLab,
+                    Capacidad = pisos.Capacidad,
+                    Descripcion = pisos.Descripcion,
+                    Piso = pisos.Piso,
+                    Activado = pisos.Activado,
+                    Nombre = pisos.Nombre,
+                };
+                pDTO.Add(nuevopDTO);
+            }
+            return pDTO;
+            
         }
     }
 }
