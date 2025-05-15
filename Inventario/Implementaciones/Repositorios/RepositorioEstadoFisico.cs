@@ -22,5 +22,7 @@ namespace Inventario.Implementaciones.Repositorios
         {
             return await _context.EstadoFisicos.ToListAsync();
         }
+
+
     }
 }

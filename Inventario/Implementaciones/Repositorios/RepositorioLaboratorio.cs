@@ -79,6 +79,14 @@ namespace Inventario.Implementaciones.Repositorios
                 .Where(l => l.Id == id).FirstOrDefaultAsync();
         }
 
+        //Se optienen los registros por ID de los Pisos
+        public async Task<List<Laboratorio>?> GetPisos(int piso)
+        {
+            return await _context.Laboratorios.Where(p => p.Piso == piso).ToListAsync();
+
+        }
+
+
         public async Task<bool?> DesactivarLaboratorio(int id)
         {   
             var laboratorio = await GetById(id);

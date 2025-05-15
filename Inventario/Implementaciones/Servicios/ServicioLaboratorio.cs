@@ -47,6 +47,8 @@ namespace Inventario.Implementaciones.Servicios
                 CodigoDeLab = laboratorio .CodigoDeLab,
                 Capacidad = laboratorio.Capacidad,
                 Descripcion = laboratorio.Descripcion,
+                Nombre= laboratorio.Nombre,
+                Piso = laboratorio.Piso,
             };
             return laboratorioDTO;
         }
@@ -110,6 +112,34 @@ namespace Inventario.Implementaciones.Servicios
                 laboratorioDTO.Add(nuevolaboratorioDTO);
             }
             return laboratorioDTO;
+        }
+
+        //Se optienen los registros por ID de los Pisos
+        public async Task<List<LaboratorioDTO>?> GetPisos(int piso)
+        {
+
+            var p = await repositorioLaboratorio.GetPisos(piso);
+            if(p == null)
+            {
+                return null;
+            }
+            var pDTO = new List<LaboratorioDTO>();
+            foreach(Laboratorio pisos in p)
+            {
+                var nuevopDTO = new LaboratorioDTO
+                {
+                    Id = pisos.Id,
+                    CodigoDeLab = pisos.CodigoDeLab,
+                    Capacidad = pisos.Capacidad,
+                    Descripcion = pisos.Descripcion,
+                    Piso = pisos.Piso,
+                    Activado = pisos.Activado,
+                    Nombre = pisos.Nombre,
+                };
+                pDTO.Add(nuevopDTO);
+            }
+            return pDTO;
+            
         }
     }
 }
