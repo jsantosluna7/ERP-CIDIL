@@ -208,7 +208,9 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.Nombre)
                 .HasMaxLength(100)
                 .HasColumnName("nombre");
-            entity.Property(e => e.Piso).HasColumnName("piso");
+            entity.Property(e => e.Piso)
+                  .HasDefaultValue(1)
+                  .HasColumnName("piso");
         });
 
         modelBuilder.Entity<PrestamosEquipo>(entity =>
