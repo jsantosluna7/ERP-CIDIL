@@ -25,6 +25,8 @@ public partial class PrestamosEquipo
 
     public string? ComentarioAprobacion { get; set; }
 
+    public bool? Activado { get; set; }
+
     public virtual Estado IdEstadoNavigation { get; set; } = null!;
 
     public virtual Usuario? IdUsuarioAprobadorNavigation { get; set; }

@@ -8,5 +8,6 @@ namespace IoT.Abstraccion.Repositorio
         Task<List<Iot>?> GetIot();
         Task<Iot?> GetByIdIot(int id);
         Task<bool?> Eliminar(int id);
+        Task<bool?> desactivarIoT(int id);
     }
 }

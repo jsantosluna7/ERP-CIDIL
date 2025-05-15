@@ -48,5 +48,20 @@ namespace IoT.Controllers
             await _ioT.Eliminar(id);
             return Ok();
         }
+
+        //Controlador para desactivar el registro por ID
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> desactivarIoT(int id)
+        {
+            // Llamar al servicio para desactivar un IoT por su ID
+            var IoTDesactivado = await _ioT.desactivarIoT(id);
+            // Verificar si el IoT fue desactivado
+            if (IoTDesactivado == null)
+            {
+                return NotFound($"IoT con ID {id} no encontrado");
+            }
+            // Devolver una respuesta exitosa
+            return Ok($"IoT con ID {id} desactivado");
+        }
     }
 }

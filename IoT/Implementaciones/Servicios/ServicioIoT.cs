@@ -67,5 +67,21 @@ namespace IoT.Implementaciones.Servicios
             }
             return ioTDTO;
         }
+
+        //Método para desactivar un IoT
+        public async Task<bool?> desactivarIoT(int id)
+        {
+            // Verificar si el IoT existe
+            var IoT = await _repositorio.GetByIdIot(id);
+            if (IoT == null)
+            {
+                return null;
+            }
+            // Desactivar el IoT
+            IoT.Activado = false;
+            // Guardar los cambios en la base de datos
+            await _repositorio.desactivarIoT(id);
+            return true;
+        }
     }
 }

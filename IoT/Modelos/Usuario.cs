@@ -31,6 +31,10 @@ public partial class Usuario
 
     public DateTime? ResetTokenExpira { get; set; }
 
+    public bool? Activado { get; set; }
+
+    public DateTime? UltimaSesion { get; set; }
+
     public virtual Role? IdRolNavigation { get; set; }
 
     public virtual ICollection<PrestamosEquipo> PrestamosEquipoIdUsuarioAprobadorNavigations { get; set; } = new List<PrestamosEquipo>();

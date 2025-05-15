@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace IoT.Modelos;
 
@@ -23,5 +24,7 @@ public partial class Iot
 
     public bool? Actuador { get; set; }
 
+    public bool? Activado { get; set; }
+    [JsonIgnore]
     public virtual Laboratorio IdLaboratorioNavigation { get; set; } = null!;
 }

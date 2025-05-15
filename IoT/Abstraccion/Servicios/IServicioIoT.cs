@@ -9,5 +9,6 @@ namespace IoT.Abstraccion.Servicios
         Task<List<IoTDTO>?> GetIot();
         Task<Iot?> GetByIdIoT(int id);
         Task<bool?> Eliminar(int id);
+        Task<bool?> desactivarIoT(int id);
     }
 }
