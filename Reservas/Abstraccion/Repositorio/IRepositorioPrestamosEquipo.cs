@@ -10,5 +10,6 @@ namespace Reservas.Abstraccion.Repositorio
         Task<PrestamosEquipo?> Crear(CrearPrestamosEquipoDTO crearPrestamosEquipoDTO);
         Task<PrestamosEquipo?> Actualizar(int  id, ActualizarPrestamosEquipoDTO actualizarPrestamosEquipoDTO);
         Task<bool?> Eliminar(int id);
+        Task<bool?> desactivarPrestamoEquipos(int id);
     }
 }

@@ -68,5 +68,19 @@ namespace Reservas.Controllers
            await _prestamosEquipo.Eliminar(id);
             return Ok();
         }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> DesactivarPrestamoEquipos(int id)
+        {
+            // Llamar al servicio para desactivar un equipo por su ID
+            var prestamoEquiposDesactivado = await _prestamosEquipo.DesactivarPrestamoEquipos(id);
+            // Verificar si el equipo fue desactivado
+            if (prestamoEquiposDesactivado == null)
+            {
+                return NotFound($"Usuario con ID {id} no encontrado");
+            }
+            // Devolver una respuesta exitosa
+            return Ok($"Usuario con ID {id} desactivado");
+        }
     }
 }

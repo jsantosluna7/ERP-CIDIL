@@ -1,4 +1,5 @@
-﻿using Reservas.Abstraccion.Repositorio;
+﻿using Microsoft.EntityFrameworkCore;
+using Reservas.Abstraccion.Repositorio;
 using Reservas.Abstraccion.Servicios;
 using Reservas.DTO.DTOHorario;
 using Reservas.DTO.DTOReservaDeEspacio;
@@ -139,6 +140,22 @@ namespace Reservas.Implementaciones.Servicios
                 return null;
             }
             return resultado;
+        }
+
+        //Método para desactivar un espacio
+        public async Task<bool?> desactivarReservaDeEspacio(int id)
+        {
+            // Verificar si el espacio existe
+            var espacio = await _repositorioReservaDeEspacio.ObtenerReservaPorId(id);
+            if (espacio == null)
+            {
+                return null;
+            }
+            // Desactivar el espacio
+            espacio.Activado = false;
+            // Guardar los cambios en la base de datos
+            await _repositorioReservaDeEspacio.desactivarReservaDeEspacio(id);
+            return true;
         }
     }
 }

@@ -8,6 +8,7 @@ namespace Reservas.Abstraccion.Repositorio
     {
         Task<bool?> CancelarReserva(int id);
         Task<ReservaDeEspacio?> CrearReserva(CrearReservaDeEspacioDTO crearReservaDeEspacioDTO);
+        Task<bool?> desactivarReservaDeEspacio(int id);
         Task<ReservaDeEspacio?> EditarReserva(int id, ActualizarReservaDeEspacioDTO actualizarReservaDeEspacioDTO);
         Task<ReservaDeEspacio?> ObtenerReservaPorId(int id);
         Task<List<ReservaDeEspacio>> ObtenerReservas();

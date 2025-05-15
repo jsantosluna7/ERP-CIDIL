@@ -15,7 +15,12 @@ namespace Reservas.Implementaciones.Repositorios
 
         public async Task<Estado?> GetById(int id)
         {
-            var estado = await _context.Estados.Include(p=>p.PrestamosEquipos).Where(e => e.Id == id).FirstOrDefaultAsync();
+            var estado = await _context.Estados
+                .Include(p => p.PrestamosEquipos)
+                .Include(r => r.ReservaDeEspacios)
+                .Include(s => s.SolicitudPrestamosDeEquipos)
+                .Include(s => s.SolicitudReservaDeEspacios)
+                .Where(e => e.Id == id).FirstOrDefaultAsync();
 
             if (estado == null) 
             {

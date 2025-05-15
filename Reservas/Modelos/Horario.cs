@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Reservas.Modelos;
 
@@ -23,5 +24,7 @@ public partial class Horario
 
     public DateTime? FechaCreacion { get; set; }
 
+    public bool? ActivadoHorario { get; set; }
+    [JsonIgnore]
     public virtual Laboratorio? IdLaboratorioNavigation { get; set; }
 }

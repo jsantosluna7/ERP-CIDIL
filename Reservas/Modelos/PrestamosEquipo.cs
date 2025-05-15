@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Reservas.Modelos;
 
@@ -25,9 +26,11 @@ public partial class PrestamosEquipo
 
     public string? ComentarioAprobacion { get; set; }
 
+    public bool? Activado { get; set; }
+    [JsonIgnore]
     public virtual Estado IdEstadoNavigation { get; set; } = null!;
-
+    [JsonIgnore]
     public virtual Usuario? IdUsuarioAprobadorNavigation { get; set; }
-
+    [JsonIgnore]
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
 }

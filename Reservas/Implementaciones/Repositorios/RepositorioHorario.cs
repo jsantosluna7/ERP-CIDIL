@@ -16,7 +16,7 @@ namespace Reservas.Implementaciones.Repositorios
         // Método para obtener todos los horarios
         public async Task<List<Horario>> ObtenerHorarios()
         {
-            return await _context.Horarios.ToListAsync();
+            return await _context.Horarios.Where(h => h.ActivadoHorario == true).ToListAsync();
         }
 
         //Método para obtener un horario por id
@@ -113,16 +113,20 @@ namespace Reservas.Implementaciones.Repositorios
         // Método para desactivar el horario despues de 4 meses
         public async Task<bool?> BorrarHorarioAutomatico(bool eliminar)
         {
-                var fechaLimite = DateTime.UtcNow.AddMonths(-4);
+                var fechaLimite = DateTime.UtcNow.AddDays(-1);
                 var horariosExpirados = await _context.Horarios.Where(h => h.FechaCreacion < fechaLimite).ToListAsync();
 
                 if (horariosExpirados.Count > 0)
                 {
                     try
                     {
-                        _context.Horarios.RemoveRange(horariosExpirados);
-                        await _context.SaveChangesAsync();
-                        return true; //decir que se eliminaron los horarios
+                        foreach(Horario horario in horariosExpirados)
+                        {
+                            horario.ActivadoHorario = false;
+                            _context.Update(horario);
+                            await _context.SaveChangesAsync();
+                        }
+                        return true; //decir que se desactivaron los horarios
                     }
                     catch (Exception ex)
                     {

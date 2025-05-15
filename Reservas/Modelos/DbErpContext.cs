@@ -41,7 +41,7 @@ public partial class DbErpContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=10.122.120.30;Database=dbERP;Username=jean;Password=1701");
+        => optionsBuilder.UseNpgsql("Host=localhost;Database=dbERP;Username=postgres;Password=060408");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -80,6 +80,9 @@ public partial class DbErpContext : DbContext
             entity.ToTable("horario");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ActivadoHorario)
+                .HasDefaultValue(true)
+                .HasColumnName("activado_horario");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
@@ -109,6 +112,12 @@ public partial class DbErpContext : DbContext
             entity.HasIndex(e => e.Serial, "inventario_equipos_serial_key").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activado)
+                .HasDefaultValue(true)
+                .HasColumnName("activado");
+            entity.Property(e => e.Cantidad)
+                .HasDefaultValue(1)
+                .HasColumnName("cantidad");
             entity.Property(e => e.Departamento)
                 .HasMaxLength(100)
                 .HasColumnName("departamento");
@@ -191,11 +200,18 @@ public partial class DbErpContext : DbContext
             entity.HasIndex(e => e.CodigoDeLab, "laboratorios_codigo_de_lab_key").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activado)
+                .HasDefaultValue(true)
+                .HasColumnName("activado");
             entity.Property(e => e.Capacidad).HasColumnName("capacidad");
             entity.Property(e => e.CodigoDeLab)
                 .HasMaxLength(50)
                 .HasColumnName("codigo_de_lab");
             entity.Property(e => e.Descripcion).HasColumnName("descripcion");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .HasColumnName("nombre");
+            entity.Property(e => e.Piso).HasColumnName("piso");
         });
 
         modelBuilder.Entity<PrestamosEquipo>(entity =>
@@ -205,6 +221,9 @@ public partial class DbErpContext : DbContext
             entity.ToTable("prestamos_equipos");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activado)
+                .HasDefaultValue(true)
+                .HasColumnName("activado");
             entity.Property(e => e.ComentarioAprobacion).HasColumnName("comentario_aprobacion");
             entity.Property(e => e.FechaEntrega).HasColumnName("fecha_entrega");
             entity.Property(e => e.FechaFinal).HasColumnName("fecha_final");
@@ -239,6 +258,9 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.Id)
                 .HasDefaultValueSql("nextval('prestamos_espacios_id_seq'::regclass)")
                 .HasColumnName("id");
+            entity.Property(e => e.Activado)
+                .HasDefaultValue(true)
+                .HasColumnName("activado");
             entity.Property(e => e.ComentarioAprobacion).HasColumnName("comentario_aprobacion");
             entity.Property(e => e.FechaAprobacion).HasColumnName("fecha_aprobacion");
             entity.Property(e => e.FechaSolicitud)
@@ -365,6 +387,9 @@ public partial class DbErpContext : DbContext
             entity.HasIndex(e => e.IdMatricula, "usuarios_id_matricula_key").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activado)
+                .HasDefaultValue(true)
+                .HasColumnName("activado");
             entity.Property(e => e.ApellidoUsuario)
                 .HasMaxLength(50)
                 .HasColumnName("apellido_usuario");
@@ -391,6 +416,9 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.Telefono)
                 .HasMaxLength(20)
                 .HasColumnName("telefono");
+            entity.Property(e => e.UltimaSesion)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("ultima_sesion");
 
             entity.HasOne(d => d.IdRolNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.IdRol)
