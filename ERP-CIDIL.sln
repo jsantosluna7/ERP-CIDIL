@@ -4,11 +4,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.12.35521.163
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Usuarios", "Usuarios\Usuarios.csproj", "{A08C520E-0AAF-4043-9F7B-42B7B6E72689}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reservas", "Reservas\Reservas.csproj", "{11D9B0DC-796D-465E-9331-E51647D70065}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Inventario", "Inventario\Inventario.csproj", "{843461F1-92AC-4052-B777-945F7FEA1080}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Usuarios", "Usuarios\Usuarios.csproj", "{A08C520E-0AAF-4043-9F7B-42B7B6E72689}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoT", "IoT\IoT.csproj", "{F95A51F1-327A-4736-A523-856790A732A9}"
 EndProject
@@ -18,6 +17,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A08C520E-0AAF-4043-9F7B-42B7B6E72689}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A08C520E-0AAF-4043-9F7B-42B7B6E72689}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A08C520E-0AAF-4043-9F7B-42B7B6E72689}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A08C520E-0AAF-4043-9F7B-42B7B6E72689}.Release|Any CPU.Build.0 = Release|Any CPU
 		{11D9B0DC-796D-465E-9331-E51647D70065}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{11D9B0DC-796D-465E-9331-E51647D70065}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11D9B0DC-796D-465E-9331-E51647D70065}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -26,10 +29,6 @@ Global
 		{843461F1-92AC-4052-B777-945F7FEA1080}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{843461F1-92AC-4052-B777-945F7FEA1080}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{843461F1-92AC-4052-B777-945F7FEA1080}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A08C520E-0AAF-4043-9F7B-42B7B6E72689}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A08C520E-0AAF-4043-9F7B-42B7B6E72689}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A08C520E-0AAF-4043-9F7B-42B7B6E72689}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A08C520E-0AAF-4043-9F7B-42B7B6E72689}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F95A51F1-327A-4736-A523-856790A732A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F95A51F1-327A-4736-A523-856790A732A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F95A51F1-327A-4736-A523-856790A732A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
