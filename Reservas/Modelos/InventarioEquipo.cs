@@ -37,6 +37,10 @@ public partial class InventarioEquipo
 
     public bool? ValidacionPrestamo { get; set; }
 
+    public int? Cantidad { get; set; }
+
+    public bool? Activado { get; set; }
+
     public virtual EstadoFisico IdEstadoFisicoNavigation { get; set; } = null!;
 
     public virtual Laboratorio IdLaboratorioNavigation { get; set; } = null!;

@@ -87,10 +87,10 @@ namespace Reservas.Implementaciones.Servicios
                 return null;
             }
             var pEquipoDTO = new List<PrestamosEquipoDTO>();
-            foreach (var p in pEquipo)
-            {
-                return pEquipoDTO;
-            }
+            //foreach (var p in pEquipo)
+            //{
+            //    return pEquipoDTO;
+            //}
             foreach(PrestamosEquipo prestamosEquipo in pEquipo)
             {
                 var nuevoPEquipo = new PrestamosEquipoDTO
@@ -109,6 +109,21 @@ namespace Reservas.Implementaciones.Servicios
                 pEquipoDTO.Add(nuevoPEquipo);
             }
             return pEquipoDTO;
+        }
+
+        // Método para desactivar un prestamo
+        public async Task<bool?> DesactivarPrestamoEquipos(int id)
+        {
+            // Obtener el prestamo del repositorio
+            var equipo = await repositorioPrestamosEquipo.GetById(id);
+            if (equipo == null)
+            {
+                return null;
+            }
+            // Desactivar el prestamo
+            equipo.Activado = false;
+            await repositorioPrestamosEquipo.desactivarPrestamoEquipos(id);
+            return true;
         }
     }
 }

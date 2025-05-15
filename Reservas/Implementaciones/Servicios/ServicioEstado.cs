@@ -22,8 +22,11 @@ namespace Reservas.Implementaciones.Servicios
             return es = new Estado
             {   
                 Id = es.Id,
-                Estado1 =es.Estado1,
-                PrestamosEquipos =es.PrestamosEquipos,
+                Estado1 = es.Estado1,
+                PrestamosEquipos = es.PrestamosEquipos,
+                ReservaDeEspacios = es.ReservaDeEspacios,
+                SolicitudPrestamosDeEquipos = es.SolicitudPrestamosDeEquipos,
+                SolicitudReservaDeEspacios = es.SolicitudReservaDeEspacios
             };
         }
 

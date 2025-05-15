@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reservas.Abstraccion.Servicios;
 using Reservas.DTO.DTOReservaDeEspacio;
 using Reservas.DTO.DTOSolicitudDeReserva;
+using Reservas.Modelos;
 
 namespace Reservas.Controllers
 {
@@ -74,6 +75,20 @@ namespace Reservas.Controllers
                 return NotFound($"No se encontró la reserva con id {id}.");
             }
             return Ok(resultado);
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> DesactivarReservaDeEspacio(int id)
+        {
+            // Llamar al servicio para desactivar un equipo por su ID
+            var prestamoEquiposDesactivado = await _servicioReservaDeEspacio.desactivarReservaDeEspacio(id);
+            // Verificar si el equipo fue desactivado
+            if (prestamoEquiposDesactivado == null)
+            {
+                return NotFound($"Usuario con ID {id} no encontrado");
+            }
+            // Devolver una respuesta exitosa
+            return Ok($"Usuario con ID {id} desactivado");
         }
     }
 }

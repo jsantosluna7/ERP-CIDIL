@@ -84,6 +84,23 @@ namespace Reservas.Implementaciones.Repositorios
             return true;
         }
 
+        //Método para desactivar un equipo
+        public async Task<bool?> desactivarPrestamoEquipos(int id)
+        {
+            // Verificar si el equipo existe
+            var equipo = await GetById(id);
+            if (equipo == null)
+            {
+                return null;
+            }
+            // Desactivar el equipo
+            equipo.Activado = false;
+            // Guardar los cambios en la base de datos
+            _context.Update(equipo);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<PrestamosEquipo?> GetById(int id)
         {
             return await _context.PrestamosEquipos.Where(p => p.Id == id).FirstOrDefaultAsync();
@@ -93,8 +110,11 @@ namespace Reservas.Implementaciones.Repositorios
 
         public async Task<List<PrestamosEquipo>?> GetPrestamosEquipo()
         {
-           return await _context.PrestamosEquipos.ToListAsync();
+           return await _context.PrestamosEquipos
+                .Where(p => p.Activado == true)
+                .ToListAsync();
         }
+
 
        
     }

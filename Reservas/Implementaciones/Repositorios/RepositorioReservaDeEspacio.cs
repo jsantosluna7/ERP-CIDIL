@@ -23,7 +23,9 @@ namespace Reservas.Implementaciones.Repositorios
         //Método para obtener todas las reservas
         public async Task<List<ReservaDeEspacio>> ObtenerReservas()
         {
-            return await _context.ReservaDeEspacios.ToListAsync();
+            return await _context.ReservaDeEspacios
+                .Where(r => r.Activado == true)
+                .ToListAsync();
         }
 
         //Método para obtener todas las reservas por id
@@ -132,6 +134,23 @@ namespace Reservas.Implementaciones.Repositorios
             }
             return reservaActualizada;
 
+        }
+
+        //Método para desactivar un espacio
+        public async Task<bool?> desactivarReservaDeEspacio(int id)
+        {
+            // Verificar si el espacio existe
+            var espacio = await ObtenerReservaPorId(id);
+            if (espacio == null)
+            {
+                return null;
+            }
+            // Desactivar el espacio
+            espacio.Activado = false;
+            // Guardar los cambios en la base de datos
+            _context.Update(espacio);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
