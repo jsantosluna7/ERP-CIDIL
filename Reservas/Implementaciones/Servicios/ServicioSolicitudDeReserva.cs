@@ -14,9 +14,9 @@ namespace Reservas.Implementaciones.Servicios
         }
 
         // Método para obtener las solicitudes de reserva
-        public async Task<List<SolicitudDeReservaDTO>?> ObtenerSolicitudesReservas()
+        public async Task<List<SolicitudDeReservaDTO>?> ObtenerSolicitudesReservas(int pagina, int tamanoPagina)
         {
-            var solicitudes = await _repositorioSolicitudDeReserva.ObtenerSolicitudesReservas();
+            var solicitudes = await _repositorioSolicitudDeReserva.ObtenerSolicitudesReservas(pagina, tamanoPagina);
 
             if (solicitudes == null || solicitudes.Count == 0)
             {

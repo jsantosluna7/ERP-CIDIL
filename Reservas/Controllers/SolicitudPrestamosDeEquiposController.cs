@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Reservas.Abstraccion.Servicios;
 using Reservas.DTO.DTOSolicitudDeEquipos;
+using Reservas.Modelos;
 
 namespace Reservas.Controllers
 {
@@ -10,21 +12,40 @@ namespace Reservas.Controllers
     public class SolicitudPrestamosDeEquiposController : ControllerBase
     {
         private readonly IServicioSolicitudPrestamosDeEquipos _servicioSolicitudPrestamosDeEquipos;
+        private readonly DbErpContext _dbErpContext;
 
-        public SolicitudPrestamosDeEquiposController(IServicioSolicitudPrestamosDeEquipos servicioSolicitudPrestamosDeEquipos)
+        public SolicitudPrestamosDeEquiposController(IServicioSolicitudPrestamosDeEquipos servicioSolicitudPrestamosDeEquipos, DbErpContext dbErpContext)
         {
             _servicioSolicitudPrestamosDeEquipos = servicioSolicitudPrestamosDeEquipos;
+            _dbErpContext = dbErpContext;
         }
 
         [HttpGet]
-        public async Task<IActionResult?> GetSolicitudPrestamos()
+        public async Task<IActionResult?> GetSolicitudPrestamos([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)
         {
-            var prestamo = await _servicioSolicitudPrestamosDeEquipos.GetSolicitudPrestamos();
+            var prestamo = await _servicioSolicitudPrestamosDeEquipos.GetSolicitudPrestamos(pagina, tamanoPagina);
             if (prestamo == null)
             {
                 return NotFound("Su solicitud no se encuentra");
             }
-            return Ok(prestamo);
+           
+
+            var totalInventario = await _dbErpContext.SolicitudPrestamosDeEquipos.CountAsync();
+            var totalPaginas = (int)Math.Ceiling(totalInventario / (double)tamanoPagina);
+
+            var respuesta = new
+            {
+                paginacion = new
+                {
+                    paginaActual = pagina,
+                    tamanoPagina,
+                    totalInventario,
+                    totalPaginas
+                },
+                datos = prestamo
+            };
+            return Ok(respuesta);
+
         }
 
         [HttpGet("{id}")]

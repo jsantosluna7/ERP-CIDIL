@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Reservas.Abstraccion.Servicios;
 using Reservas.DTO.DTOSolicitudDeReserva;
 using Reservas.Implementaciones.Servicios;
+using Reservas.Modelos;
 
 namespace Reservas.Controllers
 {
@@ -11,21 +13,38 @@ namespace Reservas.Controllers
     public class SolicitudDeReservaController : ControllerBase
     {
         private readonly IServicioSolicitudDeReserva _servicioSolicitudDeReserva;
-        public SolicitudDeReservaController(IServicioSolicitudDeReserva servicioSolicitudDeReserva)
+        private readonly DbErpContext _dbContext;
+        public SolicitudDeReservaController(IServicioSolicitudDeReserva servicioSolicitudDeReserva, DbErpContext dbContext)
         {
             _servicioSolicitudDeReserva = servicioSolicitudDeReserva;
+            _dbContext = dbContext;
         }
 
         // Método para obtener todas las solicitudes de reserva
         [HttpGet("obtener-solicitudes-reservas")]
-        public async Task<IActionResult> ObtenerSolicitudesReservas()
+        public async Task<IActionResult> ObtenerSolicitudesReservas([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)
         {
-            var solicitudes = await _servicioSolicitudDeReserva.ObtenerSolicitudesReservas();
-            if (solicitudes == null)
+            var resultado = await _servicioSolicitudDeReserva.ObtenerSolicitudesReservas(pagina, tamanoPagina);
+            if (resultado == null)
             {
-                return NotFound("No se encontraron solicitudes de reserva.");
+                return NotFound("Lista de Inventario de Equipos no encontrada");
             }
-            return Ok(solicitudes);
+
+            var totalInventario = await _dbContext.SolicitudReservaDeEspacios.CountAsync();
+            var totalPaginas = (int)Math.Ceiling(totalInventario / (double)tamanoPagina);
+
+            var respuesta = new
+            {
+                paginacion = new
+                {
+                    paginaActual = pagina,
+                    tamanoPagina,
+                    totalInventario,
+                    totalPaginas
+                },
+                datos = resultado
+            };
+            return Ok(respuesta);
         }
 
         // Método para obtener una solicitud de reserva por id

@@ -8,6 +8,6 @@ namespace Reservas.Abstraccion.Servicios
         Task<bool?> CancelarSolicitudReserva(int id);
         Task<CrearSolicitudPrestamosDeEquiposDTO?> CrearSolicitudPEquipos(CrearSolicitudPrestamosDeEquiposDTO crearSolicitudPrestamosDeEquiposDTO);
         Task<SolicitudPrestamosDeEquiposDTO?> GetByIdSolicitudPEquipos(int id);
-        Task<List<SolicitudPrestamosDeEquiposDTO>?> GetSolicitudPrestamos();
+        Task<List<SolicitudPrestamosDeEquiposDTO>?> GetSolicitudPrestamos(int pagina, int tamanoPagina);
     }
 }
