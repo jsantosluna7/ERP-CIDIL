@@ -1,8 +1,10 @@
 ﻿using Inventario.Abstraccion.Servicios;
 using Inventario.DTO.InventarioEquipoDTO;
 using Inventario.Implementaciones.Servicios;
+using Inventario.Modelos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inventario.Controllers
 {
@@ -12,22 +14,39 @@ namespace Inventario.Controllers
     {
         //Hacemos una inyeccion
         private readonly IServicioInventarioEquipo _servicioInventarioEquipo;
+        private readonly DbErpContext _context;
 
-        public InventarioEquipoController(IServicioInventarioEquipo servicioInventarioEquipo)
+        public InventarioEquipoController(IServicioInventarioEquipo servicioInventarioEquipo, DbErpContext context)
         {
             _servicioInventarioEquipo = servicioInventarioEquipo;
+            _context = context;
         }
 
         //Controlador para  optener el inventario del los equipos
         [HttpGet]
-        public async Task<IActionResult?> GetInventarioEquipo()
+        public async Task<IActionResult?> GetInventarioEquipo([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)
         {
-            var resultado =await _servicioInventarioEquipo.GetInventarioEquipo();
+            var resultado =await _servicioInventarioEquipo.GetInventarioEquipo(pagina, tamanoPagina);
             if (resultado == null)
             {
                 return NotFound("Lista de Inventario de Equipos no encontrada");
             }
-            return Ok(resultado);
+
+            var totalInventario = await _context.InventarioEquipos.CountAsync();
+            var totalPaginas = (int)Math.Ceiling(totalInventario / (double)tamanoPagina);
+
+            var respuesta = new
+            {
+                paginacion = new
+                {
+                    paginaActual = pagina,
+                    tamanoPagina,
+                    totalInventario,
+                    totalPaginas
+                },
+                datos = resultado
+            };
+            return Ok(respuesta);
         }
         //Controlador para  incertar  los equipos
         [HttpPost]

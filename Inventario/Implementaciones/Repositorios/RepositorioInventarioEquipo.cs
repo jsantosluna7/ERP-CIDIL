@@ -112,9 +112,19 @@ namespace Inventario.Implementaciones.Repositorios
         }
 
         //Metodo para optener todos los quipos reguistrados
-        public async Task<List<InventarioEquipo>?> GetInventarioEquipos()
+        public async Task<List<InventarioEquipo>?> GetInventarioEquipos(int pagina, int tamanoPagina)
         {
-           return await _context.InventarioEquipos.Where(e => e.Activado==true).ToListAsync();
+            if(pagina <= 0) pagina = 1;
+            if(tamanoPagina <= 0) tamanoPagina = 20;
+
+            //var totalInventario = await _context.InventarioEquipos.CountAsync();
+            //var totalPaginas = (int)Math.Ceiling(totalInventario / (double)tamanoPagina);
+
+            return await _context.InventarioEquipos
+                .Where(i => i.Activado == true)
+                .OrderBy(i => i.Id).Skip((pagina - 1) * tamanoPagina)
+                .Take(tamanoPagina)
+                .ToListAsync();
         }
     }
 }

@@ -105,9 +105,9 @@ namespace Inventario.Implementaciones.Servicios
         }
 
         //Metodo para llamar todos los registros de los equipos 
-        public async Task<List<InventarioEquipoDTO>?> GetInventarioEquipo()
+        public async Task<List<InventarioEquipoDTO>?> GetInventarioEquipo(int pagina, int tamanoPagina)
         {
-           var invEquipos =await repositorioInventarioEquipo.GetInventarioEquipos();
+           var invEquipos =await repositorioInventarioEquipo.GetInventarioEquipos(pagina, tamanoPagina);
             if(invEquipos == null)
             {
                 return null;
