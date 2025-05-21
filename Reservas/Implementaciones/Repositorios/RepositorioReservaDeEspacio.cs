@@ -21,10 +21,16 @@ namespace Reservas.Implementaciones.Repositorios
         }
 
         //Método para obtener todas las reservas
-        public async Task<List<ReservaDeEspacio>> ObtenerReservas()
+        public async Task<List<ReservaDeEspacio>> ObtenerReservas(int pagina, int tamanoPagina)
         {
+            if (pagina <= 0) pagina = 1;
+            if (tamanoPagina <= 0) tamanoPagina = 20;
+
             return await _context.ReservaDeEspacios
                 .Where(r => r.Activado == true)
+                .OrderBy(i => i.Id)
+                .Skip((pagina - 1) * tamanoPagina)
+                .Take(tamanoPagina)
                 .ToListAsync();
         }
 

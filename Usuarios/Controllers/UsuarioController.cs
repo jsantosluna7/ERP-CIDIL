@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Usuarios.Abstraccion.Servicios;
 using Usuarios.DTO.UsuarioDTO;
+using Usuarios.Modelos;
 
 namespace Usuarios.Controllers
 {
@@ -11,25 +13,44 @@ namespace Usuarios.Controllers
     {
         // Inyección de dependencias del servicio de usuarios
         private readonly IServicioUsuarios _servicioUsuarios;
+        private readonly DbErpContext _context;
 
         // Constructor que recibe el servicio de usuarios
-        public UsuarioController(IServicioUsuarios servicioUsuarios)
+        public UsuarioController(IServicioUsuarios servicioUsuarios, DbErpContext context)
         {
             _servicioUsuarios = servicioUsuarios;
+            _context = context;
+
         }
 
         [HttpGet]
-        public async Task<IActionResult> ObtenerUsuarios()
+        public async Task<IActionResult> ObtenerUsuarios([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)
         {
             // Llamar al servicio para obtener la lista de usuarios
-            var usuarios = await _servicioUsuarios.ObtenerUsuarios();
+            var usuarios = await _servicioUsuarios.ObtenerUsuarios(pagina, tamanoPagina);
 
             // Verificar si la lista de usuarios está vacía
             if (usuarios == null)
             {
                 return NotFound("Lista de de usuarios vacía");
             }
-            return Ok(usuarios);
+
+            var totalUsuarios = await _context.InventarioEquipos.CountAsync();
+            var totalPaginas = (int)Math.Ceiling(totalUsuarios/ (double)tamanoPagina);
+
+            var respuesta = new
+            {
+                paginacion = new
+                {
+                    paginaActual = pagina,
+                    tamanoPagina,
+                    totalUsuarios,
+                    totalPaginas
+                },
+                datos = usuarios
+            };
+
+            return Ok(respuesta);
         }
 
         [HttpGet("{id}")]

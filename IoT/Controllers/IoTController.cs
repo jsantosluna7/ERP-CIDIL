@@ -1,6 +1,8 @@
 ﻿using IoT.Abstraccion.Servicios;
+using IoT.Modelos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace IoT.Controllers
 {
@@ -10,23 +12,42 @@ namespace IoT.Controllers
     {
         //Inyeccion de dependencia 
         private readonly IServicioIoT _ioT;
+        private readonly DbErpContext _context;
 
-        public IoTController(IServicioIoT ioT)
+        public IoTController(IServicioIoT ioT, DbErpContext context)
         {
             _ioT = ioT;
+            _context = context;
         }
 
         //Controlador para optener todos los registros
 
         [HttpGet]
-        public async Task<IActionResult> GetIot()
+        public async Task<IActionResult> GetIot([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)
         {
-            var resultado = await _ioT.GetIot();
+            var resultado = await _ioT.GetIot(pagina, tamanoPagina);
+
             if (resultado == null)
             {
                 return NotFound("Lista de Informacion de  no encontrada");
             }
-            return Ok(resultado);
+
+            var totalLoT = await _context.Iots.CountAsync();
+            var totalPaginas = (int)Math.Ceiling(totalLoT / (double)tamanoPagina);
+
+            var respuesta = new
+            {
+                paginacion = new
+                {
+                    paginaActual = pagina,
+                    tamanoPagina,
+                    totalLoT,
+                    totalPaginas
+                },
+                datos = resultado
+            };
+
+            return Ok(respuesta);
         }
         //Controlador para optener todos los registros por ID
         [HttpGet("{id}")]

@@ -15,10 +15,10 @@ namespace Usuarios.Implementaciones.Servicios
         }
 
         // Método para obetener todos los usuarios
-        public async Task<List<UsuarioDTO>?> ObtenerUsuarios()
+        public async Task<List<UsuarioDTO>?> ObtenerUsuarios(int pagina, int tamanoPagina)
         {
             // Obtener todos los usuarios
-            var usuarios = await _repositorioUsuario.obtenerUsuarios();
+            var usuarios = await _repositorioUsuario.obtenerUsuarios(pagina, tamanoPagina);
             if (usuarios == null || usuarios.Count == 0)
             {
                 return null;

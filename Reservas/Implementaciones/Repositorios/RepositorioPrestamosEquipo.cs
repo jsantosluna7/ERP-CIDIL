@@ -108,10 +108,16 @@ namespace Reservas.Implementaciones.Repositorios
 
         
 
-        public async Task<List<PrestamosEquipo>?> GetPrestamosEquipo()
+        public async Task<List<PrestamosEquipo>?> GetPrestamosEquipo(int pagina, int tamanoPagina)
         {
-           return await _context.PrestamosEquipos
+            if (pagina <= 0) pagina = 1;
+            if (tamanoPagina <= 0) tamanoPagina = 20;
+
+            return await _context.PrestamosEquipos
                 .Where(p => p.Activado == true)
+                .OrderBy(i => i.Id)
+                .Skip((pagina - 1) * tamanoPagina)
+                .Take(tamanoPagina)
                 .ToListAsync();
         }
 
