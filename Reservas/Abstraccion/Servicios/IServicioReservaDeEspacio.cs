@@ -10,6 +10,7 @@ namespace Reservas.Abstraccion.Servicios
         Task<bool?> desactivarReservaDeEspacio(int id);
         Task<ActualizarReservaDeEspacioDTO?> EditarReserva(int id, ActualizarReservaDeEspacioDTO actualizarReservaDeEspacioDTO);
         Task<ReservaDeEspacioDTO?> ObtenerReservaPorId(int id);
-        Task<List<ReservaDeEspacioDTO>?> ObtenerReservas();
+        //Task<List<ReservaDeEspacioDTO>?> ObtenerReservas();
+        Task<List<ReservaDeEspacioDTO>?> ObtenerReservas(int pagina, int tamanoPagina);
     }
 }

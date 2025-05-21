@@ -66,8 +66,8 @@ namespace Inventario.Controllers
             return Ok(resultado);
         }
 
-        [HttpGet("pisos/{piso}")]
-        public async Task<IActionResult?> GetPisos(int piso)
+        [HttpGet("pisos")]
+        public async Task<IActionResult?> GetPisos([FromQuery] int piso = 1)
         {
             var resultado = await _servicioLaboratorio.GetPisos(piso);
             if (resultado == null)

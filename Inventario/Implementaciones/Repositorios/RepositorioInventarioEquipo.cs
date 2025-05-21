@@ -122,7 +122,8 @@ namespace Inventario.Implementaciones.Repositorios
 
             return await _context.InventarioEquipos
                 .Where(i => i.Activado == true)
-                .OrderBy(i => i.Id).Skip((pagina - 1) * tamanoPagina)
+                .OrderBy(i => i.Id)
+                .Skip((pagina - 1) * tamanoPagina)
                 .Take(tamanoPagina)
                 .ToListAsync();
         }

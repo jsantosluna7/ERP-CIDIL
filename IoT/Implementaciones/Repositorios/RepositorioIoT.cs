@@ -51,10 +51,16 @@ namespace IoT.Implementaciones.Repositorios
 
 
         //Se usa el metodo Para llamar a todos los reguistros disponibles 
-        public async Task<List<Iot>?> GetIot()
+        public async Task<List<Iot>?> GetIot(int pagina, int tamanoPagina)
         {
+            if (pagina <= 0) pagina = 1;
+            if (tamanoPagina <= 0) tamanoPagina = 20;
+
             return await _dbErpContext.Iots
                 .Where(i => i.Activado == true)
+                .OrderBy(i => i.Id)
+                .Skip((pagina - 1) * tamanoPagina)
+                .Take(tamanoPagina)
                 .ToListAsync();
         }
     }

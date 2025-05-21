@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Reservas.Abstraccion.Servicios;
 using Reservas.DTO.DTOPrestamosEquipo;
+using Reservas.Modelos;
 
 namespace Reservas.Controllers
 {
@@ -10,22 +12,39 @@ namespace Reservas.Controllers
     public class PrestamosEquipoController : ControllerBase
     {
         private readonly IServicioPrestamosEquipo _prestamosEquipo;
+        private readonly DbErpContext _context;
 
-        public PrestamosEquipoController(IServicioPrestamosEquipo prestamosEquipo)
+        public PrestamosEquipoController(IServicioPrestamosEquipo prestamosEquipo, DbErpContext context)
         {
             this._prestamosEquipo = prestamosEquipo;
+            _context = context;
         }
 
 
         [HttpGet]
-        public async Task<IActionResult?> GetPrestamosEquipo()
+        public async Task<IActionResult?> GetPrestamosEquipo([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)
         {
-            var resultado = await _prestamosEquipo.GetPrestamosEquipo();
+            var resultado = await _prestamosEquipo.GetPrestamosEquipo(pagina, tamanoPagina);
             if (resultado == null)
             {
                 return NotFound("Lista de Prestamos no encontrada");
             }
-            return Ok(resultado);
+
+            var totalPrestamos = await _context.PrestamosEquipos.CountAsync();
+            var totalPaginas = (int)Math.Ceiling(totalPrestamos / (double)tamanoPagina);
+
+            var respuesta = new
+            {
+                paginacion = new
+                {
+                    paginaActual = pagina,
+                    tamanoPagina,
+                    totalPrestamos,
+                    totalPaginas
+                },
+                datos = resultado
+            };
+            return Ok(respuesta);
         }
 
         [HttpPost]

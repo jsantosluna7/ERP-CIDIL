@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Reservas.Abstraccion.Servicios;
 using Reservas.DTO.DTOReservaDeEspacio;
 using Reservas.DTO.DTOSolicitudDeReserva;
@@ -12,21 +13,40 @@ namespace Reservas.Controllers
     public class ReservaDeEspacioController : ControllerBase
     {
         private readonly IServicioReservaDeEspacio _servicioReservaDeEspacio;
-        public ReservaDeEspacioController(IServicioReservaDeEspacio servicioReservaDeEspacio)
+        private readonly DbErpContext _context;
+
+        public ReservaDeEspacioController(IServicioReservaDeEspacio servicioReservaDeEspacio, DbErpContext context)
         {
             _servicioReservaDeEspacio = servicioReservaDeEspacio;
+            _context = context;
         }
 
         // Método para obtener todas las reservas
         [HttpGet("obtener-reservas")]
-        public async Task<IActionResult> ObtenerReservas()
+        public async Task<IActionResult> ObtenerReservas([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)
         {
-            var reservas = await _servicioReservaDeEspacio.ObtenerReservas();
+            var reservas = await _servicioReservaDeEspacio.ObtenerReservas(pagina, tamanoPagina);
             if (reservas == null)
             {
                 return NotFound("No se encontraron reservas de espacios.");
             }
-            return Ok(reservas);
+
+            var totalEspacios = await _context.InventarioEquipos.CountAsync();
+            var totalPaginas = (int)Math.Ceiling(totalEspacios / (double)tamanoPagina);
+
+            var respuesta = new
+            {
+                paginacion = new
+                {
+                    paginaActual = pagina,
+                    tamanoPagina,
+                    totalEspacios,
+                    totalPaginas
+                },
+                datos = reservas
+            };
+
+            return Ok(respuesta);
         }
 
         // Método para obtener una reserva por id

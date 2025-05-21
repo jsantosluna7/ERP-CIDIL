@@ -11,6 +11,7 @@ namespace Usuarios.Abstraccion.Repositorios
         //Usuario crearUsuario(UsuarioDTO usuarioDTO);
         Task<bool?> eliminarUsuario(int id);
         Task<Usuario?> obtenerUsuarioPorId(int id);
-        Task<List<Usuario>> obtenerUsuarios();
+        //Task<List<Usuario>> obtenerUsuarios();
+        Task<List<Usuario>> obtenerUsuarios(int pagina, int tamanoPagina);
     }
 }

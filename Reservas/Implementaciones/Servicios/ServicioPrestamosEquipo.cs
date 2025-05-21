@@ -79,9 +79,9 @@ namespace Reservas.Implementaciones.Servicios
             return await repositorioPrestamosEquipo.GetById(id);
         }
 
-        public async Task<List<PrestamosEquipoDTO>?> GetPrestamosEquipo()
+        public async Task<List<PrestamosEquipoDTO>?> GetPrestamosEquipo(int pagina, int tamanoPagina)
         {
-            var pEquipo = await repositorioPrestamosEquipo.GetPrestamosEquipo();
+            var pEquipo = await repositorioPrestamosEquipo.GetPrestamosEquipo(pagina, tamanoPagina);
             if (pEquipo == null)
             {
                 return null;

@@ -17,9 +17,9 @@ namespace Reservas.Implementaciones.Servicios
         }
 
         // Metodo para obtener todas las reservas
-        public async Task<List<ReservaDeEspacioDTO>?> ObtenerReservas()
+        public async Task<List<ReservaDeEspacioDTO>?> ObtenerReservas(int pagina, int tamanoPagina)
         {
-            var reservas = await _repositorioReservaDeEspacio.ObtenerReservas();
+            var reservas = await _repositorioReservaDeEspacio.ObtenerReservas(pagina, tamanoPagina);
 
             if (reservas == null || reservas.Count == 0)
             {

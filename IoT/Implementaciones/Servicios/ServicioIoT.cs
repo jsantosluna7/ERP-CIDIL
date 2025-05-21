@@ -44,9 +44,9 @@ namespace IoT.Implementaciones.Servicios
             };
         }
         //Se usa el metodo optener para llamar a todos los registros disponibles
-        public async Task<List<IoTDTO>?> GetIot()
+        public async Task<List<IoTDTO>?> GetIot(int pagina, int tamanoPagina)
         {
-            var ioT = await _repositorio.GetIot();
+            var ioT = await _repositorio.GetIot(pagina, tamanoPagina);
             
            var ioTDTO = new List<IoTDTO>();
             foreach(Iot ioTs in ioT)

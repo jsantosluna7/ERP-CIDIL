@@ -16,9 +16,17 @@ namespace Usuarios.Implementaciones.Repositorios
         }
 
         //Método para obtener todo los usuarios
-        public async Task<List<Usuario>> obtenerUsuarios()
+        public async Task<List<Usuario>> obtenerUsuarios(int pagina, int tamanoPagina)
         {
-            return await _context.Usuarios.Where(u => u.Activado == true).ToListAsync();
+            if (pagina <= 0) pagina = 1;
+            if (tamanoPagina <= 0) tamanoPagina = 20;
+
+            return await _context.Usuarios
+                .Where(u => u.Activado == true)
+                .OrderBy(i => i.Id)
+                .Skip((pagina - 1) * tamanoPagina)
+                .Take(tamanoPagina)
+                .ToListAsync();
         }
 
         //Método para obtener un usuario por su id
