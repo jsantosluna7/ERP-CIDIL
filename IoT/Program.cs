@@ -24,6 +24,9 @@ builder.Services.AddScoped<IRepositorioIoT, RepositorioIoT>();
 //Servicios
 builder.Services.AddScoped<IServicioIoT, ServicioIoT>();
 
+//Variables de entorno
+DotNetEnv.Env.Load();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

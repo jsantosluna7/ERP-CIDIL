@@ -35,7 +35,7 @@ namespace Usuarios.Controllers
                 return NotFound("Lista de de usuarios vacía");
             }
 
-            var totalUsuarios = await _context.InventarioEquipos.CountAsync();
+            var totalUsuarios = await _context.Usuarios.CountAsync();
             var totalPaginas = (int)Math.Ceiling(totalUsuarios/ (double)tamanoPagina);
 
             var respuesta = new

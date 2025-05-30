@@ -39,6 +39,9 @@ builder.Services.AddScoped<ServicioEmail>();
 //builder.Services.AddControllers()
 //    .PartManager.ApplicationParts.Add(new AssemblyPart(typeof(RolController).Assembly));
 
+//Variables de entorno
+DotNetEnv.Env.Load();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

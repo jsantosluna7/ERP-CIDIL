@@ -52,6 +52,8 @@ builder.Services.AddScoped<ServicioConflictos>();
 //    });
 //});
 
+//Variables de entorno
+DotNetEnv.Env.Load();
 
 var app = builder.Build();
 
