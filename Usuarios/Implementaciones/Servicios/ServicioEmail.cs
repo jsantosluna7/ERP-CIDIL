@@ -61,7 +61,7 @@ namespace Usuarios.Implementaciones.Servicios
             // Configuración del cliente SMTP
             var mensaje = new MailMessage
             {
-                From = new MailAddress(_configuracion.User)
+                From = new MailAddress(_configuracion.User, "ERP CIDIL")
             };
             mensaje.To.Add(destinatario);
             mensaje.Subject = "Cambio de contraseña exitoso";
