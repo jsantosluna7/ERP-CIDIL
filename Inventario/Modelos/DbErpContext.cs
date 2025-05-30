@@ -80,6 +80,9 @@ public partial class DbErpContext : DbContext
             entity.ToTable("horario");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ActivadoHorario)
+                .HasDefaultValue(true)
+                .HasColumnName("activado_horario");
             entity.Property(e => e.Activo)
                 .HasDefaultValue(true)
                 .HasColumnName("activo");
@@ -105,8 +108,6 @@ public partial class DbErpContext : DbContext
             entity.HasKey(e => e.Id).HasName("inventario_equipos_pkey");
 
             entity.ToTable("inventario_equipos");
-
-            entity.HasIndex(e => e.Serial, "inventario_equipos_serial_key").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Activado)
@@ -155,12 +156,10 @@ public partial class DbErpContext : DbContext
 
             entity.HasOne(d => d.IdEstadoFisicoNavigation).WithMany(p => p.InventarioEquipos)
                 .HasForeignKey(d => d.IdEstadoFisico)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("inventario_equipos_id_estado_fisico_fkey");
 
             entity.HasOne(d => d.IdLaboratorioNavigation).WithMany(p => p.InventarioEquipos)
                 .HasForeignKey(d => d.IdLaboratorio)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("inventario_equipos_id_laboratorio_fkey");
         });
 
@@ -171,11 +170,19 @@ public partial class DbErpContext : DbContext
             entity.ToTable("iot");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activado)
+                .HasDefaultValue(true)
+                .HasColumnName("activado");
             entity.Property(e => e.Actuador)
                 .HasDefaultValue(false)
                 .HasColumnName("actuador");
+            entity.Property(e => e.HoraEntrada)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("hora_entrada");
             entity.Property(e => e.IdLaboratorio).HasColumnName("id_laboratorio");
-            entity.Property(e => e.IdPlaca).HasColumnName("id_placa");
+            entity.Property(e => e.IdPlaca)
+                .HasMaxLength(50)
+                .HasColumnName("id_placa");
             entity.Property(e => e.Sensor1).HasColumnName("sensor1");
             entity.Property(e => e.Sensor2).HasColumnName("sensor2");
             entity.Property(e => e.Sensor3).HasColumnName("sensor3");
@@ -209,8 +216,8 @@ public partial class DbErpContext : DbContext
                 .HasMaxLength(100)
                 .HasColumnName("nombre");
             entity.Property(e => e.Piso)
-                  .HasDefaultValue(1)
-                  .HasColumnName("piso");
+                .HasDefaultValue(1)
+                .HasColumnName("piso");
         });
 
         modelBuilder.Entity<PrestamosEquipo>(entity =>
@@ -220,6 +227,9 @@ public partial class DbErpContext : DbContext
             entity.ToTable("prestamos_equipos");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activado)
+                .HasDefaultValue(true)
+                .HasColumnName("activado");
             entity.Property(e => e.ComentarioAprobacion).HasColumnName("comentario_aprobacion");
             entity.Property(e => e.FechaEntrega).HasColumnName("fecha_entrega");
             entity.Property(e => e.FechaFinal).HasColumnName("fecha_final");
@@ -254,6 +264,9 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.Id)
                 .HasDefaultValueSql("nextval('prestamos_espacios_id_seq'::regclass)")
                 .HasColumnName("id");
+            entity.Property(e => e.Activado)
+                .HasDefaultValue(true)
+                .HasColumnName("activado");
             entity.Property(e => e.ComentarioAprobacion).HasColumnName("comentario_aprobacion");
             entity.Property(e => e.FechaAprobacion).HasColumnName("fecha_aprobacion");
             entity.Property(e => e.FechaSolicitud)

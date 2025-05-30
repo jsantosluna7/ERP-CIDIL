@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
 
-        public int IdPlaca { get; set; }
+        public string IdPlaca { get; set; } = null!;
 
         public int IdLaboratorio { get; set; }
 
@@ -19,5 +19,7 @@
         public float? Sensor5 { get; set; }
 
         public bool? Actuador { get; set; }
+
+        public DateTime? HoraEntrada { get; set; }
     }
 }

@@ -27,6 +27,8 @@ public partial class ReservaDeEspacio
 
     public string? ComentarioAprobacion { get; set; }
 
+    public bool? Activado { get; set; }
+
     public virtual Estado IdEstadoNavigation { get; set; } = null!;
 
     public virtual Laboratorio IdLaboratorioNavigation { get; set; } = null!;

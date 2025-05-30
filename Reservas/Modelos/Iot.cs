@@ -7,7 +7,7 @@ public partial class Iot
 {
     public int Id { get; set; }
 
-    public int IdPlaca { get; set; }
+    public string IdPlaca { get; set; } = null!;
 
     public int IdLaboratorio { get; set; }
 
@@ -22,6 +22,10 @@ public partial class Iot
     public float? Sensor5 { get; set; }
 
     public bool? Actuador { get; set; }
+
+    public bool? Activado { get; set; }
+
+    public DateTime? HoraEntrada { get; set; }
 
     public virtual Laboratorio IdLaboratorioNavigation { get; set; } = null!;
 }

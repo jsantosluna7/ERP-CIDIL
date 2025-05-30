@@ -40,6 +40,7 @@ namespace IoT.Implementaciones.Servicios
                 Sensor4 = ioT.Sensor4,
                 Sensor5 = ioT.Sensor5,
                 Actuador = ioT.Actuador,
+                HoraEntrada = ioT.HoraEntrada
 
             };
         }
@@ -62,6 +63,7 @@ namespace IoT.Implementaciones.Servicios
                     Sensor4 = ioTs.Sensor4,
                     Sensor5 = ioTs.Sensor5,
                     Actuador = ioTs.Actuador,
+                    HoraEntrada = ioTs.HoraEntrada
                 };
                 ioTDTO.Add(nueovoIoT);
             }

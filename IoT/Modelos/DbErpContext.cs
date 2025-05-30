@@ -109,8 +109,6 @@ public partial class DbErpContext : DbContext
 
             entity.ToTable("inventario_equipos");
 
-            entity.HasIndex(e => e.Serial, "inventario_equipos_serial_key").IsUnique();
-
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Activado)
                 .HasDefaultValue(true)
@@ -158,12 +156,10 @@ public partial class DbErpContext : DbContext
 
             entity.HasOne(d => d.IdEstadoFisicoNavigation).WithMany(p => p.InventarioEquipos)
                 .HasForeignKey(d => d.IdEstadoFisico)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("inventario_equipos_id_estado_fisico_fkey");
 
             entity.HasOne(d => d.IdLaboratorioNavigation).WithMany(p => p.InventarioEquipos)
                 .HasForeignKey(d => d.IdLaboratorio)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("inventario_equipos_id_laboratorio_fkey");
         });
 
@@ -180,8 +176,13 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.Actuador)
                 .HasDefaultValue(false)
                 .HasColumnName("actuador");
+            entity.Property(e => e.HoraEntrada)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("hora_entrada");
             entity.Property(e => e.IdLaboratorio).HasColumnName("id_laboratorio");
-            entity.Property(e => e.IdPlaca).HasColumnName("id_placa");
+            entity.Property(e => e.IdPlaca)
+                .HasMaxLength(50)
+                .HasColumnName("id_placa");
             entity.Property(e => e.Sensor1).HasColumnName("sensor1");
             entity.Property(e => e.Sensor2).HasColumnName("sensor2");
             entity.Property(e => e.Sensor3).HasColumnName("sensor3");
@@ -214,7 +215,9 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.Nombre)
                 .HasMaxLength(100)
                 .HasColumnName("nombre");
-            entity.Property(e => e.Piso).HasColumnName("piso");
+            entity.Property(e => e.Piso)
+                .HasDefaultValue(1)
+                .HasColumnName("piso");
         });
 
         modelBuilder.Entity<PrestamosEquipo>(entity =>

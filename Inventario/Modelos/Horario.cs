@@ -23,5 +23,7 @@ public partial class Horario
 
     public DateTime? FechaCreacion { get; set; }
 
+    public bool? ActivadoHorario { get; set; }
+
     public virtual Laboratorio? IdLaboratorioNavigation { get; set; }
 }
