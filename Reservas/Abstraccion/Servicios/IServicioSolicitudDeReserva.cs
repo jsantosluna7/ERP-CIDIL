@@ -6,7 +6,7 @@ namespace Reservas.Abstraccion.Servicios
     {
         Task<bool?> CancelarSolicitudReserva(int id);
         Task<ActualizarSolicitudDeReservaDTO?> EditarSolicitudReserva(int id, ActualizarSolicitudDeReservaDTO actualizarSolicitudDeReservaDTO);
-        Task<List<SolicitudDeReservaDTO>?> ObtenerSolicitudesReservas();
+        Task<List<SolicitudDeReservaDTO>?> ObtenerSolicitudesReservas(int pagina, int tamanoPagina);
         Task<SolicitudDeReservaDTO?> ObtenerSolicitudReservaPorId(int id);
         Task<CrearSolicitudDeReservaDTO?> SolicitarCrearReserva(CrearSolicitudDeReservaDTO crearSolicitudDeReservaDTO);
     }

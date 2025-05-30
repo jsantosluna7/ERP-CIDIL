@@ -11,6 +11,6 @@ namespace Reservas.Abstraccion.Repositorio
         Task<bool> conflictoReservaActualizar(int IdUsuario, int IdInventario, DateTime? FechaInicio, DateTime? FechaFinal, DateTime? FechaSolicitud);
         Task<SolicitudPrestamosDeEquipo?> CrearSolicitudPEquipos(CrearSolicitudPrestamosDeEquiposDTO crearSolicitudPrestamosDeEquiposDTO);
         Task<SolicitudPrestamosDeEquipo> GetByIdSolicitudPEquipos(int id);
-        Task<List<SolicitudPrestamosDeEquipo>> GetSolicitudPrestamos();
+        Task<List<SolicitudPrestamosDeEquipo>> GetSolicitudPrestamos(int pagina, int tamanoPagina);
     }
 }

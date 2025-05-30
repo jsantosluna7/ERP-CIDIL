@@ -18,10 +18,24 @@ namespace Reservas.Implementaciones.Repositorios
         }
 
         //Optener las solicitudes de los pretamos de equipos
-        public async Task<List<SolicitudPrestamosDeEquipo>> GetSolicitudPrestamos()
+        public async Task<List<SolicitudPrestamosDeEquipo>> GetSolicitudPrestamos(int pagina, int tamanoPagina)
         {
             return await _context.SolicitudPrestamosDeEquipos.ToListAsync();
+
+            if (pagina <= 0) pagina = 1;
+            if (tamanoPagina <= 0) tamanoPagina = 20;
+
+            return await _context.SolicitudPrestamosDeEquipos
+                .OrderBy(i => i.Id).Skip((pagina - 1) * tamanoPagina)
+                .Take(tamanoPagina)
+                .ToListAsync();
+
+
         }
+
+
+
+
         //Método para obtener todas las Prestamos por id
         public async Task<SolicitudPrestamosDeEquipo> GetByIdSolicitudPEquipos(int id)
         {

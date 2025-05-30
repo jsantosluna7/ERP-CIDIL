@@ -19,9 +19,17 @@ namespace Reservas.Implementaciones.Repositorios
         }
 
         //Método para obtener todas las solicitudes de reserva
-        public async Task<List<SolicitudReservaDeEspacio>> ObtenerSolicitudesReservas()
+        public async Task<List<SolicitudReservaDeEspacio>> ObtenerSolicitudesReservas(int pagina, int tamanoPagina)
         {
             return await _context.SolicitudReservaDeEspacios.ToListAsync();
+
+            if (pagina <= 0) pagina = 1;
+            if (tamanoPagina <= 0) tamanoPagina = 20;
+
+            return await _context.SolicitudReservaDeEspacios
+                .OrderBy(i => i.Id).Skip((pagina - 1) * tamanoPagina)
+                .Take(tamanoPagina)
+                .ToListAsync();
         }
 
         //Método para obtener todas las solicitudes de reserva por id

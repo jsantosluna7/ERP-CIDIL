@@ -13,9 +13,9 @@ namespace Reservas.Implementaciones.Servicios
             _repositorioSolicitudPrestamosDeEquipos = repositorioSolicitudPrestamosDeEquipos;
         }
 
-        public async Task<List<SolicitudPrestamosDeEquiposDTO>?> GetSolicitudPrestamos()
+        public async Task<List<SolicitudPrestamosDeEquiposDTO>?> GetSolicitudPrestamos(int pagina, int tamanoPagina)
         {
-            var prestamo = await _repositorioSolicitudPrestamosDeEquipos.GetSolicitudPrestamos();
+            var prestamo = await _repositorioSolicitudPrestamosDeEquipos.GetSolicitudPrestamos(pagina, tamanoPagina);
             if (prestamo == null)
             {
                 return null;
