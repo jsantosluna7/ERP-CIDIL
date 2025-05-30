@@ -40,7 +40,8 @@ builder.Services.AddCors(options =>
 
 
 
-
+//Variables de entorno
+DotNetEnv.Env.Load();
 
 var app = builder.Build();
 
