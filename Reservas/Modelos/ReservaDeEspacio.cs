@@ -12,10 +12,6 @@ public partial class ReservaDeEspacio
 
     public int IdLaboratorio { get; set; }
 
-    public TimeOnly HoraInicio { get; set; }
-
-    public TimeOnly HoraFinal { get; set; }
-
     public int IdEstado { get; set; }
 
     public string Motivo { get; set; } = null!;
@@ -30,6 +26,9 @@ public partial class ReservaDeEspacio
 
     public bool? Activado { get; set; }
 
+    public DateTime? HoraInicio { get; set; }
+
+    public DateTime? HoraFinal { get; set; }
     [JsonIgnore]
     public virtual Estado IdEstadoNavigation { get; set; } = null!;
     [JsonIgnore]

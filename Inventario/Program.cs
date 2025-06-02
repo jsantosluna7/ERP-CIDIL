@@ -30,9 +30,9 @@ builder.Services.AddScoped<IServicioEstadoFisico, ServicioEstadoFisico>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("PermitirFrontend", policy =>
+    options.AddPolicy("Angular", policy =>
     {
-        policy.WithOrigins("http://localhost:5108/swagger/index.html") // o el puerto donde corre tu frontend
+        policy.WithOrigins("http://localhost:4200") // o el puerto donde corre tu frontend
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -58,6 +58,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseCors("PermitirFrontend");
+app.UseCors("Angular");
 
 app.Run();

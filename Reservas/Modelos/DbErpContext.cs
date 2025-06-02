@@ -93,8 +93,12 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.FechaCreacion)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("fecha_creacion");
-            entity.Property(e => e.HoraFinal).HasColumnName("hora_final");
-            entity.Property(e => e.HoraInicio).HasColumnName("hora_inicio");
+            entity.Property(e => e.HoraFinal)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("hora_final");
+            entity.Property(e => e.HoraInicio)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("hora_inicio");
             entity.Property(e => e.IdLaboratorio).HasColumnName("id_laboratorio");
             entity.Property(e => e.Profesor).HasColumnName("profesor");
 
@@ -272,8 +276,12 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.FechaSolicitud)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("fecha_solicitud");
-            entity.Property(e => e.HoraFinal).HasColumnName("hora_final");
-            entity.Property(e => e.HoraInicio).HasColumnName("hora_inicio");
+            entity.Property(e => e.HoraFinal)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("hora_final");
+            entity.Property(e => e.HoraInicio)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("hora_inicio");
             entity.Property(e => e.IdEstado).HasColumnName("id_estado");
             entity.Property(e => e.IdLaboratorio).HasColumnName("id_laboratorio");
             entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
@@ -358,8 +366,12 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.FechaSolicitud)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("fecha_solicitud");
-            entity.Property(e => e.HoraFinal).HasColumnName("hora_final");
-            entity.Property(e => e.HoraInicio).HasColumnName("hora_inicio");
+            entity.Property(e => e.HoraFinal)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("hora_final");
+            entity.Property(e => e.HoraInicio)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("hora_inicio");
             entity.Property(e => e.IdEstado)
                 .HasDefaultValue(2)
                 .HasColumnName("id_estado");
