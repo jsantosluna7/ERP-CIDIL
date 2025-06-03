@@ -1,8 +1,8 @@
-﻿using IoT.Abstraccion.Repositorio;
+﻿using ERP.Data.Modelos;
+using IoT.Abstraccion.Repositorio;
 using IoT.Abstraccion.Servicios;
 using IoT.DTO;
 using IoT.Implementaciones.Repositorios;
-using IoT.Modelos;
 
 namespace IoT.Implementaciones.Servicios
 {

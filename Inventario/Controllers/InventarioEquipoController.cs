@@ -1,7 +1,7 @@
-﻿using Inventario.Abstraccion.Servicios;
+﻿using ERP.Data.Modelos;
+using Inventario.Abstraccion.Servicios;
 using Inventario.DTO.InventarioEquipoDTO;
 using Inventario.Implementaciones.Servicios;
-using Inventario.Modelos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

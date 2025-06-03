@@ -4,7 +4,6 @@ using Reservas.Abstraccion.Servicios;
 using Reservas.DTO.DTOHorario;
 using Reservas.DTO.DTOReservaDeEspacio;
 using Reservas.DTO.DTOSolicitudDeReserva;
-using Reservas.Modelos;
 
 namespace Reservas.Implementaciones.Servicios
 {

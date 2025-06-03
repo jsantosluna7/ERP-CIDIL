@@ -1,7 +1,7 @@
-﻿using Inventario.Abstraccion.Repositorio;
+﻿using ERP.Data.Modelos;
+using Inventario.Abstraccion.Repositorio;
 using Inventario.Abstraccion.Servicios;
 using Inventario.DTO.EstadoFisicoDTO;
-using Inventario.Modelos;
 
 
 namespace Inventario.Implementaciones.Servicios

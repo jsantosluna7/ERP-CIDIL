@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.Data;
+﻿using ERP.Data.Modelos;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Usuarios.Abstraccion.Repositorios;
@@ -10,9 +11,9 @@ namespace Usuarios.Implementaciones.Repositorios
     public class RepositorioResetPassword : IRepositorioResetPassword
     {
         private readonly DbErpContext _context;
-        private readonly ServicioEmail _servicioEmail;
+        private readonly ServicioEmailUsuarios _servicioEmail;
 
-        public RepositorioResetPassword(DbErpContext context, ServicioEmail servicioEmail)
+        public RepositorioResetPassword(DbErpContext context, ServicioEmailUsuarios servicioEmail)
         {
             _context = context;
             _servicioEmail = servicioEmail;

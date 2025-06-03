@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ERP.Data.Modelos;
+using Microsoft.EntityFrameworkCore;
 using Reservas.Abstraccion.Repositorio;
 using Reservas.DTO.DTOHorario;
-using Reservas.Modelos;
 
 namespace Reservas.Implementaciones.Repositorios
 {

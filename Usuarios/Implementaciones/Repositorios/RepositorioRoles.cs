@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ERP.Data.Modelos;
+using Microsoft.EntityFrameworkCore;
 using Usuarios.Abstraccion.Repositorios;
 using Usuarios.Modelos;
 
@@ -22,13 +23,13 @@ namespace Usuarios.Implementaciones.Repositorios
         {
             return await _contexto.Roles
                 .Include(r => r.Usuarios)
-                    .ThenInclude(u => u.PrestamosEquipoIdUsuarioAprobador)
+                    .ThenInclude(u => u.PrestamosEquipoIdUsuarioAprobadorNavigations)
                 .Include(r => r.Usuarios)
-                    .ThenInclude(u => u.PrestamosEquipoIdUsuario)
+                    .ThenInclude(u => u.PrestamosEquipoIdUsuarioNavigations)
                 .Include(r => r.Usuarios)
-                    .ThenInclude(u => u.ReservaDeEspacioIdUsuarioAprobador)
+                    .ThenInclude(u => u.ReservaDeEspacioIdUsuarioAprobadorNavigations)
                 .Include(r => r.Usuarios)
-                    .ThenInclude(u => u.ReservaDeEspacioIdUsuario)
+                    .ThenInclude(u => u.ReservaDeEspacioIdUsuarioNavigations)
                 .Include(r => r.Usuarios)
                     .ThenInclude(u => u.SolicitudPrestamosDeEquipos)
                 .Include(r => r.Usuarios)

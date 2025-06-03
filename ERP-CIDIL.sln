@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Usuarios", "Usuarios\Usuari
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoT", "IoT\IoT.csproj", "{F95A51F1-327A-4736-A523-856790A732A9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERP.Data", "ERP.Data\ERP.Data.csproj", "{554D5F36-580D-4F08-B24F-0AAAA1435A23}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiPrincipal", "ApiPrincipal\ApiPrincipal.csproj", "{AE9B67AB-01D3-437C-80B7-4D6B816D8A7F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{F95A51F1-327A-4736-A523-856790A732A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F95A51F1-327A-4736-A523-856790A732A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F95A51F1-327A-4736-A523-856790A732A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{554D5F36-580D-4F08-B24F-0AAAA1435A23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{554D5F36-580D-4F08-B24F-0AAAA1435A23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{554D5F36-580D-4F08-B24F-0AAAA1435A23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{554D5F36-580D-4F08-B24F-0AAAA1435A23}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE9B67AB-01D3-437C-80B7-4D6B816D8A7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE9B67AB-01D3-437C-80B7-4D6B816D8A7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE9B67AB-01D3-437C-80B7-4D6B816D8A7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE9B67AB-01D3-437C-80B7-4D6B816D8A7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

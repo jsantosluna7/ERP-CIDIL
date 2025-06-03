@@ -1,17 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ERP.Data.Modelos;
+using Microsoft.EntityFrameworkCore;
 using Reservas.Abstraccion.Repositorio;
 using Reservas.DTO.DTOSolicitudDeEquipos;
 using Reservas.Implementaciones.Servicios;
-using Reservas.Modelos;
 
 namespace Reservas.Implementaciones.Repositorios
 {
     public class RepositorioSolicitudPrestamosDeEquipos : IRepositorioSolicitudPrestamosDeEquipos
     {
         private readonly DbErpContext _context;
-        private readonly ServicioEmail _servicioEmail;
+        private readonly ServicioEmailReservas _servicioEmail;
 
-        public RepositorioSolicitudPrestamosDeEquipos(DbErpContext context, ServicioEmail servicioEmail)
+        public RepositorioSolicitudPrestamosDeEquipos(DbErpContext context, ServicioEmailReservas servicioEmail)
         {
             _context = context;
             _servicioEmail = servicioEmail;

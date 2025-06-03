@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ERP.Data.Modelos;
+using Microsoft.EntityFrameworkCore;
 using Reservas.Abstraccion.Repositorio;
-using Reservas.Modelos;
 
 namespace Reservas.Implementaciones.Repositorios
 {

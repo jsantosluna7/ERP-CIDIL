@@ -1,4 +1,4 @@
-﻿using IoT.Modelos;
+﻿using ERP.Data.Modelos;
 
 namespace IoT.Abstraccion.Repositorio
 {

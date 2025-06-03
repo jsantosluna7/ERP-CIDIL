@@ -32,8 +32,8 @@ namespace Reservas.Implementaciones.Servicios
                     Asignatura = horario.Asignatura,
                     Profesor = horario.Profesor,
                     IdLaboratorio = horario.IdLaboratorio ?? 1,
-                    HoraInicio = horario.HoraInicio ?? new TimeOnly(),
-                    HoraFinal = horario.HoraFinal ?? new TimeOnly(),
+                    HoraInicio = horario.HoraInicio ?? new DateTime(),
+                    HoraFinal = horario.HoraFinal ?? new DateTime(),
                     Dia = horario.Dia
                 };
                 horariosDTO.Add(horarioDTO);

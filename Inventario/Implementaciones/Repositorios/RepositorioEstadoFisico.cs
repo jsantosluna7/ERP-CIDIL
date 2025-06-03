@@ -1,5 +1,5 @@
-﻿using Inventario.Abstraccion.Repositorio;
-using Inventario.Modelos;
+﻿using ERP.Data.Modelos;
+using Inventario.Abstraccion.Repositorio;
 using Microsoft.EntityFrameworkCore;
 
 namespace Inventario.Implementaciones.Repositorios

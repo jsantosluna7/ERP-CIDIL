@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ERP.Data.Modelos;
+using Microsoft.EntityFrameworkCore;
 using Usuarios.Abstraccion.Repositorios;
 using Usuarios.DTO.LoginDTO;
-using Usuarios.DTO.UsuarioDTO;
 using Usuarios.Modelos;
 
 namespace Usuarios.Implementaciones.Repositorios

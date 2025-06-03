@@ -1,5 +1,5 @@
-﻿using Reservas.DTO.DTOSolicitudDeEquipos;
-using Reservas.Modelos;
+﻿using ERP.Data.Modelos;
+using Reservas.DTO.DTOSolicitudDeEquipos;
 
 namespace Reservas.Abstraccion.Repositorio
 {

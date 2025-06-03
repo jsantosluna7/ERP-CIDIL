@@ -1,5 +1,5 @@
-﻿using Inventario.DTO.LaboratorioDTO;
-using Inventario.Modelos;
+﻿using ERP.Data.Modelos;
+using Inventario.DTO.LaboratorioDTO;
 
 namespace Inventario.Abstraccion.Repositorio
 {

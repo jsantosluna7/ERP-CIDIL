@@ -1,5 +1,5 @@
-﻿using Reservas.DTO.DTOPrestamosEquipo;
-using Reservas.Modelos;
+﻿using ERP.Data.Modelos;
+using Reservas.DTO.DTOPrestamosEquipo;
 
 namespace Reservas.Abstraccion.Servicios
 {

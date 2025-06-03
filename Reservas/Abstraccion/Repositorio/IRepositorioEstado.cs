@@ -1,5 +1,5 @@
-﻿using Reservas.DTO.DTOEstado;
-using Reservas.Modelos;
+﻿using ERP.Data.Modelos;
+using Reservas.DTO.DTOEstado;
 
 namespace Reservas.Abstraccion.Repositorio
 {

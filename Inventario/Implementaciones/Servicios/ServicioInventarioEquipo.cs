@@ -1,8 +1,8 @@
-﻿using Inventario.Abstraccion.Repositorio;
+﻿using ERP.Data.Modelos;
+using Inventario.Abstraccion.Repositorio;
 using Inventario.Abstraccion.Servicios;
 using Inventario.DTO.InventarioEquipoDTO;
 using Inventario.Implementaciones.Repositorios;
-using Inventario.Modelos;
 
 namespace Inventario.Implementaciones.Servicios
 {

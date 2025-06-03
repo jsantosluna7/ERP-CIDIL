@@ -1,4 +1,4 @@
-﻿using Inventario.Modelos;
+﻿using ERP.Data.Modelos;
 
 namespace Inventario.Abstraccion.Repositorio
 {

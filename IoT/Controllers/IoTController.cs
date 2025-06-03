@@ -1,5 +1,5 @@
-﻿using IoT.Abstraccion.Servicios;
-using IoT.Modelos;
+﻿using ERP.Data.Modelos;
+using IoT.Abstraccion.Servicios;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

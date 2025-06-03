@@ -1,15 +1,12 @@
+using ERP.Data.Modelos;
 using Microsoft.EntityFrameworkCore;
 using Reservas.Abstraccion.Repositorio;
 using Reservas.Abstraccion.Servicios;
 using Reservas.Implementaciones.Repositorios;
 using Reservas.Implementaciones.Servicios;
-using Reservas.Modelos;
+using Usuarios.Modelos;
 
 var builder = WebApplication.CreateBuilder(args);
-
-//Conectar la base de datos 
-
-builder.Services.AddDbContext<DbErpContext>(Options => Options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnetion")));
 
 // Add services to the container.
 
@@ -17,29 +14,6 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-//Añadir Repositorios
-
-builder.Services.AddScoped<IRepositorioPrestamosEquipo, RepositorioPrestamosEquipo>();
-builder.Services.AddScoped<IRepositorioEstado, RepositorioEstado>();
-builder.Services.AddScoped<IRepositorioHorario, RepositorioHorario>();
-builder.Services.AddScoped<IRepositorioReservaDeEspacio, RepositorioReservaDeEspacio>();
-builder.Services.AddScoped<IRepositorioSolicitudDeReserva, RepositorioSolicitudDeReserva>();
-builder.Services.AddScoped<IRepositorioSolicitudPrestamosDeEquipos, RepositorioSolicitudPrestamosDeEquipos>();
-
-//Añadir Servicios
-
-builder.Services.AddScoped<IServicioPrestamosEquipo, ServicioPrestamosEquipo>();
-builder.Services.AddScoped<IServicioEstado, ServicioEstado>();
-builder.Services.AddScoped<IServicioHorario, ServicioHorario>();
-builder.Services.AddScoped<IServicioReservaDeEspacio, ServicioReservaDeEspacio>();
-builder.Services.AddScoped<IServicioSolicitudDeReserva, ServicioSolicitudDeReserva>();
-builder.Services.AddScoped<IServicioSolicitudPrestamosDeEquipos, ServicioSolicitudPrestamosDeEquipos>();
-
-//Añadimos el servicio de email
-builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
-builder.Services.AddScoped<ServicioEmail>();
-builder.Services.AddScoped<ServicioConflictos>();
 
 
 //builder.Services.AddCors(options =>
@@ -52,8 +26,6 @@ builder.Services.AddScoped<ServicioConflictos>();
 //    });
 //});
 
-//Variables de entorno
-DotNetEnv.Env.Load();
 
 var app = builder.Build();
 

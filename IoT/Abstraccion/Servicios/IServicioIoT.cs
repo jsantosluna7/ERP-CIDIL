@@ -1,5 +1,5 @@
-﻿using IoT.DTO;
-using IoT.Modelos;
+﻿using ERP.Data.Modelos;
+using IoT.DTO;
 
 namespace IoT.Abstraccion.Servicios
 {

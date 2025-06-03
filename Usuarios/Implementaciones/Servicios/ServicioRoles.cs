@@ -1,4 +1,5 @@
-﻿using Usuarios.Abstraccion.Repositorios;
+﻿using ERP.Data.Modelos;
+using Usuarios.Abstraccion.Repositorios;
 using Usuarios.Abstraccion.Servicios;
 using Usuarios.DTO.RolDTO;
 using Usuarios.DTO.UsuarioDTO;

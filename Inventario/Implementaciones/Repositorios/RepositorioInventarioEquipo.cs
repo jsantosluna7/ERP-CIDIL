@@ -1,8 +1,7 @@
-﻿using Inventario.Abstraccion.Repositorio;
+﻿using ERP.Data.Modelos;
+using Inventario.Abstraccion.Repositorio;
 using Inventario.DTO.InventarioEquipoDTO;
-using Inventario.Modelos;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Inventario.Implementaciones.Repositorios
 {

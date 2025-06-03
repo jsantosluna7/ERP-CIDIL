@@ -1,5 +1,5 @@
-﻿using Reservas.DTO.DTOHorario;
-using Reservas.Modelos;
+﻿using ERP.Data.Modelos;
+using Reservas.DTO.DTOHorario;
 
 namespace Reservas.Abstraccion.Repositorio
 {

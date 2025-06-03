@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ERP.Data.Modelos;
+using Microsoft.EntityFrameworkCore;
 using Usuarios.Abstraccion.Repositorios;
 using Usuarios.DTO.LoginDTO;
 using Usuarios.DTO.UsuarioDTO;
@@ -34,10 +35,10 @@ namespace Usuarios.Implementaciones.Repositorios
         {
             // Verificar si el usuario existe
             var usuario = await _context.Usuarios
-                .Include(usuario => usuario.PrestamosEquipoIdUsuarioAprobador)
-                .Include(usuario => usuario.PrestamosEquipoIdUsuario)
-                .Include(usuario => usuario.ReservaDeEspacioIdUsuarioAprobador)
-                .Include(usuario => usuario.ReservaDeEspacioIdUsuario)
+                .Include(usuario => usuario.PrestamosEquipoIdUsuarioAprobadorNavigations)
+                .Include(usuario => usuario.PrestamosEquipoIdUsuarioNavigations)
+                .Include(usuario => usuario.ReservaDeEspacioIdUsuarioAprobadorNavigations)
+                .Include(usuario => usuario.ReservaDeEspacioIdUsuarioNavigations)
                 .Include(usuario => usuario.SolicitudPrestamosDeEquipos)
                 .Include(usuario => usuario.SolicitudReservaDeEspacios)
                 .FirstOrDefaultAsync(u => u.Id == id);

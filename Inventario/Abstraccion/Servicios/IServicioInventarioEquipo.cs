@@ -1,5 +1,5 @@
-﻿using Inventario.DTO.InventarioEquipoDTO;
-using Inventario.Modelos;
+﻿using ERP.Data.Modelos;
+using Inventario.DTO.InventarioEquipoDTO;
 
 namespace Inventario.Abstraccion.Servicios
 {

@@ -1,5 +1,5 @@
-﻿using Inventario.DTO.EstadoFisicoDTO;
-using Inventario.Modelos;
+﻿using ERP.Data.Modelos;
+using Inventario.DTO.EstadoFisicoDTO;
 
 namespace Inventario.Abstraccion.Servicios
 {

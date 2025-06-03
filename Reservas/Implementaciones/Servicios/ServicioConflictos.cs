@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Reservas.Modelos;
+﻿using ERP.Data.Modelos;
+using Microsoft.EntityFrameworkCore;
 
 namespace Reservas.Implementaciones.Servicios
 {
@@ -12,7 +12,7 @@ namespace Reservas.Implementaciones.Servicios
             _context = context;
         }
 
-        public async Task<bool> conflictoReserva(int IdLaboratorio, TimeOnly? HoraInicio, TimeOnly? HoraFinal, DateTime? FechaSolicitud)
+        public async Task<bool> conflictoReserva(int IdLaboratorio, DateTime? HoraInicio, DateTime? HoraFinal, DateTime? FechaSolicitud)
         {
             var diaSemana = FechaSolicitud?.DayOfWeek.ToString();
             var dia = diaSemana switch
@@ -43,7 +43,7 @@ namespace Reservas.Implementaciones.Servicios
             return !(conflictoHorario || conflictoReserva); // Si no hay conflicto, se puede crear la reserva
         }
 
-        public async Task<bool> conflictoReservaActualizar(int id, int IdLaboratorio, TimeOnly? HoraInicio, TimeOnly? HoraFinal, DateTime? FechaSolicitud)
+        public async Task<bool> conflictoReservaActualizar(int id, int IdLaboratorio, DateTime? HoraInicio, DateTime? HoraFinal, DateTime? FechaSolicitud)
         {
             var diaSemana = FechaSolicitud?.DayOfWeek.ToString();
             var dia = diaSemana switch

@@ -1,8 +1,7 @@
-﻿using Reservas.Abstraccion.Repositorio;
+﻿using ERP.Data.Modelos;
+using Reservas.Abstraccion.Repositorio;
 using Reservas.Abstraccion.Servicios;
 using Reservas.DTO.DTOPrestamosEquipo;
-using Reservas.Modelos;
-using System.Xml;
 
 namespace Reservas.Implementaciones.Servicios
 {

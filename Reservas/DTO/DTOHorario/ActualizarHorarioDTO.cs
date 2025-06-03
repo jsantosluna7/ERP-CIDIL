@@ -8,9 +8,9 @@
 
         public int? IdLaboratorio { get; set; }
 
-        public TimeOnly? HoraInicio { get; set; }
+        public DateTime? HoraInicio { get; set; }
 
-        public TimeOnly? HoraFinal { get; set; }
+        public DateTime? HoraFinal { get; set; }
 
         public string Dia { get; set; } = null!;
     }

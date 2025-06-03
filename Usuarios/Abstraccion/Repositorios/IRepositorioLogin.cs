@@ -1,5 +1,5 @@
-﻿using Usuarios.DTO.LoginDTO;
-using Usuarios.DTO.UsuarioDTO;
+﻿using ERP.Data.Modelos;
+using Usuarios.DTO.LoginDTO;
 using Usuarios.Modelos;
 
 namespace Usuarios.Abstraccion.Repositorios

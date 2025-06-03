@@ -1,4 +1,5 @@
-﻿using Usuarios.DTO.UsuarioDTO;
+﻿using ERP.Data.Modelos;
+using Usuarios.DTO.UsuarioDTO;
 using Usuarios.Modelos;
 
 namespace Usuarios.Abstraccion.Repositorios

@@ -1,4 +1,5 @@
-﻿using Usuarios.DTO.RolDTO;
+﻿using ERP.Data.Modelos;
+using Usuarios.DTO.RolDTO;
 using Usuarios.Modelos;
 
 namespace Usuarios.Abstraccion.Servicios

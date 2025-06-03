@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using ERP.Data.Modelos;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Usuarios.Abstraccion.Servicios;
 using Usuarios.DTO.UsuarioDTO;
-using Usuarios.Modelos;
 
 namespace Usuarios.Controllers
 {

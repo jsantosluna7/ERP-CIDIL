@@ -1,5 +1,5 @@
-﻿using IoT.Abstraccion.Repositorio;
-using IoT.Modelos;
+﻿using ERP.Data.Modelos;
+using IoT.Abstraccion.Repositorio;
 using Microsoft.EntityFrameworkCore;
 
 namespace IoT.Implementaciones.Repositorios
