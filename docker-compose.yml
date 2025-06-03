@@ -1,6 +1,19 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:16
+    container_name: erp-db
+    restart: always
+    environment:
+      POSTGRES_DB: dbERP
+      POSTGRES_USER: CIDIL-SERVER
+      POSTGRES_PASSWORD: CIdil-Admin12
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
   api:
     build:
       context: .
@@ -11,3 +24,8 @@ services:
       - "5000:80"
     container_name: api-principal
     restart: always
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
