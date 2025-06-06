@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace ERP.Data.Modelos;
 
@@ -26,15 +25,15 @@ public partial class ReservaDeEspacio
 
     public bool? Activado { get; set; }
 
-    public DateTime HoraInicio { get; set; }
+    public DateTime? HoraInicio { get; set; }
 
-    public DateTime HoraFinal { get; set; }
-    [JsonIgnore]
+    public DateTime? HoraFinal { get; set; }
+
     public virtual Estado IdEstadoNavigation { get; set; } = null!;
-    [JsonIgnore]
+
     public virtual Laboratorio IdLaboratorioNavigation { get; set; } = null!;
-    [JsonIgnore]
+
     public virtual Usuario? IdUsuarioAprobadorNavigation { get; set; }
-    [JsonIgnore]
+
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
 }

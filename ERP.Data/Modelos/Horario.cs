@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace ERP.Data.Modelos;
 
@@ -25,6 +24,6 @@ public partial class Horario
     public DateTime? HoraInicio { get; set; }
 
     public DateTime? HoraFinal { get; set; }
-    [JsonIgnore]
+
     public virtual Laboratorio? IdLaboratorioNavigation { get; set; }
 }

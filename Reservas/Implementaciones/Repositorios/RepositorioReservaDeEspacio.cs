@@ -62,20 +62,28 @@ namespace Reservas.Implementaciones.Repositorios
             {
                 IdUsuario = crearReservaDeEspacioDTO.IdUsuario,
                 IdLaboratorio = crearReservaDeEspacioDTO.IdLaboratorio,
-                HoraInicio = crearReservaDeEspacioDTO.HoraInicio,
-                HoraFinal = crearReservaDeEspacioDTO.HoraFinal,
+                HoraInicio = NormalizarUtc(crearReservaDeEspacioDTO.HoraInicio),
+                HoraFinal = NormalizarUtc(crearReservaDeEspacioDTO.HoraFinal),
                 IdEstado = crearReservaDeEspacioDTO.IdEstado,
                 Motivo = crearReservaDeEspacioDTO.Motivo,
-                FechaSolicitud = crearReservaDeEspacioDTO.FechaSolicitud,
+                FechaSolicitud = NormalizarUtc(crearReservaDeEspacioDTO.FechaSolicitud),
                 IdUsuarioAprobador = crearReservaDeEspacioDTO.IdUsuarioAprobador,
-                FechaAprobacion = DateTime.UtcNow,
+                FechaAprobacion = NormalizarUtc(DateTime.UtcNow),
                 ComentarioAprobacion = crearReservaDeEspacioDTO.ComentarioAprobacion,
             };
 
             _context.ReservaDeEspacios.Add(crearReserva);
+
             await _context.SaveChangesAsync();
 
             return crearReserva;
+        }
+
+        //Cambiar el tipo de hora
+        private DateTime? NormalizarUtc(DateTime? date)
+        {
+            if (!date.HasValue) return null;
+            return DateTime.SpecifyKind(date.Value, DateTimeKind.Utc);
         }
 
         //Método para que el usuario cancele una reserva

@@ -23,7 +23,7 @@ namespace Usuarios.Controllers
             {
                 return NotFound("El correo institucional no existe.");
             }
-            return Ok("Se ha enviado un correo para restablecer la contraseña.");
+            return Ok();
         }
 
         [HttpPost("restablecer-contrasena")]
@@ -34,7 +34,7 @@ namespace Usuarios.Controllers
             {
                 return NotFound("El token no es válido, ha expirado o ingresaste la contraseña similar a la anterior, la contraseña debe ser mayor a 8 caracteres.");
             }
-            return Ok("La contraseña ha sido restablecida correctamente.");
+            return Ok();
         }
     }
 }

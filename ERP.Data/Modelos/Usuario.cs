@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace ERP.Data.Modelos;
 
@@ -35,7 +34,7 @@ public partial class Usuario
     public bool? Activado { get; set; }
 
     public DateTime? UltimaSesion { get; set; }
-    [JsonIgnore]
+
     public virtual Role? IdRolNavigation { get; set; }
 
     public virtual ICollection<PrestamosEquipo> PrestamosEquipoIdUsuarioAprobadorNavigations { get; set; } = new List<PrestamosEquipo>();
