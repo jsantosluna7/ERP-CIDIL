@@ -14,9 +14,9 @@ namespace Reservas.Implementaciones.Servicios
         }
 
         // Método para obtener todos los horarios
-        public async Task<List<HorarioDTO>?> ObtenerHorarios()
+        public async Task<List<HorarioDTO>?> ObtenerHorarios(int pagina, int tamanoPagina)
         {
-            var horarios = await _repositorioHorario.ObtenerHorarios();
+            var horarios = await _repositorioHorario.ObtenerHorarios(pagina, tamanoPagina);
 
             if (horarios == null || horarios.Count == 0)
             {

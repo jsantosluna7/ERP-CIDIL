@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using ERP.Data.Modelos;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Reservas.Abstraccion.Servicios;
 using Reservas.DTO.DTOHorario;
 
@@ -10,26 +12,44 @@ namespace Reservas.Controllers
     public class HorarioController : ControllerBase
     {
         private readonly IServicioHorario _servicioHorario;
-        public HorarioController(IServicioHorario servicioHorario)
+        private readonly DbErpContext _context;
+
+        public HorarioController(IServicioHorario servicioHorario, DbErpContext context)
         {
             _servicioHorario = servicioHorario;
+            _context = context;
         }
 
         // Método para obtener todos los horarios
         [HttpGet]
-        public async Task<IActionResult> ObtenerHorarios()
+        public async Task<IActionResult> ObtenerHorarios([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)
         {
             //Llamar al servicio para obtener todos los horarios
-            var horarios = await _servicioHorario.ObtenerHorarios();
+            var resultado = await _servicioHorario.ObtenerHorarios(pagina, tamanoPagina);
 
             //verificar si la lista de horarios está vacía
-            if (horarios == null)
+            if (resultado == null)
             {
                 return NotFound("Lista de horarios vacía");
             }
 
+            var totalHorario = await _context.Horarios.CountAsync();
+            var totalPaginas = (int)Math.Ceiling(totalHorario / (double)tamanoPagina);
+
+            var respuesta = new
+            {
+                paginacion = new
+                {
+                    paginaActual = pagina,
+                    tamanoPagina,
+                    totalHorario,
+                    totalPaginas
+                },
+                datos = resultado
+            };
+
             // Devolver la lista de horarios
-            return Ok(horarios);
+            return Ok(respuesta);
         }
 
         // Método para obtener un horario por id

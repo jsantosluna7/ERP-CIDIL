@@ -13,5 +13,6 @@ namespace Inventario.Abstraccion.Servicios
         Task<bool?> Eliminar(int id);
         Task<bool?> DesactivarLaboratorio(int id);
         Task<List<LaboratorioDTO>?> GetPisos(int piso);
+        Task<LaboratorioIdDTO?> obtenerPorCodigo(string codigo);
     }
 }

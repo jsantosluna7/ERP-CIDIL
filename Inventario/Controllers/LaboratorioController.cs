@@ -1,7 +1,9 @@
-﻿using Inventario.Abstraccion.Servicios;
+﻿using ERP.Data.Modelos;
+using Inventario.Abstraccion.Servicios;
 using Inventario.DTO.LaboratorioDTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inventario.Controllers
 {
@@ -12,10 +14,12 @@ namespace Inventario.Controllers
 
         //Hacemos una inyeccion
         private readonly IServicioLaboratorio _servicioLaboratorio;
+        private readonly DbErpContext _context;
 
-        public LaboratorioController(IServicioLaboratorio servicioLaboratorio)
+        public LaboratorioController(IServicioLaboratorio servicioLaboratorio, DbErpContext context)
         {
             _servicioLaboratorio = servicioLaboratorio;
+            _context = context;
         }
 
         //Controlador para  optener el inventario del los equipos
@@ -64,6 +68,14 @@ namespace Inventario.Controllers
                 return NotFound($"No se pudo encontrar el Laboratorio con el ID:{id}");
             }
             return Ok(resultado);
+        }
+
+        [HttpGet("laboratorios")]
+        public async Task<IActionResult> GetCodigoLab(string codigo)
+        {
+            var lab = await _servicioLaboratorio.obtenerPorCodigo(codigo);
+            if (lab == null) return NotFound();
+            return Ok(lab);
         }
 
         [HttpGet("pisos")]

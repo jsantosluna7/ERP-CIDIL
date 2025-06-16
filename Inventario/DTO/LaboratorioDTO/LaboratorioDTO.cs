@@ -12,7 +12,5 @@
         public string? Nombre { get; set; }
 
         public int? Piso { get; set; }
-
-        public bool? Activado { get; set; }
     }
 }

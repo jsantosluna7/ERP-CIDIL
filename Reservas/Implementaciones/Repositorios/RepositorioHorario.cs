@@ -14,9 +14,17 @@ namespace Reservas.Implementaciones.Repositorios
         }
 
         // Método para obtener todos los horarios
-        public async Task<List<Horario>> ObtenerHorarios()
+        public async Task<List<Horario>> ObtenerHorarios(int pagina, int tamanoPagina)
         {
-            return await _context.Horarios.Where(h => h.ActivadoHorario == true).ToListAsync();
+            if (pagina <= 0) pagina = 1;
+            if (tamanoPagina <= 0) tamanoPagina = 20;
+
+            return await _context.Horarios
+                .Where(h => h.ActivadoHorario == true)
+                .OrderBy(i => i.Id)
+                .Skip((pagina - 1) * tamanoPagina)
+                .Take(tamanoPagina)
+                .ToListAsync();
         }
 
         //Método para obtener un horario por id
@@ -33,22 +41,26 @@ namespace Reservas.Implementaciones.Repositorios
         }
 
         // Método para crear un nuevo horario
+
         public async Task<Horario?> AgregarHorario(CrearHorarioDTO crearHorarioDTO)
         {
-            //verificar si el horario ya existe
-            var horarioExitesente = await _context.Horarios
-                .AnyAsync(h => h.Asignatura == crearHorarioDTO.Asignatura &&
-                               h.Profesor == crearHorarioDTO.Profesor &&
-                               h.IdLaboratorio == crearHorarioDTO.IdLaboratorio &&
-                               h.HoraInicio == crearHorarioDTO.HoraInicio &&
-                               h.HoraFinal == crearHorarioDTO.HoraFinal &&
-                               h.Dia == crearHorarioDTO.Dia);
-            if (horarioExitesente)
+            // Verificar si hay solapamiento de horario en el mismo laboratorio y día
+            var hayConflicto = await _context.Horarios.AnyAsync(h =>
+                h.IdLaboratorio == crearHorarioDTO.IdLaboratorio &&
+                h.Dia == crearHorarioDTO.Dia &&
+                (
+                    (crearHorarioDTO.HoraInicio >= h.HoraInicio && crearHorarioDTO.HoraInicio < h.HoraFinal) || // Empieza dentro de un horario existente
+                    (crearHorarioDTO.HoraFinal > h.HoraInicio && crearHorarioDTO.HoraFinal <= h.HoraFinal) ||   // Termina dentro de un horario existente
+                    (crearHorarioDTO.HoraInicio <= h.HoraInicio && crearHorarioDTO.HoraFinal >= h.HoraFinal)     // Cubre completamente un horario existente
+                )
+            );
+
+            if (hayConflicto)
             {
                 return null;
             }
 
-            // Crear una nueva instancia de Horario
+            // Crear y guardar el nuevo horario
             var nuevoHorario = new Horario
             {
                 Asignatura = crearHorarioDTO.Asignatura,
@@ -59,11 +71,9 @@ namespace Reservas.Implementaciones.Repositorios
                 Dia = crearHorarioDTO.Dia
             };
 
-            //Guardar el nuevo horario en la base de datos
             _context.Horarios.Add(nuevoHorario);
             await _context.SaveChangesAsync();
 
-            // Devolver el nuevo horario
             return nuevoHorario;
         }
 

@@ -1,4 +1,5 @@
-﻿using ERP.Data.Modelos;
+﻿using System.IO.Pipes;
+using ERP.Data.Modelos;
 using Inventario.Abstraccion.Repositorio;
 using Inventario.DTO.LaboratorioDTO;
 using Microsoft.EntityFrameworkCore;
@@ -84,6 +85,14 @@ namespace Inventario.Implementaciones.Repositorios
         {
             return await _context.Laboratorios.Where(p => p.Piso == piso).ToListAsync();
 
+        }
+
+        //Obtener el id del laboratorio por el nombre codigo del mismo
+        public async Task<Laboratorio?> obtenerPorCodigo(string codigo)
+        {
+            return await _context.Laboratorios
+                .Where(l => l.CodigoDeLab == codigo)
+                .FirstOrDefaultAsync();
         }
 
 

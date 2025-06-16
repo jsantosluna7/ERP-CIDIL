@@ -9,6 +9,6 @@ namespace Reservas.Abstraccion.Servicios
         Task<bool?> BorrarHorarioAutomatico(bool eliminar);
         Task<CrearHorarioDTO?> CrearHorario(CrearHorarioDTO crearHorarioDTO);
         Task<HorarioDTO?> ObtenerHorarioPorId(int id);
-        Task<List<HorarioDTO>?> ObtenerHorarios();
+        Task<List<HorarioDTO>?> ObtenerHorarios(int pagina, int tamanoPagina);
     }
 }

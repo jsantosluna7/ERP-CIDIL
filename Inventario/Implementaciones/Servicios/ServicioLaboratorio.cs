@@ -86,8 +86,13 @@ namespace Inventario.Implementaciones.Servicios
                 CodigoDeLab = lab.CodigoDeLab,
                 Capacidad = lab.Capacidad,
                 Descripcion = lab.Descripcion,
+                Nombre = lab.Nombre,
+                Piso = lab.Piso,
+                Iots = lab.Iots,
+                ReservaDeEspacios = lab.ReservaDeEspacios,
+                SolicitudReservaDeEspacios = lab.SolicitudReservaDeEspacios,
                 Horarios=lab.Horarios,
-                InventarioEquipos = lab.InventarioEquipos,
+                InventarioEquipos = lab.InventarioEquipos
             };
         }
 
@@ -106,6 +111,8 @@ namespace Inventario.Implementaciones.Servicios
                 {   Id = laboratorio1.Id,
                     CodigoDeLab = laboratorio1 .CodigoDeLab,
                     Capacidad = laboratorio1.Capacidad,
+                    Nombre = laboratorio1.Nombre,
+                    Piso = laboratorio1.Piso,
                     Descripcion = laboratorio1.Descripcion,
                      
                 };
@@ -133,13 +140,22 @@ namespace Inventario.Implementaciones.Servicios
                     Capacidad = pisos.Capacidad,
                     Descripcion = pisos.Descripcion,
                     Piso = pisos.Piso,
-                    Activado = pisos.Activado,
                     Nombre = pisos.Nombre,
                 };
                 pDTO.Add(nuevopDTO);
             }
             return pDTO;
             
+        }
+
+        public async Task<LaboratorioIdDTO?> obtenerPorCodigo(string codigo)
+        {
+            var codigoLab = await repositorioLaboratorio.obtenerPorCodigo(codigo);
+            return new LaboratorioIdDTO
+            {
+                Id = codigoLab.Id
+            };
+
         }
     }
 }

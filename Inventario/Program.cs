@@ -16,15 +16,15 @@ builder.Services.AddSwaggerGen();
 
 
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("PermitirFrontend", policy =>
-    {
-        policy.WithOrigins("http://localhost:7155/swagger/index.html") // o el puerto donde corre tu frontend
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("PermitirFrontend", policy =>
+//    {
+//        policy.WithOrigins("http://localhost:7155/swagger/index.html") // o el puerto donde corre tu frontend
+//              .AllowAnyHeader()
+//              .AllowAnyMethod();
+//    });
+//});
 
 var app = builder.Build();
 
