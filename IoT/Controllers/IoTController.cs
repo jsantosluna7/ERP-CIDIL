@@ -49,6 +49,34 @@ namespace IoT.Controllers
 
             return Ok(respuesta);
         }
+
+        [HttpGet("filtro-fecha")]
+        public async Task<IActionResult> filtroFecha([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20, [FromQuery] DateTime inicio = default(DateTime), [FromQuery] DateTime fin = default(DateTime))
+        {
+            var resultado = await _ioT.filtroFecha(pagina, tamanoPagina, inicio, fin);
+
+            if (resultado == null)
+            {
+                return NotFound("Lista de Informacion de  no encontrada");
+            }
+
+            var totalLoT = await _context.Iots.CountAsync();
+            var totalPaginas = (int)Math.Ceiling(totalLoT / (double)tamanoPagina);
+
+            var respuesta = new
+            {
+                paginacion = new
+                {
+                    paginaActual = pagina,
+                    tamanoPagina,
+                    totalLoT,
+                    totalPaginas
+                },
+                datos = resultado
+            };
+
+            return Ok(respuesta);
+        }
         //Controlador para optener todos los registros por ID
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdIot(int id)

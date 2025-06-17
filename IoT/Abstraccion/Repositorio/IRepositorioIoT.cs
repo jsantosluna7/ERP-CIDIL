@@ -10,5 +10,6 @@ namespace IoT.Abstraccion.Repositorio
         Task<bool?> Eliminar(int id);
         Task<bool?> desactivarIoT(int id);
         Task<List<Iot>?> GetIot(int pagina, int tamanoPagina);
+        Task<List<Iot>?> filtroFecha(int pagina, int tamanoPagina, DateTime inicio, DateTime fin);
     }
 }

@@ -70,6 +70,32 @@ namespace IoT.Implementaciones.Servicios
             return ioTDTO;
         }
 
+        //Se usa el metodo optener para llamar a todos los registros disponibles
+        public async Task<List<IoTDTO>?> filtroFecha(int pagina, int tamanoPagina, DateTime inicio, DateTime fin)
+        {
+            var ioT = await _repositorio.filtroFecha(pagina, tamanoPagina, inicio, fin);
+
+            var ioTDTO = new List<IoTDTO>();
+            foreach (Iot ioTs in ioT)
+            {
+                var nueovoIoT = new IoTDTO
+                {
+                    Id = ioTs.Id,
+                    IdPlaca = ioTs.IdPlaca,
+                    IdLaboratorio = ioTs.IdLaboratorio,
+                    Sensor1 = ioTs.Sensor1,
+                    Sensor2 = ioTs.Sensor2,
+                    Sensor3 = ioTs.Sensor3,
+                    Sensor4 = ioTs.Sensor4,
+                    Sensor5 = ioTs.Sensor5,
+                    Actuador = ioTs.Actuador,
+                    HoraEntrada = ioTs.HoraEntrada
+                };
+                ioTDTO.Add(nueovoIoT);
+            }
+            return ioTDTO;
+        }
+
         //Método para desactivar un IoT
         public async Task<bool?> desactivarIoT(int id)
         {

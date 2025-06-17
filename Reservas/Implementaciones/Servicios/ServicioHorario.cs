@@ -65,26 +65,10 @@ namespace Reservas.Implementaciones.Servicios
         }
 
         // Método para agregar un nuevo horario
-        public async Task<CrearHorarioDTO?> CrearHorario(CrearHorarioDTO crearHorarioDTO)
+        public async Task<(bool Exito, List<string> Errores)> CrearHorariosDesdeLista(List<CrearHorarioDTO> listaHorarios)
         {
-            var horario = await _repositorioHorario.AgregarHorario(crearHorarioDTO);
-
-            if (horario == null)
-            {
-                return null;
-            }
-
-            var crearHorario = new CrearHorarioDTO
-            {
-                Asignatura = horario.Asignatura,
-                IdLaboratorio = horario.IdLaboratorio,
-                Profesor = horario.Profesor,
-                HoraInicio = horario.HoraInicio,
-                HoraFinal = horario.HoraFinal,
-                Dia = horario.Dia
-            };
-
-            return crearHorario;
+            var resultado = await _repositorioHorario.AgregarHorariosAsync(listaHorarios);
+            return resultado;
         }
 
         // Método para actualizar un horario

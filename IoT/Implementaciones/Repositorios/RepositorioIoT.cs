@@ -43,7 +43,7 @@ namespace IoT.Implementaciones.Repositorios
             return true;
         }
 
-        //Se usa el metodo Para llamar a todos los reguistros disponibles por ID
+        //Se usa el metodo Para llamar a todos los registros disponibles por ID
         public async Task<Iot?> GetByIdIot(int id)
         {
             return await _dbErpContext.Iots.Where(i => i.Id == id).FirstOrDefaultAsync();
@@ -58,6 +58,23 @@ namespace IoT.Implementaciones.Repositorios
 
             return await _dbErpContext.Iots
                 .Where(i => i.Activado == true)
+                .OrderBy(i => i.Id)
+                .Skip((pagina - 1) * tamanoPagina)
+                .Take(tamanoPagina)
+                .ToListAsync();
+        }
+
+        //Se usa el metodo Para llamar a todos los registros disponibles 
+        public async Task<List<Iot>?> filtroFecha(int pagina, int tamanoPagina, DateTime inicio, DateTime fin)
+        {
+            if (pagina <= 0) pagina = 1;
+            if (tamanoPagina <= 0) tamanoPagina = 20;
+
+            var utcInicio = DateTime.SpecifyKind(inicio, DateTimeKind.Utc);
+            var utcFin = DateTime.SpecifyKind(fin, DateTimeKind.Utc);
+
+            return await _dbErpContext.Iots
+                .Where(i => i.HoraEntrada >= utcInicio && i.HoraEntrada <= utcFin)
                 .OrderBy(i => i.Id)
                 .Skip((pagina - 1) * tamanoPagina)
                 .Take(tamanoPagina)

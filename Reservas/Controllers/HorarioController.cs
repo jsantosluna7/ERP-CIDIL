@@ -71,19 +71,20 @@ namespace Reservas.Controllers
 
         // Método para crear un nuevo horario
         [HttpPost]
-        public async Task<IActionResult> CrearHorario([FromBody] CrearHorarioDTO crearHorarioDTO)
+        public async Task<IActionResult> CrearHorario([FromBody] List<CrearHorarioDTO> crearHorarioDTO)
         {
-            //Llamar al servicio para actualizar un horario existente
-            var nuevoHorario = await _servicioHorario.CrearHorario(crearHorarioDTO);
+            var (exito, errores) = await _servicioHorario.CrearHorariosDesdeLista(crearHorarioDTO);
 
-            //verificar si el horario ya existe
-            if (nuevoHorario == null)
+            if (!exito)
             {
-                return BadRequest("El horario ya existe");
+                return BadRequest(new
+                {
+                    mensaje = "No se pudo guardar. Se encontraron conflictos.",
+                    detalles = errores
+                });
             }
 
-            // Devolver el nuevo horario creado
-            return Ok(nuevoHorario);
+            return Ok(new { mensaje = "Horarios guardados correctamente." });
         }
 
         // Método para actualizar un horario existente

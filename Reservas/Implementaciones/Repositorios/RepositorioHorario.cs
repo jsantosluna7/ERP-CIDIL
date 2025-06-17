@@ -41,40 +41,68 @@ namespace Reservas.Implementaciones.Repositorios
         }
 
         // Método para crear un nuevo horario
-
-        public async Task<Horario?> AgregarHorario(CrearHorarioDTO crearHorarioDTO)
+        public async Task<(bool Exito, List<string> Errores)> AgregarHorariosAsync(List<CrearHorarioDTO> crearHorariosDTO)
         {
-            // Verificar si hay solapamiento de horario en el mismo laboratorio y día
-            var hayConflicto = await _context.Horarios.AnyAsync(h =>
-                h.IdLaboratorio == crearHorarioDTO.IdLaboratorio &&
-                h.Dia == crearHorarioDTO.Dia &&
-                (
-                    (crearHorarioDTO.HoraInicio >= h.HoraInicio && crearHorarioDTO.HoraInicio < h.HoraFinal) || // Empieza dentro de un horario existente
-                    (crearHorarioDTO.HoraFinal > h.HoraInicio && crearHorarioDTO.HoraFinal <= h.HoraFinal) ||   // Termina dentro de un horario existente
-                    (crearHorarioDTO.HoraInicio <= h.HoraInicio && crearHorarioDTO.HoraFinal >= h.HoraFinal)     // Cubre completamente un horario existente
-                )
-            );
+            var errores = new List<string>();
 
-            if (hayConflicto)
+            // 1. Validar conflictos contra la base de datos
+            for (int i = 0; i < crearHorariosDTO.Count; i++)
             {
-                return null;
+                var dto = crearHorariosDTO[i];
+                var hayConflictoBD = await _context.Horarios.AnyAsync(h =>
+                    h.IdLaboratorio == dto.IdLaboratorio &&
+                    h.Dia == dto.Dia &&
+                    (
+                        (dto.HoraInicio >= h.HoraInicio && dto.HoraInicio < h.HoraFinal) ||
+                        (dto.HoraFinal > h.HoraInicio && dto.HoraFinal <= h.HoraFinal) ||
+                        (dto.HoraInicio <= h.HoraInicio && dto.HoraFinal >= h.HoraFinal)
+                    )
+                );
+
+                if (hayConflictoBD)
+                {
+                    errores.Add($"Fila {i + 1}: Conflicto con horario existente en BD, Lab {dto.IdLaboratorio}, Día {dto.Dia}, de {dto.HoraInicio:t} a {dto.HoraFinal:t}");
+                }
             }
 
-            // Crear y guardar el nuevo horario
-            var nuevoHorario = new Horario
+            // 2. Validar conflictos internos entre los elementos de la misma lista
+            for (int i = 0; i < crearHorariosDTO.Count; i++)
             {
-                Asignatura = crearHorarioDTO.Asignatura,
-                Profesor = crearHorarioDTO.Profesor,
-                IdLaboratorio = crearHorarioDTO.IdLaboratorio,
-                HoraInicio = crearHorarioDTO.HoraInicio,
-                HoraFinal = crearHorarioDTO.HoraFinal,
-                Dia = crearHorarioDTO.Dia
-            };
+                for (int j = i + 1; j < crearHorariosDTO.Count; j++)
+                {
+                    var h1 = crearHorariosDTO[i];
+                    var h2 = crearHorariosDTO[j];
 
-            _context.Horarios.Add(nuevoHorario);
+                    if (h1.IdLaboratorio == h2.IdLaboratorio && h1.Dia == h2.Dia)
+                    {
+                        bool solapan = h1.HoraInicio < h2.HoraFinal && h2.HoraInicio < h1.HoraFinal;
+                        if (solapan)
+                        {
+                            errores.Add($"Conflicto entre filas {i + 1} y {j + 1}: se solapan en Lab {h1.IdLaboratorio}, Día {h1.Dia}");
+                        }
+                    }
+                }
+            }
+
+            if (errores.Any())
+            {
+                return (false, errores);
+            }
+
+            var nuevos = crearHorariosDTO.Select(dto => new Horario
+            {
+                Asignatura = dto.Asignatura,
+                Profesor = dto.Profesor,
+                IdLaboratorio = dto.IdLaboratorio,
+                HoraInicio = dto.HoraInicio,
+                HoraFinal = dto.HoraFinal,
+                Dia = dto.Dia
+            }).ToList();
+
+            await _context.Horarios.AddRangeAsync(nuevos);
             await _context.SaveChangesAsync();
 
-            return nuevoHorario;
+            return (true, new List<string>());
         }
 
         // Método para actualizar un horario existente
