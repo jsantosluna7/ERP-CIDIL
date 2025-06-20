@@ -96,14 +96,13 @@ namespace Usuarios.Implementaciones.Repositorios
             }
 
             //Creamos el hash de la contraseña
-            string hash = BCrypt.Net.BCrypt.HashPassword(actualizarUsuarioDTO.ContrasenaHash);
+            
 
             // Actualizar los campos del usuario, si tienen valores nuevos, si no, se deja el que ya tenia.
             usuarioExiste.IdMatricula = actualizarUsuarioDTO.IdMatricula ?? usuarioExiste.IdMatricula;
             usuarioExiste.NombreUsuario = actualizarUsuarioDTO.NombreUsuario ?? usuarioExiste.NombreUsuario;
             usuarioExiste.ApellidoUsuario = actualizarUsuarioDTO.ApellidoUsuario ?? usuarioExiste.ApellidoUsuario;
             usuarioExiste.CorreoInstitucional = actualizarUsuarioDTO.CorreoInstitucional ?? usuarioExiste.CorreoInstitucional;
-            usuarioExiste.ContrasenaHash = hash ?? usuarioExiste.ContrasenaHash;
             usuarioExiste.Telefono = actualizarUsuarioDTO.Telefono ?? usuarioExiste.Telefono;
             usuarioExiste.Direccion = actualizarUsuarioDTO.Direccion ?? usuarioExiste.Direccion;
             usuarioExiste.IdRol = actualizarUsuarioDTO.IdRol ?? usuarioExiste.IdRol;

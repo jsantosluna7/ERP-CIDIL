@@ -127,7 +127,7 @@ namespace Usuarios.Implementaciones.Servicios
                 NombreUsuario = usuario.NombreUsuario,
                 ApellidoUsuario = usuario.ApellidoUsuario,
                 CorreoInstitucional = usuario.CorreoInstitucional,
-                ContrasenaHash = usuario.ContrasenaHash,
+               
                 Telefono = usuario.Telefono,
                 Direccion = usuario.Direccion,
                 IdRol = usuario.IdRol,
