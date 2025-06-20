@@ -71,9 +71,9 @@ namespace IoT.Implementaciones.Servicios
         }
 
         //Se usa el metodo optener para llamar a todos los registros disponibles
-        public async Task<List<IoTDTO>?> filtroFecha(int pagina, int tamanoPagina, DateTime inicio, DateTime fin)
+        public async Task<List<IoTDTO>?> filtroFecha(DateTime inicio, DateTime fin, int lab)
         {
-            var ioT = await _repositorio.filtroFecha(pagina, tamanoPagina, inicio, fin);
+            var ioT = await _repositorio.filtroFecha(inicio, fin, lab);
 
             var ioTDTO = new List<IoTDTO>();
             foreach (Iot ioTs in ioT)

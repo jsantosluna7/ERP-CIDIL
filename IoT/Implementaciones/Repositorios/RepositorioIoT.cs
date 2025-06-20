@@ -65,19 +65,14 @@ namespace IoT.Implementaciones.Repositorios
         }
 
         //Se usa el metodo Para llamar a todos los registros disponibles 
-        public async Task<List<Iot>?> filtroFecha(int pagina, int tamanoPagina, DateTime inicio, DateTime fin)
+        public async Task<List<Iot>?> filtroFecha(DateTime inicio, DateTime fin, int lab)
         {
-            if (pagina <= 0) pagina = 1;
-            if (tamanoPagina <= 0) tamanoPagina = 20;
-
             var utcInicio = DateTime.SpecifyKind(inicio, DateTimeKind.Utc);
             var utcFin = DateTime.SpecifyKind(fin, DateTimeKind.Utc);
 
             return await _dbErpContext.Iots
-                .Where(i => i.HoraEntrada >= utcInicio && i.HoraEntrada <= utcFin)
+                .Where(i => i.HoraEntrada >= utcInicio && i.HoraEntrada <= utcFin && i.IdLaboratorio == lab)
                 .OrderBy(i => i.Id)
-                .Skip((pagina - 1) * tamanoPagina)
-                .Take(tamanoPagina)
                 .ToListAsync();
         }
     }

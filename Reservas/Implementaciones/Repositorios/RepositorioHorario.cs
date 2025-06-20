@@ -59,9 +59,22 @@ namespace Reservas.Implementaciones.Repositorios
                     )
                 );
 
+                var baseDatos = await _context.Horarios.Where(h =>
+                    h.IdLaboratorio == dto.IdLaboratorio &&
+                    h.Dia == dto.Dia &&
+                    (
+                        (dto.HoraInicio >= h.HoraInicio && dto.HoraInicio < h.HoraFinal) ||
+                        (dto.HoraFinal > h.HoraInicio && dto.HoraFinal <= h.HoraFinal) ||
+                        (dto.HoraInicio <= h.HoraInicio && dto.HoraFinal >= h.HoraFinal)
+                    )
+                ).FirstOrDefaultAsync();
+
+
+                var laboratorio = await _context.Laboratorios.Where(l => l.Id == dto.IdLaboratorio).FirstOrDefaultAsync();
+
                 if (hayConflictoBD)
                 {
-                    errores.Add($"Fila {i + 1}: Conflicto con horario existente en BD, Lab {dto.IdLaboratorio}, Día {dto.Dia}, de {dto.HoraInicio:t} a {dto.HoraFinal:t}");
+                    errores.Add($"Conflicto con horario existente en BD con las materias {baseDatos.Asignatura} y {dto.Asignatura}, Lab {laboratorio.CodigoDeLab}, Día {dto.Dia}, de {dto.HoraInicio:t} a {dto.HoraFinal:t}");
                 }
             }
 
@@ -72,13 +85,14 @@ namespace Reservas.Implementaciones.Repositorios
                 {
                     var h1 = crearHorariosDTO[i];
                     var h2 = crearHorariosDTO[j];
+                    var laboratorio = await _context.Laboratorios.Where(l => l.Id == h1.IdLaboratorio).FirstOrDefaultAsync();
 
                     if (h1.IdLaboratorio == h2.IdLaboratorio && h1.Dia == h2.Dia)
                     {
                         bool solapan = h1.HoraInicio < h2.HoraFinal && h2.HoraInicio < h1.HoraFinal;
                         if (solapan)
                         {
-                            errores.Add($"Conflicto entre filas {i + 1} y {j + 1}: se solapan en Lab {h1.IdLaboratorio}, Día {h1.Dia}");
+                            errores.Add($"Conflicto con las materias {h1.Asignatura} y {h2.Asignatura}: se solapan en Lab {laboratorio.CodigoDeLab} en las horas {h1.HoraInicio} - {h1.HoraFinal} y {h2.HoraInicio} - {h2.HoraFinal}en el Día {h1.Dia}");
                         }
                     }
                 }
