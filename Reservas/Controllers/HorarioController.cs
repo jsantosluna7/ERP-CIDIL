@@ -52,6 +52,23 @@ namespace Reservas.Controllers
             return Ok(respuesta);
         }
 
+        // Método para obtener todos los horarios
+        [HttpGet("todos")]
+        public async Task<IActionResult> ObtenerHorariosTotal()
+        {
+            //Llamar al servicio para obtener todos los horarios
+            var resultado = await _servicioHorario.ObtenerHorariosTotal();
+
+            //verificar si la lista de horarios está vacía
+            if (resultado == null)
+            {
+                return NotFound("Lista de horarios vacía");
+            }
+
+            // Devolver la lista de horarios
+            return Ok(resultado);
+        }
+
         // Método para obtener un horario por id
         [HttpGet("{id}")]
         public async Task<IActionResult> ObtenerHorarioPorId(int id)

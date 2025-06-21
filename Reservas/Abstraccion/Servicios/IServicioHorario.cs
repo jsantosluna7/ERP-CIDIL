@@ -10,5 +10,6 @@ namespace Reservas.Abstraccion.Servicios
         Task<(bool Exito, List<string> Errores)> CrearHorariosDesdeLista(List<CrearHorarioDTO> listaHorarios);
         Task<HorarioDTO?> ObtenerHorarioPorId(int id);
         Task<List<HorarioDTO>?> ObtenerHorarios(int pagina, int tamanoPagina);
+        Task<List<HorarioDTO>?> ObtenerHorariosTotal();
     }
 }

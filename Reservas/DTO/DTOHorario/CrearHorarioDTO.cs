@@ -1,18 +1,11 @@
-﻿namespace Reservas.DTO.DTOHorario
+﻿public class CrearHorarioDTO
 {
-    public class CrearHorarioDTO
-    {
-
-        public string? Asignatura { get; set; } = null!;
-
-        public string? Profesor { get; set; } = null!;
-
-        public int? IdLaboratorio { get; set; }
-
-        public DateTime? HoraInicio { get; set; }
-
-        public DateTime? HoraFinal { get; set; }
-
-        public string? Dia { get; set; } = null!;
-    }
+    public string? Asignatura { get; set; }
+    public string? Profesor { get; set; }
+    public int? IdLaboratorio { get; set; }
+    public string? Dia { get; set; }
+    public string HoraInicio { get; set; } = string.Empty;
+    public string HoraFinal { get; set; } = string.Empty;
+    public DateTimeOffset FechaInicio { get; set; }
+    public DateTimeOffset FechaFinal { get; set; }
 }

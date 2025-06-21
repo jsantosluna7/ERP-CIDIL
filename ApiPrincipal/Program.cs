@@ -86,6 +86,9 @@ var connectionString = $"Host={Environment.GetEnvironmentVariable("HOST")};" +
 builder.Services.AddDbContext<DbErpContext>(options =>
     options.UseNpgsql(connectionString));
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

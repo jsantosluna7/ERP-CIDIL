@@ -39,6 +39,10 @@ public partial class DbErpContext : DbContext
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseNpgsql("Host=10.122.120.86:5432;Database=dbERP;Username=CIDIL-SERVER;Password=CIdil-Admin12");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Estado>(entity =>
@@ -89,10 +93,10 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.FechaCreacion)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("fecha_creacion");
-            entity.Property(e => e.HoraFinal)
-                .HasColumnName("hora_final");
-            entity.Property(e => e.HoraInicio)
-                .HasColumnName("hora_inicio");
+            entity.Property(e => e.FechaFinal).HasColumnName("fecha_final");
+            entity.Property(e => e.FechaInicio).HasColumnName("fecha_inicio");
+            entity.Property(e => e.HoraFinal).HasColumnName("hora_final");
+            entity.Property(e => e.HoraInicio).HasColumnName("hora_inicio");
             entity.Property(e => e.IdLaboratorio).HasColumnName("id_laboratorio");
             entity.Property(e => e.Profesor).HasColumnName("profesor");
 
@@ -269,6 +273,8 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.FechaAprobacion)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("fecha_aprobacion");
+            entity.Property(e => e.FechaFinal).HasColumnName("fecha_final");
+            entity.Property(e => e.FechaInicio).HasColumnName("fecha_inicio");
             entity.Property(e => e.FechaSolicitud)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("fecha_solicitud");
@@ -355,6 +361,8 @@ public partial class DbErpContext : DbContext
             entity.ToTable("solicitud_reserva_de_espacios");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.FechaFinal).HasColumnName("fecha_final");
+            entity.Property(e => e.FechaInicio).HasColumnName("fecha_inicio");
             entity.Property(e => e.FechaSolicitud)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("fecha_solicitud");

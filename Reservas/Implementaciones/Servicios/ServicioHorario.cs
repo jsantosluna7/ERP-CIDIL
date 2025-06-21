@@ -13,7 +13,7 @@ namespace Reservas.Implementaciones.Servicios
             _repositorioHorario = repositorioHorario;
         }
 
-        // Método para obtener todos los horarios
+        // Método para obtener todos los horarios paginados
         public async Task<List<HorarioDTO>?> ObtenerHorarios(int pagina, int tamanoPagina)
         {
             var horarios = await _repositorioHorario.ObtenerHorarios(pagina, tamanoPagina);
@@ -32,8 +32,42 @@ namespace Reservas.Implementaciones.Servicios
                     Asignatura = horario.Asignatura,
                     Profesor = horario.Profesor,
                     IdLaboratorio = horario.IdLaboratorio ?? 1,
-                    HoraInicio = horario.HoraInicio ?? new DateTime(),
-                    HoraFinal = horario.HoraFinal ?? new DateTime(),
+                    HoraInicio = horario.HoraInicio,
+                    HoraFinal = horario.HoraFinal,
+                    FechaInicio = horario.FechaInicio ?? new DateTime(),
+                    FechaFinal = horario.FechaFinal ?? new DateTime(),
+                    Dia = horario.Dia
+                };
+                horariosDTO.Add(horarioDTO);
+            }
+
+            //devolver la lista de horarios
+            return horariosDTO;
+        }
+
+        // Método para obtener todos los horarios
+        public async Task<List<HorarioDTO>?> ObtenerHorariosTotal()
+        {
+            var horarios = await _repositorioHorario.ObtenerHorariosTotal();
+
+            if (horarios == null || horarios.Count == 0)
+            {
+                return null;
+            }
+            var horariosDTO = new List<HorarioDTO>();
+
+            foreach (var horario in horarios)
+            {
+                var horarioDTO = new HorarioDTO()
+                {
+                    Id = horario.Id,
+                    Asignatura = horario.Asignatura,
+                    Profesor = horario.Profesor,
+                    IdLaboratorio = horario.IdLaboratorio ?? 1,
+                    HoraInicio = horario.HoraInicio,
+                    HoraFinal = horario.HoraFinal,
+                    FechaInicio = horario.FechaInicio ?? new DateTime(),
+                    FechaFinal = horario.FechaFinal ?? new DateTime(),
                     Dia = horario.Dia
                 };
                 horariosDTO.Add(horarioDTO);
@@ -59,6 +93,8 @@ namespace Reservas.Implementaciones.Servicios
                 IdLaboratorio = horario.IdLaboratorio,
                 HoraInicio = horario.HoraInicio,
                 HoraFinal = horario.HoraFinal,
+                FechaInicio = horario.FechaInicio,
+                FechaFinal = horario.FechaFinal,
                 Dia = horario.Dia
             };
             return horarioDTO;
@@ -86,6 +122,8 @@ namespace Reservas.Implementaciones.Servicios
                 Profesor = horario.Profesor,
                 HoraInicio = horario.HoraInicio,
                 HoraFinal = horario.HoraFinal,
+                FechaInicio = horario.FechaInicio,
+                FechaFinal = horario.FechaFinal,
                 Dia = horario.Dia
             };
             return horarioDTO;

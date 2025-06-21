@@ -25,9 +25,13 @@ public partial class ReservaDeEspacio
 
     public bool? Activado { get; set; }
 
-    public DateTime? HoraInicio { get; set; }
+    public TimeSpan HoraInicio { get; set; }
 
-    public DateTime? HoraFinal { get; set; }
+    public TimeSpan HoraFinal { get; set; }
+
+    public DateTime? FechaInicio { get; set; }
+
+    public DateTime? FechaFinal { get; set; }
 
     public virtual Estado IdEstadoNavigation { get; set; } = null!;
 

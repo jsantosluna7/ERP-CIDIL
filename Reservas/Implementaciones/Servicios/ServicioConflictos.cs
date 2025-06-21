@@ -12,7 +12,7 @@ namespace Reservas.Implementaciones.Servicios
             _context = context;
         }
 
-        public async Task<bool> conflictoReserva(int IdLaboratorio, DateTime? HoraInicio, DateTime? HoraFinal, DateTime? FechaSolicitud)
+        public async Task<bool> conflictoReserva(int IdLaboratorio, TimeSpan? HoraInicio, TimeSpan? HoraFinal, DateTime? FechaSolicitud)
         {
             var diaSemana = FechaSolicitud?.DayOfWeek.ToString();
             var dia = diaSemana switch
@@ -28,9 +28,9 @@ namespace Reservas.Implementaciones.Servicios
             };
 
             // Conversión a DateTimeKind.Utc
-            var fecha = FechaSolicitud.HasValue ? DateTime.SpecifyKind(FechaSolicitud.Value, DateTimeKind.Utc) : (DateTime?)null;
-            var horaInicio = HoraInicio.HasValue ? DateTime.SpecifyKind(HoraInicio.Value, DateTimeKind.Utc) : (DateTime?)null;
-            var horaFinal = HoraFinal.HasValue ? DateTime.SpecifyKind(HoraFinal.Value, DateTimeKind.Utc) : (DateTime?)null;
+            var fecha = FechaSolicitud?.Date;
+            var horaInicio = HoraInicio;
+            var horaFinal = HoraFinal;
 
             bool conflictoHorario = await _context.Horarios
                 .AnyAsync(h => h.IdLaboratorio == IdLaboratorio &&
@@ -47,7 +47,7 @@ namespace Reservas.Implementaciones.Servicios
             return !(conflictoHorario || conflictoReserva); // Si no hay conflicto, se puede crear la reserva
         }
 
-        public async Task<bool> conflictoReservaActualizar(int id, int IdLaboratorio, DateTime? HoraInicio, DateTime? HoraFinal, DateTime? FechaSolicitud)
+        public async Task<bool> conflictoReservaActualizar(int id, int IdLaboratorio, TimeSpan? HoraInicio, TimeSpan? HoraFinal, DateTime? FechaSolicitud)
         {
             var diaSemana = FechaSolicitud?.DayOfWeek.ToString();
             var dia = diaSemana switch
@@ -63,9 +63,9 @@ namespace Reservas.Implementaciones.Servicios
             };
 
             // Conversión a DateTimeKind.Utc
-            var fecha = FechaSolicitud.HasValue ? DateTime.SpecifyKind(FechaSolicitud.Value, DateTimeKind.Utc) : (DateTime?)null;
-            var horaInicio = HoraInicio.HasValue ? DateTime.SpecifyKind(HoraInicio.Value, DateTimeKind.Utc) : (DateTime?)null;
-            var horaFinal = HoraFinal.HasValue ? DateTime.SpecifyKind(HoraFinal.Value, DateTimeKind.Utc) : (DateTime?)null;
+            var fecha = FechaSolicitud?.Date;
+            var horaInicio = HoraInicio;
+            var horaFinal = HoraFinal;
 
 
             bool conflictoHorario = await _context.Horarios

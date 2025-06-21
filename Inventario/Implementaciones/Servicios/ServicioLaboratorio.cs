@@ -87,12 +87,7 @@ namespace Inventario.Implementaciones.Servicios
                 Capacidad = lab.Capacidad,
                 Descripcion = lab.Descripcion,
                 Nombre = lab.Nombre,
-                Piso = lab.Piso,
-                Iots = lab.Iots,
-                ReservaDeEspacios = lab.ReservaDeEspacios,
-                SolicitudReservaDeEspacios = lab.SolicitudReservaDeEspacios,
-                Horarios=lab.Horarios,
-                InventarioEquipos = lab.InventarioEquipos
+                Piso = lab.Piso
             };
         }
 

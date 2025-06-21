@@ -62,8 +62,10 @@ namespace Reservas.Implementaciones.Repositorios
             {
                 IdUsuario = crearReservaDeEspacioDTO.IdUsuario,
                 IdLaboratorio = crearReservaDeEspacioDTO.IdLaboratorio,
-                HoraInicio = NormalizarUtc(crearReservaDeEspacioDTO.HoraInicio),
-                HoraFinal = NormalizarUtc(crearReservaDeEspacioDTO.HoraFinal),
+                HoraInicio = crearReservaDeEspacioDTO.HoraInicio,
+                HoraFinal = crearReservaDeEspacioDTO.HoraFinal,
+                FechaInicio = crearReservaDeEspacioDTO.FechaInicio,
+                FechaFinal = crearReservaDeEspacioDTO.FechaFinal,
                 IdEstado = crearReservaDeEspacioDTO.IdEstado,
                 Motivo = crearReservaDeEspacioDTO.Motivo,
                 FechaSolicitud = NormalizarUtc(crearReservaDeEspacioDTO.FechaSolicitud),
@@ -120,8 +122,8 @@ namespace Reservas.Implementaciones.Repositorios
 
 
             reservaExiste.IdUsuario = actualizarReservaDeEspacioDTO.IdUsuario ?? reservaExiste.IdUsuario;
-            reservaExiste.HoraInicio = actualizarReservaDeEspacioDTO.HoraInicio ?? reservaExiste.HoraInicio;
-            reservaExiste.HoraFinal = actualizarReservaDeEspacioDTO.HoraFinal ?? reservaExiste.HoraFinal;
+            reservaExiste.HoraInicio = actualizarReservaDeEspacioDTO.HoraInicio;
+            reservaExiste.HoraFinal = actualizarReservaDeEspacioDTO.HoraFinal;
             reservaExiste.Motivo = actualizarReservaDeEspacioDTO.Motivo ?? reservaExiste.Motivo;
             reservaExiste.FechaSolicitud = actualizarReservaDeEspacioDTO.FechaSolicitud ?? reservaExiste.FechaSolicitud;
             reservaExiste.IdEstado = actualizarReservaDeEspacioDTO.IdEstado ?? reservaExiste.IdEstado;

@@ -21,7 +21,6 @@ namespace Reservas.Implementaciones.Repositorios
         //Método para obtener todas las solicitudes de reserva
         public async Task<List<SolicitudReservaDeEspacio>> ObtenerSolicitudesReservas(int pagina, int tamanoPagina)
         {
-            return await _context.SolicitudReservaDeEspacios.ToListAsync();
 
             if (pagina <= 0) pagina = 1;
             if (tamanoPagina <= 0) tamanoPagina = 20;
@@ -61,6 +60,8 @@ namespace Reservas.Implementaciones.Repositorios
                 IdLaboratorio = crearSolicitudDeReservaDTO.IdLaboratorio,
                 HoraInicio = crearSolicitudDeReservaDTO.HoraInicio,
                 HoraFinal = crearSolicitudDeReservaDTO.HoraFinal,
+                FechaInicio = crearSolicitudDeReservaDTO.FechaInicio,
+                FechaFinal = crearSolicitudDeReservaDTO.FechaFinal,
                 Motivo = crearSolicitudDeReservaDTO.Motivo,
                 FechaSolicitud = DateTime.UtcNow
             };
@@ -101,8 +102,10 @@ namespace Reservas.Implementaciones.Repositorios
             }
 
             solicitudReserva.IdLaboratorio = actualizarSolicitudDeReservaDTO.IdLaboratorio ?? solicitudReserva.IdLaboratorio;
-            solicitudReserva.HoraInicio = actualizarSolicitudDeReservaDTO.HoraInicio ?? solicitudReserva.HoraInicio;
-            solicitudReserva.HoraFinal = actualizarSolicitudDeReservaDTO.HoraFinal ?? solicitudReserva.HoraFinal;
+            solicitudReserva.HoraInicio = actualizarSolicitudDeReservaDTO.HoraInicio;
+            solicitudReserva.HoraFinal = actualizarSolicitudDeReservaDTO.HoraFinal;
+            solicitudReserva.FechaInicio = actualizarSolicitudDeReservaDTO.FechaInicio;
+            solicitudReserva.FechaFinal = actualizarSolicitudDeReservaDTO.FechaFinal;
             solicitudReserva.Motivo = actualizarSolicitudDeReservaDTO.Motivo ?? solicitudReserva.Motivo;
             solicitudReserva.FechaSolicitud = DateTime.UtcNow;
 

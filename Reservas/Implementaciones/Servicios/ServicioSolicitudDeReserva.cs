@@ -35,6 +35,8 @@ namespace Reservas.Implementaciones.Servicios
                     IdLaboratorio = solicitud.IdLaboratorio,
                     HoraInicio = solicitud.HoraInicio,
                     HoraFinal = solicitud.HoraFinal,
+                    FechaInicio = solicitud.FechaInicio,
+                    FechaFinal = solicitud.FechaFinal,
                     Motivo = solicitud.Motivo,
                     FechaSolicitud = solicitud.FechaSolicitud,
                     IdEstado = solicitud.IdEstado
@@ -61,6 +63,8 @@ namespace Reservas.Implementaciones.Servicios
                 IdLaboratorio = solicitud.IdLaboratorio,
                 HoraInicio = solicitud.HoraInicio,
                 HoraFinal = solicitud.HoraFinal,
+                FechaInicio = solicitud.FechaInicio,
+                FechaFinal = solicitud.FechaFinal,
                 Motivo = solicitud.Motivo,
                 FechaSolicitud = solicitud.FechaSolicitud,
                 IdEstado = solicitud.IdEstado
@@ -82,6 +86,8 @@ namespace Reservas.Implementaciones.Servicios
                 IdLaboratorio = solicitud.IdLaboratorio,
                 HoraInicio = solicitud.HoraInicio,
                 HoraFinal = solicitud.HoraFinal,
+                FechaInicio = solicitud.FechaInicio,
+                FechaFinal = solicitud.FechaFinal,
                 Motivo = solicitud.Motivo,
                 FechaSolicitud = solicitud.FechaSolicitud
             };
@@ -101,6 +107,8 @@ namespace Reservas.Implementaciones.Servicios
                 IdLaboratorio = solicitud.IdLaboratorio,
                 HoraInicio = solicitud.HoraInicio,
                 HoraFinal = solicitud.HoraFinal,
+                FechaInicio = solicitud.FechaInicio,
+                FechaFinal = solicitud.FechaFinal,
                 Motivo = solicitud.Motivo,
                 FechaSolicitud = solicitud.FechaSolicitud
             };
