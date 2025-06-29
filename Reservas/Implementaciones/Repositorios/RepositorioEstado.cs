@@ -13,20 +13,15 @@ namespace Reservas.Implementaciones.Repositorios
             _context = context;
         }
 
-        public async Task<Estado?> GetById(int id)
+        public async Task<Resultado<Estado?>> GetById(int id)
         {
-            var estado = await _context.Estados
-                .Include(p => p.PrestamosEquipos)
-                .Include(r => r.ReservaDeEspacios)
-                .Include(s => s.SolicitudPrestamosDeEquipos)
-                .Include(s => s.SolicitudReservaDeEspacios)
-                .Where(e => e.Id == id).FirstOrDefaultAsync();
+            var estado = await _context.Estados.Where(e => e.Id == id).FirstOrDefaultAsync();
 
             if (estado == null) 
             {
-                return null;           
+                return Resultado<Estado?>.Falla("El estado no existe o no se encontró.");           
             }
-            return estado;
+            return Resultado<Estado?>.Exito(estado);
         }
 
         public async Task<List<Estado>?> GetEstado()

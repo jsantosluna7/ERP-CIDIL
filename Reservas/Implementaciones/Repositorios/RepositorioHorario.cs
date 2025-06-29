@@ -48,21 +48,40 @@ namespace Reservas.Implementaciones.Repositorios
             return horario;
         }
 
-        public async Task<(bool Exito, List<string> Errores)> AgregarHorariosAsync(List<CrearHorarioDTO> crearHorariosDTO)
+        public async Task<(bool Exito, List<HorarioErrores> Errores)> AgregarHorariosAsync(List<CrearHorarioDTO> crearHorariosDTO)
         {
-            var errores = new List<string>();
+            //var errores = new List<string>();
+            var nuevos = new List<Horario>();
+            var errores = new List<HorarioErrores>();
 
-            // 1. Validación interna entre los DTO antes de la BD
+            // Fase 1: Validar todo sin insertar
             for (int i = 0; i < crearHorariosDTO.Count; i++)
             {
                 var dtoA = crearHorariosDTO[i];
+
                 if (!TimeSpan.TryParse(dtoA.HoraInicio, out var hiA) ||
                     !TimeSpan.TryParse(dtoA.HoraFinal, out var hfA))
                 {
-                    errores.Add($"Formato de hora inválido en {dtoA.Asignatura}: {dtoA.HoraInicio} - {dtoA.HoraFinal}");
+                    var laboratorioA = await _context.Laboratorios.FindAsync(dtoA.IdLaboratorio);
+
+                    errores.Add(new HorarioErrores
+                    {
+                        idError = 3,
+                        titulo = "Formato hora inválido en",
+                        labNombre = laboratorioA?.Nombre,
+                        asignaturaA = dtoA.Asignatura,
+                        diaA = dtoA.Dia,
+                        horaInicioA = dtoA.HoraInicio,
+                        horaFinalA = dtoA.HoraFinal
+                    });
                     continue;
                 }
 
+                // Combine fecha+hora en DateTimeOffset
+                var startA = dtoA.FechaInicio.Date + hiA;
+                var endA = dtoA.FechaFinal.Date + hfA;
+
+                // Validación interna entre DTOs
                 for (int j = i + 1; j < crearHorariosDTO.Count; j++)
                 {
                     var dtoB = crearHorariosDTO[j];
@@ -71,82 +90,112 @@ namespace Reservas.Implementaciones.Repositorios
                         if (!TimeSpan.TryParse(dtoB.HoraInicio, out var hiB) ||
                             !TimeSpan.TryParse(dtoB.HoraFinal, out var hfB))
                         {
-                            errores.Add($"Formato de hora inválido en {dtoB.Asignatura}: {dtoB.HoraInicio} - {dtoB.HoraFinal}");
+                            var laboratorioB = await _context.Laboratorios.FindAsync(dtoB.IdLaboratorio);
+
+                            errores.Add(new HorarioErrores
+                            {
+                                idError = 3,
+                                titulo = "Formato hora inválido en",
+                                labNombre = laboratorioB?.Nombre,
+                                asignaturaB = dtoB.Asignatura,
+                                diaB = dtoB.Dia,
+                                horaInicioB = dtoB.HoraInicio,
+                                horaFinalB = dtoB.HoraFinal
+                            });
                             continue;
                         }
 
-                        // Comparar rangos de horas
-                        bool overlapHoras = hiA < hfB && hfA > hiB;
-                        bool overlapFechas = dtoA.FechaInicio < dtoB.FechaFinal && dtoA.FechaFinal > dtoB.FechaInicio;
-
-                        if (overlapHoras && overlapFechas)
+                        var startB = dtoB.FechaInicio.Date + hiB;
+                        var endB = dtoB.FechaFinal.Date + hfB;
+                        var lab = await _context.Laboratorios.FindAsync(dtoA.IdLaboratorio);
+                        bool overlap = startA <= endB && startB <= endA;
+                        // Solapamiento (incluyendo bordes)
+                        if (overlap)
                         {
-                            errores.Add($"Solapamiento interno: {dtoA.Asignatura} y {dtoB.Asignatura}, Lab {dtoA.IdLaboratorio}, {dtoA.Dia}, horas {dtoA.HoraInicio}-{dtoA.HoraFinal} vs {dtoB.HoraInicio}-{dtoB.HoraFinal}");
+                            errores.Add(new HorarioErrores
+                            {
+                                idError = 1,
+                                titulo = "(En el archivo cargado)",
+                                labNombre = lab?.Nombre,
+                                asignaturaA = dtoA.Asignatura,
+                                diaA = dtoA.Dia,
+                                horaInicioA = dtoA.HoraInicio,
+                                horaFinalA = dtoA.HoraFinal,
+                                asignaturaB = dtoB.Asignatura,
+                                diaB = dtoB.Dia,
+                                horaInicioB = dtoB.HoraInicio,
+                                horaFinalB = dtoB.HoraFinal
+                            });
+                        }
+                    }
+                }
+
+                // Validación contra DB
+                if (TimeSpan.TryParse(dtoA.HoraInicio, out _) && TimeSpan.TryParse(dtoA.HoraFinal, out _))
+                {
+                    var conflictos = await _context.Horarios
+                        .Where(h => h.IdLaboratorio == dtoA.IdLaboratorio && h.Dia == dtoA.Dia)
+                        .ToListAsync();
+
+                    foreach (var h in conflictos)
+                    {
+                        var startB = h.FechaInicio;
+                        var endB = h.FechaFinal;
+
+                        if (startA <= endB && startB <= endA)
+                        {
+                            var lab = await _context.Laboratorios.FindAsync(dtoA.IdLaboratorio);
+
+                            errores.Add(new HorarioErrores
+                            {
+                                idError = 2,
+                                titulo = "(En el horario)",
+                                labNombre = lab?.Nombre,
+                                asignaturaA = dtoA.Asignatura,
+                                diaA = dtoA.Dia,
+                                horaInicioA = dtoA.HoraInicio,
+                                horaFinalA = dtoA.HoraFinal,
+                                asignaturaB = h.Asignatura,
+                                diaB = h.Dia,
+                                horaInicioB = h.HoraInicio.ToString(),
+                                horaFinalB = h.HoraFinal.ToString()
+                            });
                         }
                     }
                 }
             }
 
+            // Si hay errores, no insertamos nada
             if (errores.Any())
                 return (false, errores);
 
-            // 2. Si no hay errores internos, seguir con tu validación y DB
+            // Fase 2: Crear e insertar
             foreach (var dto in crearHorariosDTO)
             {
-                if (!TimeSpan.TryParse(dto.HoraInicio, out var horaInicio) ||
-                    !TimeSpan.TryParse(dto.HoraFinal, out var horaFinal))
-                {
-                    errores.Add($"Formato de hora inválido en {dto.Asignatura}: {dto.HoraInicio} - {dto.HoraFinal}");
-                    continue;
-                }
+                TimeSpan.TryParse(dto.HoraInicio, out var hi);
+                TimeSpan.TryParse(dto.HoraFinal, out var hf);
 
-                var conflictos = await _context.Horarios
-                    .Where(h =>
-                        h.IdLaboratorio == dto.IdLaboratorio &&
-                        h.Dia == dto.Dia &&
-                        dto.FechaInicio < h.FechaFinal &&
-                        dto.FechaFinal > h.FechaInicio &&
-                        horaInicio < h.HoraFinal &&
-                        horaFinal > h.HoraInicio
-                    ).ToListAsync();
-
-                if (conflictos.Any())
-                {
-                    var lab = await _context.Laboratorios.FindAsync(dto.IdLaboratorio);
-                    foreach (var h in conflictos)
-                    {
-                        errores.Add($"Conflicto en BD: {dto.Asignatura} vs {h.Asignatura}, Lab {lab?.CodigoDeLab}, {dto.Dia}, fechas {dto.FechaInicio:dd/MM/yyyy}-{dto.FechaFinal:dd/MM/yyyy}, horas {dto.HoraInicio} - {dto.HoraFinal}");
-                    }
-                    continue;
-                }
-
-                var nuevo = new Horario
+                nuevos.Add(new Horario
                 {
                     Asignatura = dto.Asignatura,
                     Profesor = dto.Profesor,
-                    IdLaboratorio = dto.IdLaboratorio,
+                    IdLaboratorio = dto.IdLaboratorio.Value,
                     Dia = dto.Dia,
-                    FechaInicio = dto.FechaInicio.Date,
-                    FechaFinal = dto.FechaFinal.Date,
-                    HoraInicio = horaInicio,
-                    HoraFinal = horaFinal,
+                    FechaInicio = dto.FechaInicio.Date + hi,
+                    FechaFinal = dto.FechaFinal.Date + hf,
+                    HoraInicio = hi,
+                    HoraFinal = hf,
                     FechaCreacion = DateTime.UtcNow,
                     Activo = true,
                     ActivadoHorario = true
-                };
-
-                _context.Horarios.Add(nuevo);
+                });
             }
 
-            if (errores.Any())
-                return (false, errores);
-
+            _context.Horarios.AddRange(nuevos);
             await _context.SaveChangesAsync();
-            return (true, new List<string>());
+
+            return (true, new List<HorarioErrores>());
         }
-
-
-
 
         // Método para actualizar un horario existente
         public async Task<Horario?> ActualizarHorario(int id, ActualizarHorarioDTO actualizarHorarioDTO)
@@ -197,7 +246,7 @@ namespace Reservas.Implementaciones.Repositorios
         public async Task<bool?> BorrarHorarioAutomatico(bool eliminar)
         {
                 var fechaLimite = DateTime.UtcNow.AddDays(-1);
-                var horariosExpirados = await _context.Horarios.Where(h => h.FechaCreacion < fechaLimite).ToListAsync();
+                var horariosExpirados = await _context.Horarios.Where(h => h.FechaFinal < fechaLimite).ToListAsync();
 
                 if (horariosExpirados.Count > 0)
                 {

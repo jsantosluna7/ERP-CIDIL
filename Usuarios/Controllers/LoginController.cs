@@ -21,11 +21,11 @@ namespace Usuarios.Controllers
         {
             //Aquí puedes llamar al servicio para registrar el usuario
             var resultado = await _servicioLogin.RegistrarUsuario(crearRegistroDTO);
-            if (resultado == null)
+            if (!resultado.esExitoso)
             {
-                return BadRequest("El correo y/o la matricula ya existen, la contraseña debe ser mayor a 8 caracteres.");
+                return BadRequest(new { error = resultado.MensajeError });
             }
-            return Ok(resultado);
+            return Ok(resultado.Valor);
         }
 
         [HttpPost("iniciar-sesion")]
@@ -33,11 +33,11 @@ namespace Usuarios.Controllers
         {
             //Aquí puedes llamar al servicio para iniciar seción
             var resultado = await _servicioLogin.IniciarSecion(login);
-            if (resultado == null)
+            if (!resultado.esExitoso)
             {
-                return BadRequest("El correo y/o la contraseña son incorrectos, la contraseña debe ser mayor a 8 caracteres.");
+                return BadRequest(new { error = resultado.MensajeError });
             }
-            return Ok(resultado);
+            return Ok(resultado.Valor);
         }
     }
 }

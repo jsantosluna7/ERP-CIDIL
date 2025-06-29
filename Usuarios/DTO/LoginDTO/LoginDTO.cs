@@ -24,5 +24,7 @@ namespace Usuarios.DTO.LoginDTO
 
         public DateTime? FechaUltimaModificacion { get; set; }
 
+        public DateTime? UltimaSesion { get; set; }
+
     }
 }

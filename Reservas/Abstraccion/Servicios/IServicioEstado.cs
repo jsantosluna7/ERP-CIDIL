@@ -5,7 +5,7 @@ namespace Reservas.Abstraccion.Servicios
 {
     public interface IServicioEstado
     {
-        Task<List<EstadoDTO>?> GetEstado();
-        Task<Estado?> GetById(int id);
+        Task<Resultado<Estado?>> GetById(int id);
+        Task<Resultado<List<EstadoDTO>?>> GetEstado();
     }
 }

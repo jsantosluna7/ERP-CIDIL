@@ -6,6 +6,6 @@ namespace Reservas.Abstraccion.Repositorio
     public interface IRepositorioEstado
     {
         Task<List<Estado>?> GetEstado();
-        Task<Estado?> GetById(int id);
+        Task<Resultado<Estado?>> GetById(int id);
     }
 }

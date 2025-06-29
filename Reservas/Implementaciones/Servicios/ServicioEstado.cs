@@ -16,26 +16,32 @@ namespace Reservas.Implementaciones.Servicios
             this._repositorioEstado = repositorioEstado;
         }
 
-        public async Task<Estado?> GetById(int id)
+        public async Task<Resultado<Estado?>> GetById(int id)
         {
-            var es = await _repositorioEstado.GetById(id);
-            return es = new Estado
-            {   
-                Id = es.Id,
-                Estado1 = es.Estado1,
-                PrestamosEquipos = es.PrestamosEquipos,
-                ReservaDeEspacios = es.ReservaDeEspacios,
-                SolicitudPrestamosDeEquipos = es.SolicitudPrestamosDeEquipos,
-                SolicitudReservaDeEspacios = es.SolicitudReservaDeEspacios
+            var resultado = await _repositorioEstado.GetById(id);
+
+            if (!resultado.esExitoso)
+            {
+                return Resultado<Estado?>.Falla(resultado.MensajeError ?? "El estado no existe o no se encontró.");
+            }
+
+            var estado = resultado.Valor!;
+
+            var es = new Estado
+            {
+                Id = estado.Id,
+                Estado1 = estado.Estado1,
             };
+
+            return Resultado<Estado?>.Exito(es);
         }
 
-        public async Task<List<EstadoDTO>?> GetEstado()
+        public async Task<Resultado<List<EstadoDTO>?>> GetEstado()
         {
            var estado = await _repositorioEstado.GetEstado();
-            if (estado == null)
+            if (!estado.Any())
             {
-                return null;
+                return Resultado<List<EstadoDTO>?>.Falla("No se encontraron registros."); // Retorna null si no hay estados
             }
             var estadoDTO = new List<EstadoDTO>();
             foreach(Estado estado1 in estado)
@@ -47,7 +53,7 @@ namespace Reservas.Implementaciones.Servicios
                 };
                  estadoDTO.Add(nuevoEstado);
             }
-                return estadoDTO;
+                return Resultado<List<EstadoDTO>?>.Exito(estadoDTO);
         }
     }
 }
