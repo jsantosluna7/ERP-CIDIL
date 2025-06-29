@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace ERP.Data.Modelos;
 
@@ -24,10 +25,10 @@ public partial class SolicitudReservaDeEspacio
     public DateTime FechaInicio { get; set; }
 
     public DateTime FechaFinal { get; set; }
-
+    [JsonIgnore]
     public virtual Estado? IdEstadoNavigation { get; set; }
-
+    [JsonIgnore]
     public virtual Laboratorio IdLaboratorioNavigation { get; set; } = null!;
-
+    [JsonIgnore]
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
 }
