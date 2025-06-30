@@ -104,5 +104,28 @@ namespace Inventario.Controllers
             return Ok();
         }
 
+        [HttpPost("subir-imagen")]
+        public async Task<IActionResult> SubirImagen(IFormFile archivo)
+        {
+            if (archivo == null || archivo.Length == 0)
+                return BadRequest("No se ha enviado ningún archivo.");
+
+            var archivoSubida = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "inventario");
+            if (!Directory.Exists(archivoSubida))
+                Directory.CreateDirectory(archivoSubida);
+
+            var nombreUnico = Guid.NewGuid().ToString() + Path.GetExtension(archivo.FileName);
+            var direccionArchivo = Path.Combine(archivoSubida, nombreUnico);
+
+            using (var stream = new FileStream(direccionArchivo, FileMode.Create))
+            {
+                await archivo.CopyToAsync(stream);
+            }
+
+            var relativePath = $"/inventario/{nombreUnico}"; // Esto es lo que se guarda en la BD y se envía al front
+            return Ok(new { ruta = relativePath });
+        }
+
+
     }
 }

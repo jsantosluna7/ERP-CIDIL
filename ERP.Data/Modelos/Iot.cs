@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace ERP.Data.Modelos;
 
@@ -26,6 +27,6 @@ public partial class Iot
     public bool? Activado { get; set; }
 
     public DateTime? HoraEntrada { get; set; }
-
+    [JsonIgnore]
     public virtual Laboratorio IdLaboratorioNavigation { get; set; } = null!;
 }

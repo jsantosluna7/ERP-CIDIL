@@ -26,6 +26,8 @@ services:
     restart: always
     depends_on:
       - db
+    volumes:
+      - /mnt/data/erp-imagenes/inventario:/app/wwwroot/inventario  # 👈 Montamos imágenes desde host
 
 volumes:
   pgdata:

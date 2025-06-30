@@ -19,22 +19,24 @@ namespace Reservas.Controllers
         public async Task<IActionResult?> GetEstado()
         {
             var resultado = await _servicioEstado.GetEstado();
-            if (resultado == null)
+            if (!resultado.esExitoso)
             {
-                return NotFound("Lista de estado no encontrada");
+                return BadRequest(new { error = resultado.MensajeError });
             }
-            return Ok(resultado);
+
+            return Ok(resultado.Valor);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult?> GetById(int id)
         {
             var resultado = await _servicioEstado.GetById(id);
-            if (resultado == null)
+            if (!resultado.esExitoso)
             {
-                return NotFound("Lista de Estado No encontrada");
+                return BadRequest(new { error = resultado.MensajeError });
             }
-            return Ok(resultado);
+
+            return Ok(resultado.Valor);
         }
     }
 }

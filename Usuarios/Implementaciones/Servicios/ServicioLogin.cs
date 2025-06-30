@@ -1,4 +1,5 @@
-﻿using Usuarios.Abstraccion.Repositorios;
+﻿using ERP.Data.Modelos;
+using Usuarios.Abstraccion.Repositorios;
 using Usuarios.Abstraccion.Servicios;
 using Usuarios.DTO.LoginDTO;
 using Usuarios.DTO.UsuarioDTO;
@@ -18,14 +19,16 @@ namespace Usuarios.Implementaciones.Servicios
         //El servicio Login se encarga de realizar la lógica de negocio y de interactuar con el repositorio para obtener los datos necesarios.
 
         //Método para iniciar seción
-        public async Task<LoginDTO?> IniciarSecion(Login login)
+        public async Task<Resultado<LoginDTO?>> IniciarSecion(Login login)
         {
-            var usuario = await _repositorioLogin.IniciarSecion(login);
+            var resultado = await _repositorioLogin.IniciarSecion(login);
 
-            if (usuario == null)
+            if (!resultado.esExitoso)
             {
-                return null;
+                return Resultado<LoginDTO?>.Falla(resultado.MensajeError ?? "Error al registrar el usuario.");
             }
+
+            var usuario = resultado.Valor!;
 
             var loginDTO = new LoginDTO
             {
@@ -38,20 +41,25 @@ namespace Usuarios.Implementaciones.Servicios
                 Direccion = usuario.Direccion,
                 IdRol = usuario.IdRol,
                 FechaCreacion = usuario.FechaCreacion,
-                FechaUltimaModificacion = usuario.FechaUltimaModificacion
+                FechaUltimaModificacion = usuario.FechaUltimaModificacion,
+                UltimaSesion = usuario.UltimaSesion
             };
 
-            return loginDTO;
+            return Resultado<LoginDTO?>.Exito(loginDTO);
         }
 
         //Método para registrar un usuario
-        public async Task<CrearRegistroDTO?> RegistrarUsuario(CrearRegistroDTO crearRegistroDTO) //El task es para que sea asincrono, y es de tipo CrearLoginDTO, esto es para que retorne el DTO de la clase CrearLoginDTO y que el usuario pueda ver el resultado de la creación del usuario que es ese DTO.
+        public async Task<Resultado<CrearRegistroDTO?>> RegistrarUsuario(CrearRegistroDTO crearRegistroDTO) //El task es para que sea asincrono, y es de tipo CrearLoginDTO, esto es para que retorne el DTO de la clase CrearLoginDTO y que el usuario pueda ver el resultado de la creación del usuario que es ese DTO.
         {
-            var usuario = await _repositorioLogin.RegistrarUsuario(crearRegistroDTO);
-            if (usuario == null)
+            var resultado = await _repositorioLogin.RegistrarUsuario(crearRegistroDTO);
+
+            if (!resultado.esExitoso)
             {
-                return null;
+                return Resultado<CrearRegistroDTO?>.Falla(resultado.MensajeError ?? "Error al registrar el usuario.");
             }
+
+            var usuario = resultado.Valor!;
+
             var crearRegistroDTORetorno = new CrearRegistroDTO
             {
                 IdMatricula = usuario.IdMatricula,
@@ -64,7 +72,7 @@ namespace Usuarios.Implementaciones.Servicios
                 FechaCreacion = usuario.FechaCreacion,
                 FechaUltimaModificacion = usuario.FechaUltimaModificacion
             };
-            return crearRegistroDTORetorno;
+            return Resultado<CrearRegistroDTO?>.Exito(crearRegistroDTORetorno);
         }
 
     }

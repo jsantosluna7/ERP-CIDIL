@@ -91,6 +91,8 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var app = builder.Build();
 
+app.UseStaticFiles(); // Ya sirve wwwroot automáticamente
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
