@@ -237,6 +237,9 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
             entity.Property(e => e.IdUsuarioAprobador).HasColumnName("id_usuario_aprobador");
             entity.Property(e => e.Motivo).HasColumnName("motivo");
+            entity.Property(e => e.Cantidad)
+    .HasDefaultValue(1)
+    .HasColumnName("cantidad");
 
             entity.HasOne(d => d.IdEstadoNavigation).WithMany(p => p.PrestamosEquipos)
                 .HasForeignKey(d => d.IdEstado)
@@ -348,6 +351,11 @@ public partial class DbErpContext : DbContext
                 .HasForeignKey(d => d.IdUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("solicitud_prestamos_de_equipos_id_usuario_fkey");
+            entity.Property(e => e.Cantidad)
+   .HasDefaultValue(1)
+   .HasColumnName("cantidad");
+
+
         });
 
         modelBuilder.Entity<SolicitudReservaDeEspacio>(entity =>

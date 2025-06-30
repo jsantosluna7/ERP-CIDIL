@@ -21,6 +21,7 @@ public partial class SolicitudPrestamosDeEquipo
     public DateTime? FechaSolicitud { get; set; }
 
     public int? IdEstado { get; set; }
+    public int? Cantidad { get; set; }
     [JsonIgnore]
     public virtual Estado? IdEstadoNavigation { get; set; }
     [JsonIgnore]
