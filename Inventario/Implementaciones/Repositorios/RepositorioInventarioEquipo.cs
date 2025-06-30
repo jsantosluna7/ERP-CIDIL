@@ -39,6 +39,8 @@ namespace Inventario.Implementaciones.Repositorios
             invEquipoExiste.Disponible = actualizarInventarioEquipoDTO.Disponible;
             invEquipoExiste.IdEstadoFisico = actualizarInventarioEquipoDTO.IdEstadoFisico;
             invEquipoExiste.ValidacionPrestamo = actualizarInventarioEquipoDTO.ValidacionPrestamo;
+            invEquipoExiste.Cantidad = actualizarInventarioEquipoDTO.Cantidad;
+            invEquipoExiste.Activado = actualizarInventarioEquipoDTO.Activado;
 
 
 
@@ -69,6 +71,8 @@ namespace Inventario.Implementaciones.Repositorios
                 Disponible = crearInventarioEquipoDTO.Disponible,
                 IdEstadoFisico = crearInventarioEquipoDTO.IdEstadoFisico,
                 ValidacionPrestamo = crearInventarioEquipoDTO.ValidacionPrestamo,
+                Cantidad = crearInventarioEquipoDTO.Cantidad,
+                Activado = crearInventarioEquipoDTO.Activado
             };
 
              _context.InventarioEquipos.Add(invEquipo);
