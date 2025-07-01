@@ -30,7 +30,7 @@ public partial class InventarioEquipo
 
     public decimal? ImporteActivo { get; set; }
 
-    public byte[]? ImagenEquipo { get; set; }
+    public string? ImagenEquipo { get; set; }
 
     public bool? Disponible { get; set; }
 

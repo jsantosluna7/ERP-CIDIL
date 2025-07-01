@@ -48,6 +48,10 @@ namespace Inventario.Implementaciones.Repositorios
                 CodigoDeLab = crearlaboratorioDTO.CodigoDeLab,
                 Capacidad = crearlaboratorioDTO.Capacidad,
                 Descripcion = crearlaboratorioDTO.Descripcion,
+                Nombre = crearlaboratorioDTO.Nombre,
+                Piso = crearlaboratorioDTO.Piso,
+               
+
             };
             _context.Laboratorios.Add(laboratorio);
             await _context.SaveChangesAsync();
