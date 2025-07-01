@@ -14,5 +14,6 @@
         public string Motivo { get; set; } = null!;
 
         public DateTime? FechaSolicitud { get; set; }
+        public int? Cantidad { get; set; }
     }
 }

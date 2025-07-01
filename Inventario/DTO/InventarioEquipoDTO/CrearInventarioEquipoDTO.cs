@@ -25,12 +25,14 @@
 
         public decimal? ImporteActivo { get; set; }
 
-        public byte[]? ImagenEquipo { get; set; }
+        public string? ImagenEquipo { get; set; }
 
         public bool? Disponible { get; set; }
 
         public int IdEstadoFisico { get; set; }
 
         public bool? ValidacionPrestamo { get; set; }
+        public int? Cantidad { get; set; }
+        public bool? Activado { get; set; }
     }
 }

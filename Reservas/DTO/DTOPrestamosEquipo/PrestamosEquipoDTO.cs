@@ -21,5 +21,7 @@
         public string Motivo { get; set; } = null!;
 
         public string? ComentarioAprobacion { get; set; }
+        public int? Cantidad { get; set; }
+
     }
 }

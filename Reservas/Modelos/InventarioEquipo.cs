@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
-namespace ERP.Data.Modelos;
+namespace Reservas.Modelos;
 
 public partial class InventarioEquipo
 {
@@ -30,7 +29,7 @@ public partial class InventarioEquipo
 
     public decimal? ImporteActivo { get; set; }
 
-    public string? ImagenEquipo { get; set; }
+    public byte[]? ImagenEquipo { get; set; }
 
     public bool? Disponible { get; set; }
 
@@ -41,9 +40,9 @@ public partial class InventarioEquipo
     public int? Cantidad { get; set; }
 
     public bool? Activado { get; set; }
-    [JsonIgnore]
+
     public virtual EstadoFisico? IdEstadoFisicoNavigation { get; set; }
-    [JsonIgnore]
+
     public virtual Laboratorio? IdLaboratorioNavigation { get; set; }
 
     public virtual ICollection<SolicitudPrestamosDeEquipo> SolicitudPrestamosDeEquipos { get; set; } = new List<SolicitudPrestamosDeEquipo>();

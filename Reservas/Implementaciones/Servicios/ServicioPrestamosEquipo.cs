@@ -36,6 +36,7 @@ namespace Reservas.Implementaciones.Servicios
                 IdUsuarioAprobador =pEquipo.IdUsuarioAprobador,
                 Motivo = pEquipo.Motivo,
                 ComentarioAprobacion = pEquipo.ComentarioAprobacion,
+                Cantidad = pEquipo.Cantidad,
             };
 
             return pEquipoDTO;
@@ -59,6 +60,7 @@ namespace Reservas.Implementaciones.Servicios
                 IdUsuarioAprobador = pEquipo.IdUsuarioAprobador,
                 Motivo = pEquipo.Motivo,
                 ComentarioAprobacion = pEquipo.ComentarioAprobacion,
+                Cantidad = pEquipo.Cantidad,
             };
             return pEquipoDTO;
         }
@@ -104,6 +106,7 @@ namespace Reservas.Implementaciones.Servicios
                     IdUsuarioAprobador = prestamosEquipo.IdUsuarioAprobador,
                     Motivo = prestamosEquipo.Motivo,
                     ComentarioAprobacion = prestamosEquipo.ComentarioAprobacion,
+                    Cantidad = prestamosEquipo.Cantidad,
                 };
                 pEquipoDTO.Add(nuevoPEquipo);
             }

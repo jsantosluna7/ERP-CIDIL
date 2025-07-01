@@ -40,6 +40,8 @@ namespace Reservas.Implementaciones.Repositorios
             pEquipoExiste.IdUsuarioAprobador = actualizarPrestamosEquipoDTO.IdUsuarioAprobador;
             pEquipoExiste.Motivo = actualizarPrestamosEquipoDTO.Motivo;
             pEquipoExiste.ComentarioAprobacion = actualizarPrestamosEquipoDTO.ComentarioAprobacion;
+            pEquipoExiste.Cantidad =actualizarPrestamosEquipoDTO.Cantidad;
+            
 
 
             _context.Update(pEquipoExiste);
@@ -62,7 +64,9 @@ namespace Reservas.Implementaciones.Repositorios
                 FechaEntrega = crearPrestamosEquipoDTO.FechaEntrega,
                 IdUsuarioAprobador = crearPrestamosEquipoDTO.IdUsuarioAprobador,
                 Motivo = crearPrestamosEquipoDTO.Motivo,
-                ComentarioAprobacion = crearPrestamosEquipoDTO.ComentarioAprobacion
+                ComentarioAprobacion = crearPrestamosEquipoDTO.ComentarioAprobacion,
+                Cantidad = crearPrestamosEquipoDTO.Cantidad,
+                
 
             };
 

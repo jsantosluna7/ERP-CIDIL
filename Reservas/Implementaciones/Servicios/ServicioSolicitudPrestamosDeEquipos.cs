@@ -35,6 +35,7 @@ namespace Reservas.Implementaciones.Servicios
                     FechaFinal = prestamos.FechaFinal,
                     Motivo = prestamos.Motivo,
                     FechaSolicitud = prestamos.FechaSolicitud,
+                    Cantidad = prestamos.Cantidad,
                     
                 };
                 // Agregar la solicitudDTO a la lista de solicitudesDTO
@@ -60,6 +61,7 @@ namespace Reservas.Implementaciones.Servicios
                 FechaFinal = prestamos.FechaFinal,
                 Motivo = prestamos.Motivo,
                 FechaSolicitud = prestamos.FechaSolicitud,
+                Cantidad = prestamos.Cantidad,
             };
             return prestamoDTO;
         }
@@ -80,6 +82,7 @@ namespace Reservas.Implementaciones.Servicios
                 FechaFinal = prestamos.FechaFinal,
                 Motivo = prestamos.Motivo,
                 FechaSolicitud = prestamos.FechaSolicitud,
+                Cantidad = prestamos.Cantidad,
             };
             return prestamoDTO;
         }
@@ -100,6 +103,7 @@ namespace Reservas.Implementaciones.Servicios
                 FechaFinal = prestamos.FechaFinal,
                 Motivo = prestamos.Motivo,
                 FechaSolicitud = prestamos.FechaSolicitud,
+                Cantidad = prestamos.Cantidad,
             };
             return prestamoDTO;
         }

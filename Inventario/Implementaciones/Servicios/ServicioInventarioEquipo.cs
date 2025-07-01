@@ -42,6 +42,7 @@ namespace Inventario.Implementaciones.Servicios
                  FechaTransaccion = invEquipo.FechaTransaccion,
                  Departamento = invEquipo.Departamento,
                  Cantidad = invEquipo.Cantidad,
+                 Activado = invEquipo.Activado
             };
             return invEquipoDTO;
         }
@@ -72,7 +73,8 @@ namespace Inventario.Implementaciones.Servicios
                 ValidacionPrestamo=invEquipo.ValidacionPrestamo,
                 FechaTransaccion=invEquipo.FechaTransaccion,
                 Departamento = invEquipo.Departamento,
-                Cantidad = invEquipo.Cantidad
+                Cantidad = invEquipo.Cantidad,
+                Activado = invEquipo.Activado
             };
 
             return invEquipoDTO;
