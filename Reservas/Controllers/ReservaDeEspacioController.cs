@@ -50,6 +50,18 @@ namespace Reservas.Controllers
         }
 
         // Método para obtener una reserva por id
+        [HttpGet("obtener-reservas-pisos/{piso}")]
+        public async Task<IActionResult> ObtenerReservaPorPiso(int piso)
+        {
+            var reserva = await _servicioReservaDeEspacio.ObtenerReservasDeEspacioPorPiso(piso);
+            if (reserva == null)
+            {
+                return NotFound($"No se encontró la reserva en el piso {piso}.");
+            }
+            return Ok(reserva);
+        }
+
+        // Método para obtener una reserva por id
         [HttpGet("obtener-reservas/{id}")]
         public async Task<IActionResult> ObtenerReservaPorId(int id)
         {

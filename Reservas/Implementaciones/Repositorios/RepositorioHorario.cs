@@ -35,6 +35,30 @@ namespace Reservas.Implementaciones.Repositorios
                 .ToListAsync();
         }
 
+        //Método para obtener todas las solicitudes de reserva
+        public async Task<List<Horario>> ObtenerHorarioPorPiso(int piso)
+        {
+            try
+            {
+                // Obtener IDs de laboratorios que pertenecen al piso
+                var idsLaboratorios = await _context.Laboratorios
+                    .Where(p => p.Piso == piso)
+                    .Select(l => l.Id)
+                    .ToListAsync();
+
+                // Obtener todas los horarios de esos laboratorios
+                var horario = await _context.Horarios
+                    .Where(r => idsLaboratorios.Contains(r.IdLaboratorio))
+                    .ToListAsync();
+
+                return horario;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Hubo un error al obtener las solicitudes", ex);
+            }
+        }
+
         //Método para obtener un horario por id
         public async Task<Horario?> ObtenerHorarioPorId(int id)
         {

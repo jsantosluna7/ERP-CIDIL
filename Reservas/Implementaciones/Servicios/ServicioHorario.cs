@@ -31,7 +31,39 @@ namespace Reservas.Implementaciones.Servicios
                     Id = horario.Id,
                     Asignatura = horario.Asignatura,
                     Profesor = horario.Profesor,
-                    IdLaboratorio = horario.IdLaboratorio ?? 1,
+                    IdLaboratorio = horario.IdLaboratorio,
+                    HoraInicio = horario.HoraInicio,
+                    HoraFinal = horario.HoraFinal,
+                    FechaInicio = horario.FechaInicio ?? new DateTime(),
+                    FechaFinal = horario.FechaFinal ?? new DateTime(),
+                    Dia = horario.Dia
+                };
+                horariosDTO.Add(horarioDTO);
+            }
+
+            //devolver la lista de horarios
+            return horariosDTO;
+        }
+
+        // Método para obtener todos los horarios por piso
+        public async Task<List<HorarioDTO>?> ObtenerHorariosPorPiso(int piso)
+        {
+            var horarios = await _repositorioHorario.ObtenerHorarioPorPiso(piso);
+
+            if (horarios == null || horarios.Count == 0)
+            {
+                return null;
+            }
+            var horariosDTO = new List<HorarioDTO>();
+
+            foreach (var horario in horarios)
+            {
+                var horarioDTO = new HorarioDTO()
+                {
+                    Id = horario.Id,
+                    Asignatura = horario.Asignatura,
+                    Profesor = horario.Profesor,
+                    IdLaboratorio = horario.IdLaboratorio,
                     HoraInicio = horario.HoraInicio,
                     HoraFinal = horario.HoraFinal,
                     FechaInicio = horario.FechaInicio ?? new DateTime(),
@@ -63,7 +95,7 @@ namespace Reservas.Implementaciones.Servicios
                     Id = horario.Id,
                     Asignatura = horario.Asignatura,
                     Profesor = horario.Profesor,
-                    IdLaboratorio = horario.IdLaboratorio ?? 1,
+                    IdLaboratorio = horario.IdLaboratorio,
                     HoraInicio = horario.HoraInicio,
                     HoraFinal = horario.HoraFinal,
                     FechaInicio = horario.FechaInicio ?? new DateTime(),

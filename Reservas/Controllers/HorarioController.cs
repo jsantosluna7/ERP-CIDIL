@@ -70,6 +70,22 @@ namespace Reservas.Controllers
         }
 
         // Método para obtener un horario por id
+        [HttpGet("obtener-horario-pisos/{piso}")]
+        public async Task<IActionResult> ObtenerHorarioPorPiso(int piso)
+        {
+            //Llamar al servicio para obtener un horario por id
+            var horario = await _servicioHorario.ObtenerHorariosPorPiso(piso);
+
+            //verificar si el horario existe
+            if (horario == null)
+            {
+                return NotFound($"No hay horario en correspondiente con el piso {piso}");
+            }
+
+            // Devolver el horario encontrado
+            return Ok(horario);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> ObtenerHorarioPorId(int id)
         {

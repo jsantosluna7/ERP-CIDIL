@@ -12,7 +12,7 @@ public partial class Horario
 
     public string? Profesor { get; set; }
 
-    public int? IdLaboratorio { get; set; }
+    public int IdLaboratorio { get; set; }
 
     public string? Dia { get; set; }
 

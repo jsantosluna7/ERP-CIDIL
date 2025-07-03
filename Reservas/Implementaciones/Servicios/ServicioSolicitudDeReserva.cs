@@ -48,6 +48,41 @@ namespace Reservas.Implementaciones.Servicios
             return solicitudesDTO;
         }
 
+        //Método para obtener todas las solicitudes de reserva por piso
+        public async Task<List<SolicitudDeReservaDTO>?> ObtenerSolicitudesReservasPorPiso(int piso)
+        {
+            var solicitudes = await _repositorioSolicitudDeReserva.ObtenerSolicitudesReservasPorPiso(piso);
+
+            if (solicitudes == null || solicitudes.Count == 0)
+            {
+                return null;
+            }
+
+            var solicitudesDTO = new List<SolicitudDeReservaDTO>();
+
+            // Recorrer la lista de solicitudes y convertir cada una a SolicitudDeReservaDTO
+            foreach (var solicitud in solicitudes)
+            {
+                var solicitudDTO = new SolicitudDeReservaDTO()
+                {
+                    Id = solicitud.Id,
+                    IdUsuario = solicitud.IdUsuario,
+                    IdLaboratorio = solicitud.IdLaboratorio,
+                    HoraInicio = solicitud.HoraInicio,
+                    HoraFinal = solicitud.HoraFinal,
+                    FechaInicio = solicitud.FechaInicio,
+                    FechaFinal = solicitud.FechaFinal,
+                    Motivo = solicitud.Motivo,
+                    FechaSolicitud = solicitud.FechaSolicitud,
+                    IdEstado = solicitud.IdEstado
+                };
+                // Agregar la solicitudDTO a la lista de solicitudesDTO
+                solicitudesDTO.Add(solicitudDTO);
+            }
+
+            return solicitudesDTO;
+        }
+
         // Método para obtener una solicitud de reserva por id
         public async Task<SolicitudDeReservaDTO?> ObtenerSolicitudReservaPorId(int id)
         {
