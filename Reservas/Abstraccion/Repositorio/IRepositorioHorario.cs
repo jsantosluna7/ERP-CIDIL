@@ -11,6 +11,7 @@ namespace Reservas.Abstraccion.Repositorio
         Task<bool?> BorrarHorario(int id);
         Task<bool?> BorrarHorarioAutomatico(bool eliminar);
         Task<Horario?> ObtenerHorarioPorId(int id);
+        Task<List<Horario>> ObtenerHorarioPorPiso(int piso);
         Task<List<Horario>> ObtenerHorarios(int pagina, int tamanoPagina);
         Task<List<Horario>> ObtenerHorariosTotal();
     }

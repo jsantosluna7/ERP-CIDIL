@@ -4,6 +4,7 @@ using Reservas.Abstraccion.Servicios;
 using Reservas.DTO.DTOHorario;
 using Reservas.DTO.DTOReservaDeEspacio;
 using Reservas.DTO.DTOSolicitudDeReserva;
+using Reservas.Implementaciones.Repositorios;
 
 namespace Reservas.Implementaciones.Servicios
 {
@@ -51,6 +52,41 @@ namespace Reservas.Implementaciones.Servicios
             }
 
             // Devolver la lista de reservasDTO
+            return reservasDTO;
+        }
+
+        //Método para obtener todas las solicitudes de reserva por piso
+        public async Task<List<ReservaDeEspacioDTO>?> ObtenerReservasDeEspacioPorPiso(int piso)
+        {
+            var reservas = await _repositorioReservaDeEspacio.ObtenerReservasDeEspacioPorPiso(piso);
+
+            if (reservas == null || reservas.Count == 0)
+            {
+                return null;
+            }
+
+            var reservasDTO = new List<ReservaDeEspacioDTO>();
+
+            // Recorrer la lista de solicitudes y convertir cada una a SolicitudDeReservaDTO
+            foreach (var reserva in reservas)
+            {
+                var reservaDTO = new ReservaDeEspacioDTO()
+                {
+                    Id = reserva.Id,
+                    IdUsuario = reserva.IdUsuario,
+                    IdLaboratorio = reserva.IdLaboratorio,
+                    HoraInicio = reserva.HoraInicio,
+                    HoraFinal = reserva.HoraFinal,
+                    FechaInicio = reserva.FechaInicio,
+                    FechaFinal = reserva.FechaFinal,
+                    Motivo = reserva.Motivo,
+                    FechaSolicitud = reserva.FechaSolicitud,
+                    IdEstado = reserva.IdEstado
+                };
+                // Agregar la solicitudDTO a la lista de solicitudesDTO
+                reservasDTO.Add(reservaDTO);
+            }
+
             return reservasDTO;
         }
 

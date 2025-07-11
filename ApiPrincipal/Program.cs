@@ -86,12 +86,27 @@ var connectionString = $"Host={Environment.GetEnvironmentVariable("HOST")};" +
 builder.Services.AddDbContext<DbErpContext>(options =>
     options.UseNpgsql(connectionString));
 
+// Agregar política CORS global que permite todo
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PermitirTodo", policy =>
+    {
+        policy
+            .AllowAnyOrigin()    // Permite cualquier origen
+            .AllowAnyMethod()    // Permite cualquier método (GET, POST, PUT, DELETE, etc.)
+            .AllowAnyHeader();   // Permite cualquier encabezado
+    });
+});
+
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
+
 
 
 var app = builder.Build();
 
 app.UseStaticFiles(); // Ya sirve wwwroot automáticamente
+app.UseCors("PermitirTodo");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

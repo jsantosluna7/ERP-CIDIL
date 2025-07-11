@@ -12,5 +12,6 @@ namespace Reservas.Abstraccion.Servicios
         Task<ReservaDeEspacioDTO?> ObtenerReservaPorId(int id);
         //Task<List<ReservaDeEspacioDTO>?> ObtenerReservas();
         Task<List<ReservaDeEspacioDTO>?> ObtenerReservas(int pagina, int tamanoPagina);
+        Task<List<ReservaDeEspacioDTO>?> ObtenerReservasDeEspacioPorPiso(int piso);
     }
 }

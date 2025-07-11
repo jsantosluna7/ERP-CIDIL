@@ -46,6 +46,30 @@ namespace Reservas.Implementaciones.Repositorios
             return reserva;
         }
 
+        //Método para obtener todas las solicitudes de reserva
+        public async Task<List<ReservaDeEspacio>> ObtenerReservasDeEspacioPorPiso(int piso)
+        {
+            try
+            {
+                // Obtener IDs de laboratorios que pertenecen al piso
+                var idsLaboratorios = await _context.Laboratorios
+                    .Where(p => p.Piso == piso)
+                    .Select(l => l.Id)
+                    .ToListAsync();
+
+                // Obtener todas las solicitudes de esos laboratorios
+                var reservas = await _context.ReservaDeEspacios
+                    .Where(r => idsLaboratorios.Contains(r.IdLaboratorio))
+                    .ToListAsync();
+
+                return reservas;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Hubo un error al obtener las solicitudes", ex);
+            }
+        }
+
         //Método para que el usuario apruebe una reserva
         public async Task<ReservaDeEspacio?> CrearReserva(CrearReservaDeEspacioDTO crearReservaDeEspacioDTO)
         {

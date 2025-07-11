@@ -47,6 +47,18 @@ namespace Reservas.Controllers
             return Ok(respuesta);
         }
 
+        // Método para obtener una solicitud de reserva por piso
+        [HttpGet("obtener-solicitudes-reservas-piso/{piso}")]
+        public async Task<IActionResult> ObtenerSolicitudReservaPorPiso(int piso)
+        {
+            var solicitud = await _servicioSolicitudDeReserva.ObtenerSolicitudesReservasPorPiso(piso);
+            if (solicitud == null)
+            {
+                return NotFound($"No se encontró la solicitud de reserva en el piso {piso}.");
+            }
+            return Ok(solicitud);
+        }
+
         // Método para obtener una solicitud de reserva por id
         [HttpGet("obtener-solicitudes-reservas/{id}")]
         public async Task<IActionResult> ObtenerSolicitudReservaPorId(int id)

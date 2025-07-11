@@ -13,5 +13,6 @@ namespace Reservas.Abstraccion.Repositorio
         Task<ReservaDeEspacio?> ObtenerReservaPorId(int id);
         //Task<List<ReservaDeEspacio>> ObtenerReservas();
         Task<List<ReservaDeEspacio>> ObtenerReservas(int pagina, int tamanoPagina);
+        Task<List<ReservaDeEspacio>> ObtenerReservasDeEspacioPorPiso(int piso);
     }
 }
