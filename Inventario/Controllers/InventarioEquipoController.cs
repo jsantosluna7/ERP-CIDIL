@@ -22,6 +22,34 @@ namespace Inventario.Controllers
             _context = context;
         }
 
+
+        [HttpGet("ObtenerTodos")]
+        public async Task<IActionResult> GetInventarioEquipo()
+        {
+            var resultado = await _context.InventarioEquipos
+        .Select(i => new {
+            i.Id,
+            i.Nombre,
+            i.NombreCorto,
+            i.Perfil,
+            i.IdLaboratorio,
+            i.Fabricante,
+            i.Modelo,
+            i.Serial,
+            i.DescripcionLarga,
+            i.FechaTransaccion,
+            i.Departamento,
+            i.ImporteActivo,
+            i.ImagenEquipo,
+            i.Disponible,
+            i.IdEstadoFisico,
+            i.ValidacionPrestamo,
+            i.Cantidad,
+            i.Activado
+        }).ToListAsync();
+
+            return Ok(resultado);
+        }
         //Controlador para  optener el inventario del los equipos
         [HttpGet]
         public async Task<IActionResult?> GetInventarioEquipo([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)
@@ -74,7 +102,7 @@ namespace Inventario.Controllers
         }
 
         //Controlador para  optener por ID el inventario del los equipos
-        [HttpGet("{id}")]
+        [HttpGet("ById{id}")]
         public async Task<IActionResult?> GetById(int id)
         { 
             var resultado=await _servicioInventarioEquipo.GetById(id);
