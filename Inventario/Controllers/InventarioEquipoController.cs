@@ -76,6 +76,24 @@ namespace Inventario.Controllers
             };
             return Ok(respuesta);
         }
+
+        //Para insertar los archivos en lotes
+
+        [HttpPost("CrearLote")]
+        public async Task<IActionResult?> CrearInventarioEquipo([FromBody] List<CrearInventarioEquipoDTO> equipos)
+        {
+            if (equipos == null || !equipos.Any())
+            {
+                return BadRequest("No se enviaron los equipos");
+            }
+                
+            foreach (var equipo in equipos)
+            {
+                await _servicioInventarioEquipo.Crear(equipo);
+            }
+
+            return Ok(new { mensaje = $"{equipos.Count} equipos creados correctamente." });
+        }
         //Controlador para  incertar  los equipos
         [HttpPost]
         public async Task<IActionResult?> CrearInventarioEquipo(CrearInventarioEquipoDTO crearInventarioEquipoDTO)
