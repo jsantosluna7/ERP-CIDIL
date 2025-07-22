@@ -16,17 +16,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("PermitirFrontend", policy =>
-//    {
-//        policy.WithOrigins("https://localhost:7253/swagger/index.html") // o el puerto donde corre tu frontend
-//              .AllowAnyHeader()
-//              .AllowAnyMethod();
-//    });
-//});
-
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

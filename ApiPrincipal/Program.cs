@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using ERP.Data.Modelos;
 using Inventario.Abstraccion.Repositorio;
 using Inventario.Abstraccion.Servicios;
@@ -19,6 +20,20 @@ using Usuarios.Implementaciones.Servicios;
 using Usuarios.Modelos;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("LimiteGlobal", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 100, // Máximo 100 solicitudes...
+                Window = TimeSpan.FromMinutes(1), // ...por minuto
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0 // No poner en cola solicitudes adicionales
+            }));
+});
 
 // Add services to the container.
 
@@ -89,12 +104,12 @@ builder.Services.AddDbContext<DbErpContext>(options =>
 // Agregar política CORS global que permite todo
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("PermitirTodo", policy =>
+    options.AddPolicy("PermitirSoloMiApp", policy =>
     {
         policy
-            .AllowAnyOrigin()    // Permite cualquier origen
-            .AllowAnyMethod()    // Permite cualquier método (GET, POST, PUT, DELETE, etc.)
-            .AllowAnyHeader();   // Permite cualquier encabezado
+            .WithOrigins("https://cidilipl.online") // Reemplaza con el dominio real de tu frontend
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
 });
 
@@ -106,7 +121,9 @@ AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
 var app = builder.Build();
 
 app.UseStaticFiles(); // Ya sirve wwwroot automáticamente
-app.UseCors("PermitirTodo");
+
+app.UseCors("PermitirSoloMiApp");
+app.UseRateLimiter();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -118,6 +135,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.MapControllers().RequireRateLimiting("LimiteGlobal"); // Aplicar a todos los endpoints
+
 
 app.MapControllers();
 

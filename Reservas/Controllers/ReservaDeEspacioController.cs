@@ -21,6 +21,19 @@ namespace Reservas.Controllers
             _context = context;
         }
 
+        [HttpGet("obtener-cantidad-reserva-espacios")]
+        public async Task<IActionResult> cantidadReservaEspacios()
+        {
+            var totalReservaEspacios = await _context.ReservaDeEspacios.CountAsync();
+            // Devolver la cantidad de usuarios
+
+            var respuesta = new
+            {
+                totalReservaEspacios
+            };
+            return Ok(respuesta);
+        }
+
         // Método para obtener todas las reservas
         [HttpGet("obtener-reservas")]
         public async Task<IActionResult> ObtenerReservas([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)

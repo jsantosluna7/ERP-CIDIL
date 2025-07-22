@@ -20,6 +20,19 @@ namespace Reservas.Controllers
             _context = context;
         }
 
+        [HttpGet("obtener-cantidad-prestamos-equipos")]
+        public async Task<IActionResult> cantidadPrestamosEquipos()
+        {
+            var totalPrestamosEquipos = await _context.PrestamosEquipos.CountAsync();
+            // Devolver la cantidad de usuarios
+
+            var respuesta = new
+            {
+                totalPrestamosEquipos
+            };
+            return Ok(respuesta);
+        }
+
 
         [HttpGet]
         public async Task<IActionResult?> GetPrestamosEquipo([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)

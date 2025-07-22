@@ -23,6 +23,19 @@ namespace Usuarios.Controllers
 
         }
 
+        [HttpGet("obtenerUsuarios")]
+        public async Task<IActionResult> cantidadUsuarios()
+        {
+            var totalUsuarios = await _context.Usuarios.CountAsync();
+            // Devolver la cantidad de usuarios
+
+            var respuesta = new
+            {
+                totalUsuarios
+            };
+            return Ok(respuesta);
+        }
+
         [HttpGet]
         public async Task<IActionResult> ObtenerUsuarios([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)
         {
