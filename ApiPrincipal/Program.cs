@@ -1,3 +1,4 @@
+using System.Net.Mail;
 using System.Threading.RateLimiting;
 using ERP.Data.Modelos;
 using Inventario.Abstraccion.Repositorio;
@@ -9,10 +10,14 @@ using IoT.Abstraccion.Servicios;
 using IoT.Implementaciones.Repositorios;
 using IoT.Implementaciones.Servicios;
 using Microsoft.EntityFrameworkCore;
+using MimeKit;
+using MailKit.Net.Smtp;
+using MailKit.Security;
 using Reservas.Abstraccion.Repositorio;
 using Reservas.Abstraccion.Servicios;
 using Reservas.Implementaciones.Repositorios;
 using Reservas.Implementaciones.Servicios;
+using StackExchange.Redis;
 using Usuarios.Abstraccion.Repositorios;
 using Usuarios.Abstraccion.Servicios;
 using Usuarios.Implementaciones.Repositorios;
@@ -101,6 +106,20 @@ var connectionString = $"Host={Environment.GetEnvironmentVariable("HOST")};" +
 builder.Services.AddDbContext<DbErpContext>(options =>
     options.UseNpgsql(connectionString));
 
+// Telegram config
+var config = builder.Configuration.GetSection("Telegram");
+var telegramBotToken = Environment.GetEnvironmentVariable("TELEGRAM_BOT_TOKEN")!;
+var telegramChatId = Environment.GetEnvironmentVariable("TELEGRAM_CHAT_ID")!;
+var redisHost = Environment.GetEnvironmentVariable("REDIS_HOST")!;
+var smtpHost = Environment.GetEnvironmentVariable("SMTP_HOST")!;
+var smtpPort = int.Parse(Environment.GetEnvironmentVariable("SMTP_PORT")!);
+var smtpUser = Environment.GetEnvironmentVariable("SMTP_USER")!;
+var smtpPass = Environment.GetEnvironmentVariable("SMTP_PASS")!;
+var alertEmailTo = Environment.GetEnvironmentVariable("ALERT_EMAIL_TO")!;
+
+// Redis config
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisHost)); //Servidor de Redis
+
 // Agregar política CORS global que permite todo
 builder.Services.AddCors(options =>
 {
@@ -117,8 +136,97 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
 
 
+builder.Services.AddHttpClient();
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 var app = builder.Build();
+
+
+async Task SendAlertEmail(string ip, string path, DateTime now)
+{
+    var message = new MimeMessage();
+    message.From.Add(new MailboxAddress("Tu API", smtpUser));
+    message.To.Add(MailboxAddress.Parse(alertEmailTo));
+    message.Subject = $"[API] IP bloqueada: {ip}";
+
+    var body = new BodyBuilder
+    {
+        HtmlBody = $"<p>La IP <strong>{ip}</strong> fue bloqueada en <em>{path}</em> a las {now:yyyy‑MM‑dd HH:mm:ss} UTC.</p>"
+    };
+    message.Body = body.ToMessageBody();
+
+    using var smtp = new MailKit.Net.Smtp.SmtpClient();
+    await smtp.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.StartTls);
+    await smtp.AuthenticateAsync(smtpUser, smtpPass);
+    await smtp.SendAsync(message);
+    await smtp.DisconnectAsync(true);
+}
+
+// Middleware de bloqueo por IP
+app.Use(async (context, next) =>
+{
+    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+    var redis = context.RequestServices.GetRequiredService<IConnectionMultiplexer>().GetDatabase();
+    var httpClient = context.RequestServices.GetRequiredService<IHttpClientFactory>().CreateClient();
+
+    var ip = context.Connection.RemoteIpAddress?.ToString();
+    var path = context.Request.Path;
+
+    if (ip == null)
+    {
+        await next();
+        return;
+    }
+
+    var bloqueadaKey = $"ip:bloqueada:{ip}";
+    var contadorKey = $"ip:contador:{ip}";
+
+    if (await redis.KeyExistsAsync(bloqueadaKey))
+    {
+        logger.LogWarning("Intento de acceso bloqueado: {IP} - {Path}", ip, path);
+        context.Response.StatusCode = 429;
+        await context.Response.WriteAsync("IP bloqueada por exceso de peticiones. Intenta en 24 horas.");
+        return;
+    }
+
+    var count = await redis.StringIncrementAsync(contadorKey);
+    await redis.KeyExpireAsync(contadorKey, TimeSpan.FromMinutes(1));
+
+    if (count > 100)
+    {
+        await redis.StringSetAsync(bloqueadaKey, "1", TimeSpan.FromHours(24));
+        var now = DateTime.UtcNow;
+
+        logger.LogError("IP bloqueada por abuso: {IP} - {Path} - {Time}", ip, path, now);
+
+        // Enviar alerta a Telegram
+        var mensaje = $"🚨 *ALERTA DE ABUSO*\nIP: `{ip}`\nRuta: `{path}`\nHora: `{now:yyyy-MM-dd HH:mm:ss}` UTC";
+        var urlTelegram = $"https://api.telegram.org/bot{telegramBotToken}/sendMessage";
+        var parametros = new Dictionary<string, string>
+        {
+            { "chat_id", telegramChatId },
+            { "text", mensaje },
+            { "parse_mode", "Markdown" }
+        };
+
+        try
+        {
+            await httpClient.PostAsync(urlTelegram, new FormUrlEncodedContent(parametros));
+            await SendAlertEmail(ip, path, now);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("Error al enviar alerta Telegram: {Error}", ex.Message);
+        }
+
+        context.Response.StatusCode = 429;
+        await context.Response.WriteAsync("IP bloqueada por exceder el límite. Intenta en 24 horas.");
+        return;
+    }
+
+    await next();
+});
 
 app.UseStaticFiles(); // Ya sirve wwwroot automáticamente
 
