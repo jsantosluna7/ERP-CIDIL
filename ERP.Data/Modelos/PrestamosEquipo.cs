@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace ERP.Data.Modelos;
 
@@ -25,13 +24,14 @@ public partial class PrestamosEquipo
     public string Motivo { get; set; } = null!;
 
     public string? ComentarioAprobacion { get; set; }
-    public int? Cantidad {  get; set; }
 
     public bool? Activado { get; set; }
-    [JsonIgnore]
+
+    public int? Cantidad { get; set; }
+
     public virtual Estado IdEstadoNavigation { get; set; } = null!;
-    [JsonIgnore]
+
     public virtual Usuario? IdUsuarioAprobadorNavigation { get; set; }
-    [JsonIgnore]
+
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
 }

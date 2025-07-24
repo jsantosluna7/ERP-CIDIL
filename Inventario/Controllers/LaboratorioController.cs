@@ -22,7 +22,7 @@ namespace Inventario.Controllers
             _context = context;
         }
 
-        //Controlador para  optener el inventario del los equipos
+        //Controlador para  optener el inventario del los Laboratorios
         [HttpGet]
         public async Task<IActionResult?> GetLaboratorio() 
         {
