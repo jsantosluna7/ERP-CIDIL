@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace ERP.Data.Modelos;
 
@@ -11,7 +12,7 @@ public partial class Horario
 
     public string? Profesor { get; set; }
 
-    public int? IdLaboratorio { get; set; }
+    public int IdLaboratorio { get; set; }
 
     public string? Dia { get; set; }
 
@@ -21,13 +22,13 @@ public partial class Horario
 
     public bool? ActivadoHorario { get; set; }
 
-    public TimeOnly? HoraInicio { get; set; }
+    public TimeSpan? HoraInicio { get; set; }
 
-    public TimeOnly? HoraFinal { get; set; }
+    public TimeSpan? HoraFinal { get; set; }
 
     public DateTime? FechaInicio { get; set; }
 
     public DateTime? FechaFinal { get; set; }
-
+    [JsonIgnore]
     public virtual Laboratorio? IdLaboratorioNavigation { get; set; }
 }
