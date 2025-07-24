@@ -24,7 +24,7 @@ namespace Reservas.Controllers
         [HttpGet("obtener-cantidad-reserva-espacios")]
         public async Task<IActionResult> cantidadReservaEspacios()
         {
-            var totalReservaEspacios = await _context.ReservaDeEspacios.CountAsync();
+            var totalReservaEspacios = await _context.SolicitudReservaDeEspacios.Where(r => r.IdEstado == 2).CountAsync();
             // Devolver la cantidad de usuarios
 
             var respuesta = new

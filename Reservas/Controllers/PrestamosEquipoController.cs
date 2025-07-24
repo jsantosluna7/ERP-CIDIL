@@ -23,7 +23,7 @@ namespace Reservas.Controllers
         [HttpGet("obtener-cantidad-prestamos-equipos")]
         public async Task<IActionResult> cantidadPrestamosEquipos()
         {
-            var totalPrestamosEquipos = await _context.PrestamosEquipos.CountAsync();
+            var totalPrestamosEquipos = await _context.SolicitudPrestamosDeEquipos.Where(p => p.IdEstado == 2).CountAsync();
             // Devolver la cantidad de usuarios
 
             var respuesta = new

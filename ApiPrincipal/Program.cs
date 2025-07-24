@@ -126,7 +126,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("PermitirSoloMiApp", policy =>
     {
         policy
-            .WithOrigins("https://cidilipl.online") // Reemplaza con el dominio real de tu frontend
+            .WithOrigins("https://cidilipl.online",
+                         "http://localhost:4200") // Reemplaza con el dominio real de tu frontend
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
