@@ -42,6 +42,7 @@ builder.Services.AddScoped<IRepositorioRoles, RepositorioRoles>();
 builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
 builder.Services.AddScoped<IRepositorioLogin, RepositorioLogin>();
 builder.Services.AddScoped<IRepositorioResetPassword, RepositorioResetPassword>();
+builder.Services.AddScoped<IRepositorioReporteFalla, RepositorioReporteFalla>();
 
 
 
@@ -60,6 +61,7 @@ builder.Services.AddScoped<IServicioRoles, ServicioRoles>();
 builder.Services.AddScoped<IServicioUsuarios, ServicioUsuarios>();
 builder.Services.AddScoped<IServicioLogin, ServicioLogin>();
 builder.Services.AddScoped<IServicioResetPassword, ServicioResetPassword>();
+builder.Services.AddScoped<IServicioReporteFalla, ServicioReporteFalla>();
 
 //A�adimos el servicio de email
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
