@@ -1,4 +1,5 @@
 using System.Net.Mail;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using ERP.Data.Modelos;
 using Inventario.Abstraccion.Repositorio;
@@ -23,22 +24,9 @@ using Usuarios.Abstraccion.Servicios;
 using Usuarios.Implementaciones.Repositorios;
 using Usuarios.Implementaciones.Servicios;
 using Usuarios.Modelos;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddRateLimiter(options =>
-{
-    options.AddPolicy("LimiteGlobal", httpContext =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-            factory: _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = 100, // Máximo 100 solicitudes...
-                Window = TimeSpan.FromMinutes(1), // ...por minuto
-                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit = 0 // No poner en cola solicitudes adicionales
-            }));
-});
 
 // Add services to the container.
 
@@ -119,6 +107,14 @@ var smtpUser = Environment.GetEnvironmentVariable("SMTP_USER")!;
 var smtpPass = Environment.GetEnvironmentVariable("SMTP_PASS")!;
 var alertEmailTo = Environment.GetEnvironmentVariable("ALERT_EMAIL_TO")!;
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear(); // Trust all networks
+    options.KnownProxies.Clear();  // Trust all proxies
+});
+
+
 // Redis config
 builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisHost)); //Servidor de Redis
 
@@ -135,16 +131,30 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Rate Limiter (100 req/min por IP)
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("LimiteGlobal", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: GetClientIp(context),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 100,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+            }));
+});
+
+
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
-
 
 builder.Services.AddHttpClient();
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
 var app = builder.Build();
-
 
 async Task SendAlertEmail(string ip, string path, DateTime now)
 {
@@ -166,6 +176,10 @@ async Task SendAlertEmail(string ip, string path, DateTime now)
     await smtp.DisconnectAsync(true);
 }
 
+app.UseHttpsRedirection();
+app.UseStaticFiles(); // Ya sirve wwwroot automáticamente
+app.UseForwardedHeaders(); // Para manejar encabezados X-Forwarded-For y X-Forwarded-Proto
+app.UseCors("PermitirSoloMiApp");
 // Middleware de bloqueo por IP
 app.Use(async (context, next) =>
 {
@@ -173,7 +187,10 @@ app.Use(async (context, next) =>
     var redis = context.RequestServices.GetRequiredService<IConnectionMultiplexer>().GetDatabase();
     var httpClient = context.RequestServices.GetRequiredService<IHttpClientFactory>().CreateClient();
 
-    var ip = context.Connection.RemoteIpAddress?.ToString();
+    var forwardedIp = context.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+    var ip = !string.IsNullOrWhiteSpace(forwardedIp)
+        ? forwardedIp.Split(',')[0].Trim()
+        : context.Connection.RemoteIpAddress?.ToString();
     var path = context.Request.Path;
 
     if (ip == null)
@@ -194,7 +211,10 @@ app.Use(async (context, next) =>
     }
 
     var count = await redis.StringIncrementAsync(contadorKey);
-    await redis.KeyExpireAsync(contadorKey, TimeSpan.FromMinutes(1));
+    if (count == 1)
+    {
+        await redis.KeyExpireAsync(contadorKey, TimeSpan.FromMinutes(1));
+    }
 
     if (count > 100)
     {
@@ -230,11 +250,19 @@ app.Use(async (context, next) =>
 
     await next();
 });
+app.Use(async (context, next) =>
+{
+    var ip = context.Connection.RemoteIpAddress?.ToString();
+    var forwarded = context.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
 
-app.UseStaticFiles(); // Ya sirve wwwroot automáticamente
+    logger.LogInformation("RemoteIp: {RemoteIp}, Forwarded: {Forwarded}", ip, forwarded);
 
-app.UseCors("PermitirSoloMiApp");
+    await next();
+});
 app.UseRateLimiter();
+app.UseAuthorization();
+app.MapControllers().RequireRateLimiting("LimiteGlobal"); // Aplicar a todos los endpoints
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -243,13 +271,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers().RequireRateLimiting("LimiteGlobal"); // Aplicar a todos los endpoints
-
-
-app.MapControllers();
-
 app.Run();
+
+// Función utilitaria para obtener la IP real
+static string GetClientIp(HttpContext context)
+{
+    return context.Request.Headers["X-Forwarded-For"].FirstOrDefault()?.Split(',')[0].Trim()
+       ?? context.Connection.RemoteIpAddress?.ToString()
+       ?? "unknown";
+}
+
