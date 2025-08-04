@@ -131,19 +131,25 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Rate Limiter (100 req/min por IP)
+// Rate Limiter (1000 req/min por IP)
 builder.Services.AddRateLimiter(options =>
 {
     options.AddPolicy("LimiteGlobal", context =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: GetClientIp(context),
+    {
+        var ip = GetClientIp(context);
+        var deviceId = context.Request.Cookies["Device-ID"] ?? "unknown";
+        var claveDispositivo = $"{ip}:{deviceId}";
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: claveDispositivo,
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 100,
+                PermitLimit = 1000,
                 Window = TimeSpan.FromMinutes(1),
                 QueueLimit = 0,
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst
-            }));
+            });
+    });
 });
 
 
@@ -180,6 +186,39 @@ app.UseHttpsRedirection();
 app.UseStaticFiles(); // Ya sirve wwwroot automáticamente
 app.UseForwardedHeaders(); // Para manejar encabezados X-Forwarded-For y X-Forwarded-Proto
 app.UseCors("PermitirSoloMiApp");
+// Middleware de Device-ID
+app.Use(async (context, next) =>
+{
+    const string cookieKey = "Device-ID";
+    var deviceId = context.Request.Cookies[cookieKey];
+
+    // Validar que sea un GUID válido
+    if (string.IsNullOrWhiteSpace(deviceId) || !Guid.TryParse(deviceId, out _))
+    {
+        // Si NO hay cookie, es un navegador nuevo: asignamos una
+        if (string.IsNullOrWhiteSpace(deviceId))
+        {
+            deviceId = Guid.NewGuid().ToString();
+            context.Response.Cookies.Append(cookieKey, deviceId, new CookieOptions
+            {
+                Expires = DateTimeOffset.UtcNow.AddYears(1),
+                IsEssential = true,
+                HttpOnly = false,
+                Secure = true,
+                SameSite = SameSiteMode.Lax
+            });
+        }
+        else
+        {
+            // Si viene mal formada, no la sobreescribimos (es un bot/script probablemente)
+            deviceId = "invalid";
+        }
+    }
+
+    context.Items["DeviceId"] = deviceId;
+    await next();
+});
+
 // Middleware de bloqueo por IP
 app.Use(async (context, next) =>
 {
@@ -199,8 +238,18 @@ app.Use(async (context, next) =>
         return;
     }
 
-    var bloqueadaKey = $"ip:bloqueada:{ip}";
-    var contadorKey = $"ip:contador:{ip}";
+    var deviceId = context.Items["DeviceId"]?.ToString() ?? "unknown";
+    var claveDispositivo = $"{ip}:{deviceId}";
+
+    var bloqueadaKey = $"bloqueada:{claveDispositivo}";
+    var contadorKey = $"contador:{claveDispositivo}";
+
+    if (deviceId == "invalid")
+    {
+        context.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        await context.Response.WriteAsync("Solicitud bloqueada: dispositivo no identificado.");
+        return;
+    }
 
     if (await redis.KeyExistsAsync(bloqueadaKey))
     {
@@ -216,7 +265,7 @@ app.Use(async (context, next) =>
         await redis.KeyExpireAsync(contadorKey, TimeSpan.FromMinutes(1));
     }
 
-    if (count > 100)
+    if (count > 1000)
     {
         await redis.StringSetAsync(bloqueadaKey, "1", TimeSpan.FromHours(24));
         var now = DateTime.UtcNow;

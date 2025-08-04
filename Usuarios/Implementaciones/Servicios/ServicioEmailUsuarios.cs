@@ -15,7 +15,7 @@ namespace Usuarios.Implementaciones.Servicios
 
         public async Task EnviarCorreoRecuperacion(string destinatario, string token)
         {
-            var link = $"https://cidilipl.online/ResetPassword?token={token}";
+            var link = $"https://cidilipl.online/cambiar-contrasena?token={token}";
 
             var html = $"<p>Hola,</p>\r\n<p>Has solicitado restablecer tu contraseña.</p>\r\n<p><a href=\"{link}\">Haz clic aquí para continuar</a></p>\r\n<p>Si no fuiste tú, puedes ignorar este mensaje.</p>\r\n";
 
