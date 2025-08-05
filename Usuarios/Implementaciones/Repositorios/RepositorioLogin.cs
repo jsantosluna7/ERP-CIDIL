@@ -1,7 +1,11 @@
-﻿using ERP.Data.Modelos;
+﻿using System.Security.Cryptography;
+using System.Text;
+using ERP.Data.Modelos;
 using Microsoft.EntityFrameworkCore;
+using Sprache;
 using Usuarios.Abstraccion.Repositorios;
 using Usuarios.DTO.LoginDTO;
+using Usuarios.Implementaciones.Servicios;
 using Usuarios.Modelos;
 
 namespace Usuarios.Implementaciones.Repositorios
@@ -9,10 +13,15 @@ namespace Usuarios.Implementaciones.Repositorios
     public class RepositorioLogin : IRepositorioLogin
     {
         private readonly DbErpContext _context;
+        private readonly ServicioOtp _servicioOtp;
+        private readonly ServicioEmailUsuarios _email;
 
-        public RepositorioLogin(DbErpContext context)
+        public RepositorioLogin(DbErpContext context, ServicioOtp servicioOtp, ServicioEmailUsuarios emailUsuarios)
         {
             _context = context;
+            _servicioOtp = servicioOtp;
+            _email = emailUsuarios;
+
         }
 
         //Método para iniciar seción
@@ -47,25 +56,90 @@ namespace Usuarios.Implementaciones.Repositorios
             return Resultado<Usuario?>.Exito(usuario);
         }
 
-        //Método para registrar un usuario
-        public async Task<Resultado<Usuario?>> RegistrarUsuario(CrearRegistroDTO crearRegistroDTO)
+        //Método para verificar el otp
+        public async Task<Resultado<Usuario?>> verificarOtp(VerificarOtpDTO verificarOtp)
         {
+            var usuarioPendiente = _context.UsuariosPendientes.FirstOrDefault(u => u.Id == verificarOtp.PendingUserId);
+
+            if (usuarioPendiente == null)
+            {
+                return Resultado<Usuario?>.Falla("Usuario pendiente no encontrado.");
+            }
+
+            // Verificar si el OTP ha expirado
+            if (usuarioPendiente.OtpExpira < DateTime.UtcNow)
+            {
+                return Resultado<Usuario?>.Falla("El OTP ha expirado. Por favor, solicite uno nuevo.");
+            }
+
+            // Verificar si el OTP es correcto
+            usuarioPendiente.OtpIntentos++;
+            await _context.SaveChangesAsync(); // Guardar incremento
+
+            if (usuarioPendiente.OtpIntentos > 3)
+            {
+                return Resultado<Usuario?>.Falla("Ha superado el número máximo de intentos. Por favor, solicite un nuevo OTP.");
+            }
+
+            var providedHash = _servicioOtp.HashOtp(verificarOtp.Otp);
+            if (!CryptographicOperations.FixedTimeEquals(
+                Encoding.UTF8.GetBytes(usuarioPendiente.OtpHash),
+                Encoding.UTF8.GetBytes(providedHash)
+            ))
+            {
+                return Resultado<Usuario?>.Falla("El OTP es incorrecto. Por favor, verifique e intente nuevamente.");
+            }
+
+            // Si el OTP es correcto, crear el usuario en la tabla Usuarios
+            var nuevoUsuario = new Usuario
+            {
+                IdMatricula = usuarioPendiente.IdMatricula,
+                NombreUsuario = usuarioPendiente.NombreUsuario,
+                ApellidoUsuario = usuarioPendiente.ApellidoUsuario,
+                CorreoInstitucional = usuarioPendiente.CorreoInstitucional,
+                ContrasenaHash = usuarioPendiente.ContrasenaHash,
+                Telefono = usuarioPendiente.Telefono,
+                Direccion = usuarioPendiente.Direccion,
+                FechaCreacion = DateTime.UtcNow,
+                IdRol = usuarioPendiente.IdRol,
+                UltimaSesion = DateTime.UtcNow,
+                FechaUltimaModificacion = DateTime.UtcNow
+            };
+
+            // Guardar el nuevo usuario en la base de datos
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            await _context.Usuarios.AddAsync(nuevoUsuario);
+            await _context.SaveChangesAsync();
+
+            await _context.UsuariosPendientes.Where(u => u.CorreoInstitucional == usuarioPendiente.CorreoInstitucional).ExecuteDeleteAsync();
+            await transaction.CommitAsync();
+            return Resultado<Usuario?>.Exito(nuevoUsuario);
+        }
+
+        //Método para registrar un usuario
+        public async Task<Resultado<UsuariosPendiente?>> RegistrarUsuario(CrearRegistroDTO crearRegistroDTO)
+        {
+            // OTP
+            var otp = _servicioOtp.GenerarOtp();
+            var hashOtp = _servicioOtp.HashOtp(otp);
+
             // Verificar si el usuario ya existe
             var correoExistente = await _context.Usuarios.FirstOrDefaultAsync(u => u.CorreoInstitucional == crearRegistroDTO.CorreoInstitucional);
             var matriculaExistente = await _context.Usuarios.FirstOrDefaultAsync(u => u.IdMatricula == crearRegistroDTO.IdMatricula);
             if (correoExistente != null)
             {
-                return Resultado<Usuario?>.Falla("El correo institucional ya está en uso.");
+                return Resultado<UsuariosPendiente?>.Falla("El correo institucional ya está en uso.");
             }
 
             if(matriculaExistente != null)
             {
-                return Resultado<Usuario?>.Falla("La matricula ya está en uso.");
+                return Resultado<UsuariosPendiente?>.Falla("La matricula ya está en uso.");
             }
 
             if(crearRegistroDTO.ContrasenaHash.Length < 8)
             {
-                return Resultado<Usuario?>.Falla("La contraseña debe tener al menos 8 caracteres.");
+                return Resultado<UsuariosPendiente?>.Falla("La contraseña debe tener al menos 8 caracteres.");
             }
 
             string correo = crearRegistroDTO.CorreoInstitucional;
@@ -75,7 +149,7 @@ namespace Usuarios.Implementaciones.Repositorios
                 if (!correo.EndsWith("@ipl.edu.do", StringComparison.OrdinalIgnoreCase))
                 {
                     // El correo no pertenece al dominio institucional
-                    return Resultado<Usuario?>.Falla("El correo institucional debe terminar con @ipl.edu.do.");
+                    return Resultado<UsuariosPendiente?>.Falla("El correo institucional debe terminar con @ipl.edu.do.");
                 }
 
                 char primerCaracter = correo[0];
@@ -87,9 +161,13 @@ namespace Usuarios.Implementaciones.Repositorios
                     //Creamos el hash de la contraseña
                     string hash = BCrypt.Net.BCrypt.HashPassword(crearRegistroDTO.ContrasenaHash);
 
-                    // Crear un nuevo usuario
-                    var usuario = new Usuario
+                    // Generar un ID único para el usuario pendiente
+                    var pendingUserId = Guid.NewGuid();
+
+                    // Guardar usuario en PendingUsers
+                    var usuario = new UsuariosPendiente
                     {
+                        Id = pendingUserId,
                         IdMatricula = crearRegistroDTO.IdMatricula,
                         NombreUsuario = crearRegistroDTO.NombreUsuario,
                         ApellidoUsuario = crearRegistroDTO.ApellidoUsuario,
@@ -98,15 +176,19 @@ namespace Usuarios.Implementaciones.Repositorios
                         Telefono = crearRegistroDTO.Telefono,
                         Direccion = crearRegistroDTO.Direccion,
                         FechaCreacion = DateTime.UtcNow,
-                        FechaUltimaModificacion = DateTime.UtcNow,
-                        UltimaSesion = DateTime.UtcNow
+                        IdRol = 4,
+                        OtpHash = hashOtp,
+                        OtpExpira = DateTime.UtcNow.AddMinutes(5), // El OTP expira en 5 minutos
+                        OtpIntentos = 0 // Inicializar intentos a 0
                     };
 
 
                     // Guardar el nuevo usuario en la base de datos
-                    await _context.Usuarios.AddAsync(usuario);
+                    await _context.UsuariosPendientes.AddAsync(usuario);
                     await _context.SaveChangesAsync();
-                    return Resultado<Usuario?>.Exito(usuario);
+
+                    await _email.EnviarCorreoOtp(crearRegistroDTO.CorreoInstitucional, otp);
+                    return Resultado<UsuariosPendiente?>.Exito(usuario);
                 }
                 else if (char.IsLetter(primerCaracter))
                 {
@@ -115,9 +197,13 @@ namespace Usuarios.Implementaciones.Repositorios
                     //Creamos el hash de la contraseña
                     string hash = BCrypt.Net.BCrypt.HashPassword(crearRegistroDTO.ContrasenaHash);
 
+                    // Generar un ID único para el usuario pendiente
+                    var pendingUserId = Guid.NewGuid();
+
                     // Crear un nuevo usuario
-                    var usuario = new Usuario
+                    var usuario = new UsuariosPendiente
                     {
+                        Id = pendingUserId,
                         IdMatricula = crearRegistroDTO.IdMatricula,
                         NombreUsuario = crearRegistroDTO.NombreUsuario,
                         ApellidoUsuario = crearRegistroDTO.ApellidoUsuario,
@@ -125,27 +211,31 @@ namespace Usuarios.Implementaciones.Repositorios
                         ContrasenaHash = hash,
                         Telefono = crearRegistroDTO.Telefono,
                         Direccion = crearRegistroDTO.Direccion,
-                        IdRol = 3,
                         FechaCreacion = DateTime.UtcNow,
-                        FechaUltimaModificacion = DateTime.UtcNow,
-                        UltimaSesion = DateTime.UtcNow
+                        IdRol = 3,
+                        OtpHash = hashOtp,
+                        OtpExpira = DateTime.UtcNow.AddMinutes(5), // El OTP expira en 5 minutos
+                        OtpIntentos = 0 // Inicializar intentos a 0
                     };
 
 
                     // Guardar el nuevo usuario en la base de datos
-                    await _context.Usuarios.AddAsync(usuario);
+                    await _context.UsuariosPendientes.AddAsync(usuario);
                     await _context.SaveChangesAsync();
-                    return Resultado<Usuario?>.Exito(usuario);
+
+                    await _email.EnviarCorreoOtp(crearRegistroDTO.CorreoInstitucional, otp);
+
+                    return Resultado<UsuariosPendiente?>.Exito(usuario);
                 }
                 else
                 {
                     // El correo no empieza con letra ni número
-                    return Resultado<Usuario?>.Falla("El correo institucional debe empezar con una letra o un número.");
+                    return Resultado<UsuariosPendiente?>.Falla("El correo institucional debe empezar con una letra o un número.");
                 }
             }
             else
             {
-                return Resultado<Usuario?>.Falla("El correo institucional no puede estar vacío.");
+                return Resultado<UsuariosPendiente?>.Falla("El correo institucional no puede estar vacío.");
             }
         }
 

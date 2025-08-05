@@ -71,6 +71,9 @@ builder.Services.AddScoped<IServicioLogin, ServicioLogin>();
 builder.Services.AddScoped<IServicioResetPassword, ServicioResetPassword>();
 builder.Services.AddScoped<IServicioReporteFalla, ServicioReporteFalla>();
 
+//Añadimos el servicio de OTP
+builder.Services.AddScoped<ServicioOtp>();
+
 //A�adimos el servicio de email
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
 builder.Services.AddScoped<ServicioEmailUsuarios>();

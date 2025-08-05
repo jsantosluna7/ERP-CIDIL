@@ -28,6 +28,18 @@ namespace Usuarios.Controllers
             return Ok(resultado.Valor);
         }
 
+        [HttpPost("verificar-otp")]
+        public async Task<IActionResult> VerificarOtp([FromBody] VerificarOtpDTO verificarOtp)
+        {
+            //Aquí puedes llamar al servicio para verificar el OTP
+            var resultado = await _servicioLogin.verificarOtp(verificarOtp);
+            if (!resultado.esExitoso)
+            {
+                return BadRequest(new { error = resultado.MensajeError });
+            }
+            return Ok(resultado.Valor);
+        }
+
         [HttpPost("iniciar-sesion")]
         public async Task<IActionResult> IniciarSecion([FromBody] Login login)
         {

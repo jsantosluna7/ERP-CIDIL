@@ -7,6 +7,7 @@ namespace Usuarios.Abstraccion.Repositorios
     public interface IRepositorioLogin
     {
         Task<Resultado<Usuario?>> IniciarSecion(Login login);
-        Task<Resultado<Usuario?>> RegistrarUsuario(CrearRegistroDTO crearRegistroDTO);
+        Task<Resultado<UsuariosPendiente?>> RegistrarUsuario(CrearRegistroDTO crearRegistroDTO);
+        Task<Resultado<Usuario?>> verificarOtp(VerificarOtpDTO verificarOtp);
     }
 }

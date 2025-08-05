@@ -7,6 +7,7 @@ namespace Usuarios.Abstraccion.Servicios
     public interface IServicioLogin
     {
         Task<Resultado<LoginDTO?>> IniciarSecion(Login login);
-        Task<Resultado<CrearRegistroDTO?>> RegistrarUsuario(CrearRegistroDTO crearRegistroDTO);
+        Task<Resultado<UsuariosPendiente?>> RegistrarUsuario(CrearRegistroDTO crearRegistroDTO);
+        Task<Resultado<Usuario?>> verificarOtp(VerificarOtpDTO verificarOtp);
     }
 }

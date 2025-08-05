@@ -48,20 +48,34 @@ namespace Usuarios.Implementaciones.Servicios
             return Resultado<LoginDTO?>.Exito(loginDTO);
         }
 
+        //Método para completar registro con OTP
+        public async Task<Resultado<Usuario?>> verificarOtp(VerificarOtpDTO verificarOtp)
+        {
+            var resultado = await _repositorioLogin.verificarOtp(verificarOtp);
+            if (!resultado.esExitoso)
+            {
+                return Resultado<Usuario?>.Falla(resultado.MensajeError ?? "Error al verificar el OTP.");
+            }
+            var usuario = resultado.Valor!;
+            return Resultado<Usuario?>.Exito(usuario);
+        }
+
+
         //Método para registrar un usuario
-        public async Task<Resultado<CrearRegistroDTO?>> RegistrarUsuario(CrearRegistroDTO crearRegistroDTO) //El task es para que sea asincrono, y es de tipo CrearLoginDTO, esto es para que retorne el DTO de la clase CrearLoginDTO y que el usuario pueda ver el resultado de la creación del usuario que es ese DTO.
+        public async Task<Resultado<UsuariosPendiente?>> RegistrarUsuario(CrearRegistroDTO crearRegistroDTO) //El task es para que sea asincrono, y es de tipo CrearLoginDTO, esto es para que retorne el DTO de la clase CrearLoginDTO y que el usuario pueda ver el resultado de la creación del usuario que es ese DTO.
         {
             var resultado = await _repositorioLogin.RegistrarUsuario(crearRegistroDTO);
 
             if (!resultado.esExitoso)
             {
-                return Resultado<CrearRegistroDTO?>.Falla(resultado.MensajeError ?? "Error al registrar el usuario.");
+                return Resultado<UsuariosPendiente?>.Falla(resultado.MensajeError ?? "Error al registrar el usuario.");
             }
 
             var usuario = resultado.Valor!;
 
-            var crearRegistroDTORetorno = new CrearRegistroDTO
+            var crearRegistroDTORetorno = new UsuariosPendiente
             {
+                Id = usuario.Id,
                 IdMatricula = usuario.IdMatricula,
                 NombreUsuario = usuario.NombreUsuario,
                 ApellidoUsuario = usuario.ApellidoUsuario,
@@ -70,9 +84,12 @@ namespace Usuarios.Implementaciones.Servicios
                 Direccion = usuario.Direccion,
                 IdRol = usuario.IdRol,
                 FechaCreacion = usuario.FechaCreacion,
-                FechaUltimaModificacion = usuario.FechaUltimaModificacion
+                OtpExpira = usuario.OtpExpira,
+                OtpHash = usuario.OtpHash,
+                OtpIntentos = usuario.OtpIntentos
+
             };
-            return Resultado<CrearRegistroDTO?>.Exito(crearRegistroDTORetorno);
+            return Resultado<UsuariosPendiente?>.Exito(crearRegistroDTORetorno);
         }
 
     }

@@ -41,6 +41,8 @@ public partial class DbErpContext : DbContext
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
+    public virtual DbSet<UsuariosPendiente> UsuariosPendientes { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Estado>(entity =>
@@ -475,6 +477,47 @@ public partial class DbErpContext : DbContext
             entity.HasOne(d => d.IdRolNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.IdRol)
                 .HasConstraintName("usuarios_id_rol_fkey");
+        });
+
+        modelBuilder.Entity<UsuariosPendiente>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("usuarios_pendientes_pkey");
+
+            entity.ToTable("usuarios_pendientes");
+
+            entity.HasIndex(e => e.CorreoInstitucional, "usuarios_pendientes_correo_key").IsUnique();
+
+            entity.HasIndex(e => e.IdMatricula, "usuarios_pendientes_id_matricula_key").IsUnique();
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.ApellidoUsuario)
+                .HasMaxLength(50)
+                .HasColumnName("apellido_usuario");
+            entity.Property(e => e.ContrasenaHash).HasColumnName("contrasena_hash");
+            entity.Property(e => e.CorreoInstitucional)
+                .HasMaxLength(100)
+                .HasColumnName("correo_institucional");
+            entity.Property(e => e.Direccion).HasColumnName("direccion");
+            entity.Property(e => e.FechaCreacion)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("fecha_creacion");
+            entity.Property(e => e.IdMatricula).HasColumnName("id_matricula");
+            entity.Property(e => e.IdRol)
+                .HasDefaultValue(4)
+                .HasColumnName("id_rol");
+            entity.Property(e => e.NombreUsuario)
+                .HasMaxLength(50)
+                .HasColumnName("nombre_usuario");
+            entity.Property(e => e.OtpExpira).HasColumnName("otp_expira");
+            entity.Property(e => e.OtpHash).HasColumnName("otp_hash");
+            entity.Property(e => e.OtpIntentos)
+                .HasDefaultValue(0)
+                .HasColumnName("otp_intentos");
+            entity.Property(e => e.Telefono)
+                .HasMaxLength(20)
+                .HasColumnName("telefono");
         });
 
         OnModelCreatingPartial(modelBuilder);
