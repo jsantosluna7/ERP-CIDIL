@@ -9,6 +9,7 @@ COPY Inventario/Inventario.csproj Inventario/
 COPY IoT/IoT.csproj IoT/
 COPY Reservas/Reservas.csproj Reservas/
 COPY Usuarios/Usuarios.csproj Usuarios/
+COPY Templates/ /app/Templates/
 
 # Restaurar solo referencias necesarias
 RUN dotnet restore ApiPrincipal/ApiPrincipal.csproj

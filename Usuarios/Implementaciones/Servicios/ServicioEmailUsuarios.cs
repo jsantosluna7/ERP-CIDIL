@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using Usuarios.Modelos;
 using static System.Net.WebRequestMethods;
+using File = System.IO.File;
 
 namespace Usuarios.Implementaciones.Servicios
 {
@@ -18,7 +19,10 @@ namespace Usuarios.Implementaciones.Servicios
         {
             var link = $"https://cidilipl.online/cambiar-contrasena?token={token}";
             // Cargar la plantilla HTML desde un archivo
-            string htmlTemplate = System.IO.File.ReadAllText("Templates/cambiar_contrasena_plantilla.html");
+            var basePath = AppContext.BaseDirectory;
+            var templatePath = Path.Combine(basePath, "Templates", "cambiar_contrasena_plantilla.html");
+            string htmlTemplate = File.ReadAllText(templatePath);
+
             // Reemplazar el marcador de posición en la plantilla con el OTP
             string html = htmlTemplate.Replace("{{RESET_LINK}}", link);
 
@@ -64,7 +68,10 @@ namespace Usuarios.Implementaciones.Servicios
         public async Task EnviarCorreoOtp(string destinatario, string otp)
         {
             // Cargar la plantilla HTML desde un archivo
-            string htmlTemplate = System.IO.File.ReadAllText("Templates/otp_plantilla.html");
+            var basePath = AppContext.BaseDirectory;
+            var templatePath = Path.Combine(basePath, "Templates", "otp_plantilla.html");
+            string htmlTemplate = File.ReadAllText(templatePath);
+
             // Reemplazar el marcador de posición en la plantilla con el OTP
             string html = htmlTemplate.Replace("{{OTP_CODE}}", otp);
 
@@ -116,7 +123,9 @@ namespace Usuarios.Implementaciones.Servicios
             };
 
             // Cargar la plantilla HTML desde un archivo
-            string htmlTemplate = System.IO.File.ReadAllText("Templates/contrasena_cambiada_plantilla.html");
+            var basePath = AppContext.BaseDirectory;
+            var templatePath = Path.Combine(basePath, "Templates", "contrasena_cambiada_plantilla.html");
+            string htmlTemplate = File.ReadAllText(templatePath);
 
             mensaje.To.Add(destinatario);
             mensaje.Subject = "Cambio de contraseña exitoso";

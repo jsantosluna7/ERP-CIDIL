@@ -29,6 +29,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Templates\*.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+
+  <ItemGroup>
     <ProjectReference Include="..\ERP.Data\ERP.Data.csproj" />
     <ProjectReference Include="..\Inventario\Inventario.csproj" />
     <ProjectReference Include="..\IoT\IoT.csproj" />
