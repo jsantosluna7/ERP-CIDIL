@@ -1,7 +1,10 @@
-﻿using System.Security.Cryptography;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using ERP.Data.Modelos;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Sprache;
 using Usuarios.Abstraccion.Repositorios;
 using Usuarios.DTO.LoginDTO;
@@ -25,26 +28,26 @@ namespace Usuarios.Implementaciones.Repositorios
         }
 
         //Método para iniciar seción
-        public async Task<Resultado<Usuario?>> IniciarSecion(Login login)
+        public async Task<Resultado<Token?>> IniciarSecion(Login login)
         {
             // Verificar si el usuario existe
             var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.CorreoInstitucional == login.CorreoInstitucional);
 
             if (usuario == null)
             {
-                return Resultado<Usuario?>.Falla("El correo institucional no existe.");
+                return Resultado<Token?>.Falla("El correo institucional no existe.");
             }
 
             if(login.Contrasena.Length < 8)
             {
-                return Resultado<Usuario?>.Falla("La contraseña debe tener al menos 8 caracteres.");
+                return Resultado<Token?>.Falla("La contraseña debe tener al menos 8 caracteres.");
             }
 
             bool esValido = VerificarHash(login.Contrasena, usuario.ContrasenaHash);
 
             if (!esValido)
             {
-                return Resultado<Usuario?>.Falla("La contraseña no coincide, verifique.");
+                return Resultado<Token?>.Falla("La contraseña no coincide, verifique.");
             }
 
             // Actualizar la fecha de la última sesión
@@ -52,8 +55,43 @@ namespace Usuarios.Implementaciones.Repositorios
             _context.Usuarios.Update(usuario);
             await _context.SaveChangesAsync();
 
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
+                new Claim("idRol", usuario.IdRol.ToString()),
+                new Claim("nombreUsuario", usuario.NombreUsuario),
+                new Claim("apellidoUsuario", usuario.ApellidoUsuario),
+                new Claim("correoInstitucional", usuario.CorreoInstitucional),
+                new Claim("idMatricula", usuario.IdMatricula.ToString()),
+                new Claim("telefono", usuario.Telefono),
+                new Claim("direccion", usuario.Direccion),
+                new Claim("fechaCreacion", usuario.FechaCreacion.ToString()),
+                new Claim("fechaUltimaModificacion", usuario.FechaUltimaModificacion.ToString()),
+                new Claim("ultimaSesion", usuario.UltimaSesion.ToString()),
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("8aSX$jhE6WX2&jW9XaZUT4LiEP#TK!VyC^wt3ZqdRWJYtcv75J%cCRZd867JjXqtAAZgL%")); // Clave secreta para firmar el token
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: "cidilipl.online",
+                audience: "cidilipl.online",
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: creds
+            );
+
+            // Crear el token
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+            // Crear el objeto Token con el token generado
+            var tokenResult = new Token
+            {
+                TokenId = tokenString,
+            };
+
             // Devolver el usuario encontrado
-            return Resultado<Usuario?>.Exito(usuario);
+            return Resultado<Token?>.Exito(tokenResult);
         }
 
         //Método para verificar el otp

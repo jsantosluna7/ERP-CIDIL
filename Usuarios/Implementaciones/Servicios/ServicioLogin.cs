@@ -19,33 +19,19 @@ namespace Usuarios.Implementaciones.Servicios
         //El servicio Login se encarga de realizar la lógica de negocio y de interactuar con el repositorio para obtener los datos necesarios.
 
         //Método para iniciar seción
-        public async Task<Resultado<LoginDTO?>> IniciarSecion(Login login)
+        public async Task<Resultado<Token?>> IniciarSecion(Login login)
         {
             var resultado = await _repositorioLogin.IniciarSecion(login);
 
             if (!resultado.esExitoso)
             {
-                return Resultado<LoginDTO?>.Falla(resultado.MensajeError ?? "Error al registrar el usuario.");
+                return Resultado<Token?>.Falla(resultado.MensajeError ?? "Error al registrar el usuario.");
             }
 
             var usuario = resultado.Valor!;
 
-            var loginDTO = new LoginDTO
-            {
-                Id = usuario.Id,
-                IdMatricula = usuario.IdMatricula,
-                NombreUsuario = usuario.NombreUsuario,
-                ApellidoUsuario = usuario.ApellidoUsuario,
-                CorreoInstitucional = usuario.CorreoInstitucional,
-                Telefono = usuario.Telefono,
-                Direccion = usuario.Direccion,
-                IdRol = usuario.IdRol,
-                FechaCreacion = usuario.FechaCreacion,
-                FechaUltimaModificacion = usuario.FechaUltimaModificacion,
-                UltimaSesion = usuario.UltimaSesion
-            };
-
-            return Resultado<LoginDTO?>.Exito(loginDTO);
+            //Aquí se retorna el token
+            return Resultado<Token?>.Exito(usuario);
         }
 
         //Método para completar registro con OTP

@@ -128,9 +128,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = "ApiUsuarios",
-        ValidAudience = "erp-cidil",
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("CIdil-Admin52"))
+        ValidIssuer = "cidilipl.online",
+        ValidAudience = "cidilipl.online",
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("8aSX$jhE6WX2&jW9XaZUT4LiEP#TK!VyC^wt3ZqdRWJYtcv75J%cCRZd867JjXqtAAZgL%"))
     };
 });
 
@@ -331,6 +331,7 @@ app.Use(async (context, next) =>
     await next();
 });
 app.UseRateLimiter();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers().RequireRateLimiting("LimiteGlobal"); // Aplicar a todos los endpoints
 

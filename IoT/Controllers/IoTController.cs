@@ -29,7 +29,12 @@ namespace IoT.Controllers
 
             if (resultado == null)
             {
-                return NotFound("Lista de Informacion de  no encontrada");
+                return NotFound("Lista de Informacion de no encontrada");
+            }
+
+            if (!User.TieneRol("1", "2"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
             }
 
             var totalLoT = await _context.Iots.CountAsync();
@@ -60,6 +65,11 @@ namespace IoT.Controllers
                 return NotFound("Lista de Informacion de  no encontrada");
             }
 
+            if (!User.TieneRol("1", "2"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
+            }
+
             return Ok(resultado);
         }
         //Controlador para optener todos los registros por ID
@@ -68,10 +78,17 @@ namespace IoT.Controllers
         {
 
             var resultado = await _ioT.GetByIdIoT(id);
+
             if (resultado == null)
             {
                 return NotFound("No se pudo Encontrar el inventario ");
             }
+
+            if (!User.TieneRol("1", "2"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
+            }
+
             return Ok(resultado);
         }
         //Controlador para Eliminar el registro por ID
@@ -80,6 +97,12 @@ namespace IoT.Controllers
         public async Task<IActionResult> Eliminar(int id)
         {
             await _ioT.Eliminar(id);
+
+            if (!User.TieneRol("1"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
+            }
+
             return Ok();
         }
 
@@ -94,6 +117,12 @@ namespace IoT.Controllers
             {
                 return NotFound($"IoT con ID {id} no encontrado");
             }
+
+            if (!User.TieneRol("1", "2"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
+            }
+
             // Devolver una respuesta exitosa
             return Ok($"IoT con ID {id} desactivado");
         }

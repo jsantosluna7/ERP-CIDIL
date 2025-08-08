@@ -1,4 +1,5 @@
 ﻿using ERP.Data.Modelos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,12 +24,19 @@ namespace Usuarios.Controllers
 
         }
 
+        [Authorize]
         [HttpGet("obtenerUsuarios")]
         public async Task<IActionResult> cantidadUsuarios()
         {
             var totalUsuarios = await _context.Usuarios.CountAsync();
-            // Devolver la cantidad de usuarios
 
+            // Verificar si el usuario tiene el rol adecuado
+            if (!User.TieneRol("1", "2"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
+            }
+
+            // Devolver la cantidad de usuarios
             var respuesta = new
             {
                 totalUsuarios
@@ -36,11 +44,18 @@ namespace Usuarios.Controllers
             return Ok(respuesta);
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> ObtenerUsuarios([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)
         {
             // Llamar al servicio para obtener la lista de usuarios
             var usuarios = await _servicioUsuarios.ObtenerUsuarios(pagina, tamanoPagina);
+
+            // Verificar si el usuario tiene el rol adecuado
+            if (!User.TieneRol("1", "2"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
+            }
 
             // Verificar si la lista de usuarios está vacía
             if (usuarios == null)
@@ -66,11 +81,18 @@ namespace Usuarios.Controllers
             return Ok(respuesta);
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> ObtenerUsuarioPorId(int id)
         {
             // Llamar al servicio para obtener un usuario por su ID
             var usuario = await _servicioUsuarios.ObtenerUsuarioPorId(id);
+
+            // Verificar si el usuario tiene el rol adecuado
+            if (!User.TieneRol("1", "2"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
+            }
 
             // Verificar si el usuario existe
             if (usuario == null)
@@ -108,6 +130,12 @@ namespace Usuarios.Controllers
             // Llamar al servicio para eliminar un usuario por su ID
             var usuario = await _servicioUsuarios.eliminarUsuario(id);
 
+            // Verificar si el usuario tiene el rol adecuado
+            if (!User.TieneRol("1"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
+            }
+
             // Verificar si el usuario fue eliminado
             if (usuario == null)
             {
@@ -123,6 +151,13 @@ namespace Usuarios.Controllers
         {
             // Llamar al servicio para desactivar un usuario por su ID
             var usuarioDesactivado = await _servicioUsuarios.desactivarUsuario(id);
+
+            // Verificar si el usuario tiene el rol adecuado
+            if (!User.TieneRol("1", "2"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
+            }
+
             // Verificar si el usuario fue desactivado
             if (usuarioDesactivado == null)
             {
