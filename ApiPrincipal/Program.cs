@@ -25,6 +25,9 @@ using Usuarios.Implementaciones.Repositorios;
 using Usuarios.Implementaciones.Servicios;
 using Usuarios.Modelos;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -117,6 +120,20 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownProxies.Clear();  // Trust all proxies
 });
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = "ApiUsuarios",
+        ValidAudience = "erp-cidil",
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("CIdil-Admin52"))
+    };
+});
+
 
 // Redis config
 builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisHost)); //Servidor de Redis
@@ -160,6 +177,7 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
 
 builder.Services.AddHttpClient();
+builder.Services.AddAuthorization();
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
