@@ -95,19 +95,19 @@ namespace Usuarios.Implementaciones.Repositorios
         }
 
         //Método para verificar el otp
-        public async Task<Resultado<Usuario?>> verificarOtp(VerificarOtpDTO verificarOtp)
+        public async Task<Resultado<Token?>> verificarOtp(VerificarOtpDTO verificarOtp)
         {
             var usuarioPendiente = _context.UsuariosPendientes.FirstOrDefault(u => u.Id == verificarOtp.PendingUserId);
 
             if (usuarioPendiente == null)
             {
-                return Resultado<Usuario?>.Falla("Usuario pendiente no encontrado.");
+                return Resultado<Token?>.Falla("Usuario pendiente no encontrado.");
             }
 
             // Verificar si el OTP ha expirado
             if (usuarioPendiente.OtpExpira < DateTime.UtcNow)
             {
-                return Resultado<Usuario?>.Falla("El OTP ha expirado. Por favor, solicite uno nuevo.");
+                return Resultado<Token?>.Falla("El OTP ha expirado. Por favor, solicite uno nuevo.");
             }
 
             // Verificar si el OTP es correcto
@@ -116,7 +116,7 @@ namespace Usuarios.Implementaciones.Repositorios
 
             if (usuarioPendiente.OtpIntentos > 3)
             {
-                return Resultado<Usuario?>.Falla("Ha superado el número máximo de intentos. Por favor, solicite un nuevo OTP.");
+                return Resultado<Token?>.Falla("Ha superado el número máximo de intentos. Por favor, solicite un nuevo OTP.");
             }
 
             var providedHash = _servicioOtp.HashOtp(verificarOtp.Otp);
@@ -125,7 +125,7 @@ namespace Usuarios.Implementaciones.Repositorios
                 Encoding.UTF8.GetBytes(providedHash)
             ))
             {
-                return Resultado<Usuario?>.Falla("El OTP es incorrecto. Por favor, verifique e intente nuevamente.");
+                return Resultado<Token?>.Falla("El OTP es incorrecto. Por favor, verifique e intente nuevamente.");
             }
 
             // Si el OTP es correcto, crear el usuario en la tabla Usuarios
@@ -152,11 +152,47 @@ namespace Usuarios.Implementaciones.Repositorios
 
             await _context.UsuariosPendientes.Where(u => u.CorreoInstitucional == usuarioPendiente.CorreoInstitucional).ExecuteDeleteAsync();
             await transaction.CommitAsync();
-            return Resultado<Usuario?>.Exito(nuevoUsuario);
+
+            var claims = new[]
+{
+                new Claim(JwtRegisteredClaimNames.Sub, nuevoUsuario.Id.ToString()),
+                new Claim("idRol", nuevoUsuario.IdRol.ToString()),
+                new Claim("nombreUsuario", nuevoUsuario.NombreUsuario),
+                new Claim("apellidoUsuario", nuevoUsuario.ApellidoUsuario),
+                new Claim("correoInstitucional", nuevoUsuario.CorreoInstitucional),
+                new Claim("idMatricula", nuevoUsuario.IdMatricula.ToString()),
+                new Claim("telefono", nuevoUsuario.Telefono),
+                new Claim("direccion", nuevoUsuario.Direccion),
+                new Claim("fechaCreacion", nuevoUsuario.FechaCreacion.ToString()),
+                new Claim("fechaUltimaModificacion", nuevoUsuario.FechaUltimaModificacion.ToString()),
+                new Claim("ultimaSesion", nuevoUsuario.UltimaSesion.ToString()),
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("8aSX$jhE6WX2&jW9XaZUT4LiEP#TK!VyC^wt3ZqdRWJYtcv75J%cCRZd867JjXqtAAZgL%")); // Clave secreta para firmar el token
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: "cidilipl.online",
+                audience: "cidilipl.online",
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: creds
+            );
+
+            // Crear el token
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+            // Crear el objeto Token con el token generado
+            var tokenResult = new Token
+            {
+                TokenId = tokenString,
+            };
+
+            return Resultado<Token?>.Exito(tokenResult);
         }
 
         //Método para registrar un usuario
-        public async Task<Resultado<UsuariosPendiente?>> RegistrarUsuario(CrearRegistroDTO crearRegistroDTO)
+        public async Task<Resultado<Token?>> RegistrarUsuario(CrearRegistroDTO crearRegistroDTO)
         {
             // OTP
             var otp = _servicioOtp.GenerarOtp();
@@ -167,17 +203,17 @@ namespace Usuarios.Implementaciones.Repositorios
             var matriculaExistente = await _context.Usuarios.FirstOrDefaultAsync(u => u.IdMatricula == crearRegistroDTO.IdMatricula);
             if (correoExistente != null)
             {
-                return Resultado<UsuariosPendiente?>.Falla("El correo institucional ya está en uso.");
+                return Resultado<Token?>.Falla("El correo institucional ya está en uso.");
             }
 
             if(matriculaExistente != null)
             {
-                return Resultado<UsuariosPendiente?>.Falla("La matricula ya está en uso.");
+                return Resultado<Token?>.Falla("La matricula ya está en uso.");
             }
 
             if(crearRegistroDTO.ContrasenaHash.Length < 8)
             {
-                return Resultado<UsuariosPendiente?>.Falla("La contraseña debe tener al menos 8 caracteres.");
+                return Resultado<Token?>.Falla("La contraseña debe tener al menos 8 caracteres.");
             }
 
             string correo = crearRegistroDTO.CorreoInstitucional;
@@ -187,7 +223,7 @@ namespace Usuarios.Implementaciones.Repositorios
                 if (!correo.EndsWith("@ipl.edu.do", StringComparison.OrdinalIgnoreCase))
                 {
                     // El correo no pertenece al dominio institucional
-                    return Resultado<UsuariosPendiente?>.Falla("El correo institucional debe terminar con @ipl.edu.do.");
+                    return Resultado<Token?>.Falla("El correo institucional debe terminar con @ipl.edu.do.");
                 }
 
                 char primerCaracter = correo[0];
@@ -226,7 +262,10 @@ namespace Usuarios.Implementaciones.Repositorios
                     await _context.SaveChangesAsync();
 
                     await _email.EnviarCorreoOtp(crearRegistroDTO.CorreoInstitucional, otp);
-                    return Resultado<UsuariosPendiente?>.Exito(usuario);
+
+                    var tokenString = SeguridadJwt(usuario);
+
+                    return Resultado<Token?>.Exito(tokenString);
                 }
                 else if (char.IsLetter(primerCaracter))
                 {
@@ -263,23 +302,60 @@ namespace Usuarios.Implementaciones.Repositorios
 
                     await _email.EnviarCorreoOtp(crearRegistroDTO.CorreoInstitucional, otp);
 
-                    return Resultado<UsuariosPendiente?>.Exito(usuario);
+                    var tokenString = SeguridadJwt(usuario);
+
+                    return Resultado<Token?>.Exito(tokenString);
                 }
                 else
                 {
                     // El correo no empieza con letra ni número
-                    return Resultado<UsuariosPendiente?>.Falla("El correo institucional debe empezar con una letra o un número.");
+                    return Resultado<Token?>.Falla("El correo institucional debe empezar con una letra o un número.");
                 }
             }
             else
             {
-                return Resultado<UsuariosPendiente?>.Falla("El correo institucional no puede estar vacío.");
+                return Resultado<Token?>.Falla("El correo institucional no puede estar vacío.");
             }
         }
 
         private bool VerificarHash(string contrasena, string contrasenaHashAlmacenada)
         {
             return BCrypt.Net.BCrypt.Verify(contrasena, contrasenaHashAlmacenada);
+        }
+
+        private Token SeguridadJwt(UsuariosPendiente usuario)
+        {
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
+                new Claim("correoInstitucional", usuario.CorreoInstitucional),
+                new Claim("OtpHash", usuario.OtpHash),
+                new Claim("OtpExpira", usuario.OtpExpira.ToString()),
+                new Claim("OtpIntentos", usuario.OtpIntentos.ToString())
+
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("8aSX$jhE6WX2&jW9XaZUT4LiEP#TK!VyC^wt3ZqdRWJYtcv75J%cCRZd867JjXqtAAZgL%")); // Clave secreta para firmar el token
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: "cidilipl.online",
+                audience: "cidilipl.online",
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: creds
+            );
+
+            // Crear el token
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+            // Crear el objeto Token con el token generado
+            var tokenResult = new Token
+            {
+                TokenId = tokenString,
+            };
+
+            return tokenResult;
         }
     }
 }

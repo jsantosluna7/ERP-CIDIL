@@ -104,6 +104,7 @@ namespace Reservas.Implementaciones.Servicios
                 Motivo = prestamos.Motivo,
                 FechaSolicitud = prestamos.FechaSolicitud,
                 Cantidad = prestamos.Cantidad,
+                idEstado = prestamos.IdEstado
             };
             return prestamoDTO;
         }

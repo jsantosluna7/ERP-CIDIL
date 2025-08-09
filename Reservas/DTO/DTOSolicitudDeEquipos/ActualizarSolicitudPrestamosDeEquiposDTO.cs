@@ -15,5 +15,6 @@
 
         public DateTime? FechaSolicitud { get; set; }
         public int? Cantidad { get; set; }
+        public int? idEstado { get; set; }
     }
 }

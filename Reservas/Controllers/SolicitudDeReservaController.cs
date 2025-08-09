@@ -92,6 +92,12 @@ namespace Reservas.Controllers
             {
                 return NotFound($"No se encontró la solicitud de reserva con id {id} y/o ya existe una reserva en el tiempo que definiste.");
             }
+
+            // Verificar si el usuario tiene el rol adecuado
+            if (!User.TieneRol("1", "2"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
+            }
             return Ok(solicitud);
         }
 
@@ -104,6 +110,7 @@ namespace Reservas.Controllers
             {
                 return NotFound($"No se encontró la solicitud de reserva con id {id}.");
             }
+
             return Ok(resultado);
         }
     }

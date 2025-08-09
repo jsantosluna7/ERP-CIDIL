@@ -88,6 +88,7 @@ namespace Reservas.Implementaciones.Repositorios
             prestamoEquipo.Motivo = actualizarSolicitudPrestamosDeEquiposDTO.Motivo;
             prestamoEquipo.FechaSolicitud = actualizarSolicitudPrestamosDeEquiposDTO.FechaSolicitud;
             prestamoEquipo.Cantidad = actualizarSolicitudPrestamosDeEquiposDTO.Cantidad;
+            prestamoEquipo.IdEstado = actualizarSolicitudPrestamosDeEquiposDTO.idEstado;
 
 
 

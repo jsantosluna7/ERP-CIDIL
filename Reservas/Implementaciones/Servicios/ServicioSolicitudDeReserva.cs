@@ -145,7 +145,8 @@ namespace Reservas.Implementaciones.Servicios
                 FechaInicio = solicitud.FechaInicio,
                 FechaFinal = solicitud.FechaFinal,
                 Motivo = solicitud.Motivo,
-                FechaSolicitud = solicitud.FechaSolicitud
+                FechaSolicitud = solicitud.FechaSolicitud,
+                IdEstado = solicitud.IdEstado
             };
             return solicitudDTO;
         }

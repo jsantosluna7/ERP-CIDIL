@@ -78,6 +78,12 @@ namespace Reservas.Controllers
             {
                 return NotFound($"Su solicitud con el ID: {id} no se pudo actualizar");
             }
+
+            // Verificar si el usuario tiene el rol adecuado
+            if (!User.TieneRol("1", "2"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
+            }
             return Ok(prestamo);
         }
 
@@ -89,6 +95,7 @@ namespace Reservas.Controllers
             {
                 return NotFound($"Su solicitud con el ID: {id} no se encuantra");
             }
+
             return Ok(prestamo);
         }
 

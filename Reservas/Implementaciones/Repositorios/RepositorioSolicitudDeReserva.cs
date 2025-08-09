@@ -131,6 +131,7 @@ namespace Reservas.Implementaciones.Repositorios
             solicitudReserva.FechaFinal = actualizarSolicitudDeReservaDTO.FechaFinal;
             solicitudReserva.Motivo = actualizarSolicitudDeReservaDTO.Motivo ?? solicitudReserva.Motivo;
             solicitudReserva.FechaSolicitud = DateTime.UtcNow;
+            solicitudReserva.IdEstado = actualizarSolicitudDeReservaDTO.IdEstado; // Asignar el estado de "Pendiente" (2) al editar la solicitud
 
             //verificar si la reserva ya existe
             bool conflicto = await _servicioConflictos.conflictoReservaActualizar(solicitudReserva.Id, solicitudReserva.IdLaboratorio, solicitudReserva.HoraInicio, solicitudReserva.HoraFinal, solicitudReserva.FechaSolicitud);
