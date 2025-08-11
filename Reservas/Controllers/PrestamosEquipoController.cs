@@ -79,6 +79,11 @@ namespace Reservas.Controllers
             {
                 return NotFound("No se pudo actualizar su solicitud");
             }
+
+            if (!User.TieneRol("1", "2"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
+            }
             return Ok(resultado);
         }
 
@@ -97,7 +102,13 @@ namespace Reservas.Controllers
         [HttpDelete("{id}")]
         public async  Task<IActionResult?> DeleteById(int id)
         {
-           await _prestamosEquipo.Eliminar(id);
+            await _prestamosEquipo.Eliminar(id);
+
+            // JWT Authorization
+            if (!User.TieneRol("1"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
+            }
             return Ok();
         }
 
@@ -110,6 +121,11 @@ namespace Reservas.Controllers
             if (prestamoEquiposDesactivado == null)
             {
                 return NotFound($"Usuario con ID {id} no encontrado");
+            }
+
+            if (!User.TieneRol("1", "2"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
             }
             // Devolver una respuesta exitosa
             return Ok($"Usuario con ID {id} desactivado");

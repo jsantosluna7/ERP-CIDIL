@@ -1,6 +1,9 @@
 ﻿using System.Net.Mail;
+using ERP.Data.Modelos;
 using Microsoft.Extensions.Options;
 using Usuarios.Modelos;
+using static System.Net.WebRequestMethods;
+using File = System.IO.File;
 
 namespace Reservas.Implementaciones.Servicios
 {
@@ -15,7 +18,15 @@ namespace Reservas.Implementaciones.Servicios
 
         public async Task EnviarCorreoReserva(string destinatario)
         {
-            var html = $"<p>Hola,</p>\r\n<p>Te ha llegado una solitud para reservar un espacio.</p>\r\n"; //agregar url para redirigir al front.
+            // Cargar la plantilla HTML desde un archivo
+            var basePath = AppContext.BaseDirectory;
+            var templatePath = Path.Combine(basePath, "Templates", "solicitud_reserva_plantilla.html");
+            string htmlTemplate = File.ReadAllText(templatePath);
+
+            var link = $"https://cidilipl.online/home/solicitud-laboratorio";
+
+            // Reemplazar el marcador de posición en la plantilla con el OTP
+            string html = htmlTemplate.Replace("{{FRONTEND_RESERVA_URL}}", link);
 
             // Configuración del cliente SMTP
             var mensaje = new MailMessage
@@ -23,7 +34,7 @@ namespace Reservas.Implementaciones.Servicios
                 From = new MailAddress(_configuracion.User, "ERP CIDIL")
             };
             mensaje.To.Add(destinatario);
-            mensaje.Subject = "Solicitud para reservar un espacio.";
+            mensaje.Subject = "Solicitud para reservar un laboratorio.";
             mensaje.IsBodyHtml = true;
             mensaje.Body = html;
             mensaje.ReplyToList.Add(new MailAddress(_configuracion.User));
@@ -56,8 +67,13 @@ namespace Reservas.Implementaciones.Servicios
 
         public async Task EnviarCorreoReservaMoficación(string destinatario, string nombreUsuario, string apellidoUsuario)
         {
+            // Cargar la plantilla HTML desde un archivo
+            var basePath = AppContext.BaseDirectory;
+            var templatePath = Path.Combine(basePath, "Templates", "modificacion_reserva_plantilla.html");
+            string htmlTemplate = File.ReadAllText(templatePath);
 
-            var html = $"<p>Hola,</p>\r\n<p>El usuario llamado <strong>{nombreUsuario} {apellidoUsuario}</strong> ha modificado su reserva.</p>\r\n";
+            // Reemplazar el marcador de posición en la plantilla con el OTP
+            var html = htmlTemplate.Replace("{{NOMBRE_USUARIO}}", nombreUsuario).Replace("{{APELLIDO_USUARIO}}", apellidoUsuario);
 
             // Configuración del cliente SMTP
             var mensaje = new MailMessage

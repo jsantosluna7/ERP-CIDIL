@@ -95,6 +95,10 @@ namespace Inventario.Controllers
         public async Task<IActionResult?> Eliminar(int id)
         {
           await  _servicioLaboratorio.Eliminar(id);
+            if (!User.TieneRol("1"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
+            }
             return Ok();
         }
 
@@ -105,6 +109,11 @@ namespace Inventario.Controllers
             if(laboratorioAct == null)
             {
                 return NotFound($"No se pudo encontrar el Laboratorio con el ID:{id}");
+            }
+
+            if (!User.TieneRol("1", "2"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
             }
             return Ok();
         }

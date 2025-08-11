@@ -146,6 +146,11 @@ namespace Reservas.Controllers
             {
                 return NotFound("Horario no encontrado");
             }
+
+            if (!User.TieneRol("1", "2"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
+            }
             // Devolver el resultado de la operación
             return Ok(resultado);
         }
@@ -158,6 +163,12 @@ namespace Reservas.Controllers
             {
                 //Llamar al servicio para borrar un horario existente
                 var resultado = await _servicioHorario.BorrarHorarioAutomatico(eliminar);
+
+                if (!User.TieneRol("1", "2"))
+                {
+                    return Unauthorized("No tienes permiso para acceder a esta información");
+                }
+
                 //verificar si el horario fue borrado
                 if (resultado == null)
                 {

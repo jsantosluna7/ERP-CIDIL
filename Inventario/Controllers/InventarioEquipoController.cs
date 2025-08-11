@@ -111,7 +111,7 @@ namespace Inventario.Controllers
 
         public async Task<IActionResult?> Actualizar(int id,ActualizarInventarioEquipoDTO actualizarInventarioEquipoDTO) 
         {
-            var resultado =await _servicioInventarioEquipo.Actualizar(id, actualizarInventarioEquipoDTO);
+            var resultado = await _servicioInventarioEquipo.Actualizar(id, actualizarInventarioEquipoDTO);
             if (resultado == null)
             {
                 return NotFound("No se Pudo Actualizar el Inventario");
@@ -136,6 +136,10 @@ namespace Inventario.Controllers
         public async Task<IActionResult?> DeleteById(int id) 
         { 
            await _servicioInventarioEquipo.Eliminar(id);
+            if (!User.TieneRol("1"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
+            }
             return Ok();
         }
 
@@ -146,6 +150,11 @@ namespace Inventario.Controllers
             if (equipo == null)
             {
                 return NotFound($"No se pudo encontrar el Equipo con el ID:{id}");
+            }
+
+            if (!User.TieneRol("1", "2"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
             }
             return Ok();
         }

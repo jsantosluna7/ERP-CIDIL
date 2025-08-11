@@ -107,6 +107,11 @@ namespace Reservas.Controllers
             {
                 return NotFound($"No se encontró la reserva con id {id} y/o ya existe una reserva en el tiempo que definiste.");
             }
+
+            if (!User.TieneRol("1", "2"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
+            }
             return Ok(reserva);
         }
 
@@ -118,6 +123,11 @@ namespace Reservas.Controllers
             if (resultado == null)
             {
                 return NotFound($"No se encontró la reserva con id {id}.");
+            }
+
+            if (!User.TieneRol("1"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
             }
             return Ok(resultado);
         }
@@ -131,6 +141,11 @@ namespace Reservas.Controllers
             if (prestamoEquiposDesactivado == null)
             {
                 return NotFound($"Usuario con ID {id} no encontrado");
+            }
+
+            if (!User.TieneRol("1", "2"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
             }
             // Devolver una respuesta exitosa
             return Ok($"Usuario con ID {id} desactivado");
