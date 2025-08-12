@@ -329,13 +329,6 @@ namespace Usuarios.Implementaciones.Repositorios
             {
                 new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
                 new Claim("correoInstitucional", usuario.CorreoInstitucional),
-                 new Claim("idRol", usuario.IdRol.ToString()),
-                new Claim("nombreUsuario", usuario.NombreUsuario),
-                new Claim("apellidoUsuario", usuario.ApellidoUsuario),
-                new Claim("idMatricula", usuario.IdMatricula.ToString()),
-                new Claim("telefono", usuario.Telefono),
-                new Claim("direccion", usuario.Direccion),
-                new Claim("fechaCreacion", usuario.FechaCreacion.ToString()),
                 new Claim("OtpHash", usuario.OtpHash),
                 new Claim("OtpExpira", usuario.OtpExpira.ToString()),
                 new Claim("OtpIntentos", usuario.OtpIntentos.ToString())
