@@ -21,20 +21,7 @@ namespace Usuarios.Implementaciones.Repositorios
 
         public async Task<Role?> obtenerRolesPorId(int id)
         {
-            return await _contexto.Roles
-                .Include(r => r.Usuarios)
-                    .ThenInclude(u => u.PrestamosEquipoIdUsuarioAprobadorNavigations)
-                .Include(r => r.Usuarios)
-                    .ThenInclude(u => u.PrestamosEquipoIdUsuarioNavigations)
-                .Include(r => r.Usuarios)
-                    .ThenInclude(u => u.ReservaDeEspacioIdUsuarioAprobadorNavigations)
-                .Include(r => r.Usuarios)
-                    .ThenInclude(u => u.ReservaDeEspacioIdUsuarioNavigations)
-                .Include(r => r.Usuarios)
-                    .ThenInclude(u => u.SolicitudPrestamosDeEquipos)
-                .Include(r => r.Usuarios)
-                    .ThenInclude(u => u.SolicitudReservaDeEspacios)
-                .Where(r => r.Id == id).FirstOrDefaultAsync();
+            return await _contexto.Roles.Where(r => r.Id == id).FirstOrDefaultAsync();
         }
     }
 }

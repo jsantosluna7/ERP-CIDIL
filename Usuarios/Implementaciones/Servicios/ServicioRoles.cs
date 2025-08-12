@@ -45,7 +45,6 @@ namespace Usuarios.Implementaciones.Servicios
             {
                 Id = rol.Id,
                 Rol = rol.Rol,
-                Usuarios = rol.Usuarios
             };
         }
     }
