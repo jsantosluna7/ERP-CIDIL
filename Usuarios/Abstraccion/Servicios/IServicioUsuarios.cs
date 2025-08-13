@@ -14,5 +14,6 @@ namespace Usuarios.Abstraccion.Servicios
         //UsuarioDTO crearUsuario(UsuarioDTO usuarioDTO);
         //Task<List<UsuarioDTO>?> ObtenerUsuarios();
         Task<List<UsuarioDTO>?> ObtenerUsuarios(int pagina, int tamanoPagina);
+        Task<List<UsuarioDTO>?> ObtenerUsuariosTodos();
     }
 }

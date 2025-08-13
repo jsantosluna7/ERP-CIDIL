@@ -52,6 +52,42 @@ namespace Usuarios.Implementaciones.Servicios
             return usuariosDTO;
         }
 
+        public async Task<List<UsuarioDTO>?> ObtenerUsuariosTodos()
+        {
+            // Obtener todos los usuarios
+            var usuarios = await _repositorioUsuario.ObtenerUsuariosTodo();
+            if (usuarios == null || usuarios.Count == 0)
+            {
+                return null;
+            }
+
+            //Inicializar la lista de usuarios DTO
+            var usuariosDTO = new List<UsuarioDTO>();
+
+            // Mapear los usuarios a DTOs
+            foreach (Usuario usuario in usuarios)
+            {
+                var usuarioDTO = new UsuarioDTO
+                {
+                    Id = usuario.Id,
+                    IdMatricula = usuario.IdMatricula,
+                    NombreUsuario = usuario.NombreUsuario,
+                    ApellidoUsuario = usuario.ApellidoUsuario,
+                    CorreoInstitucional = usuario.CorreoInstitucional,
+                    Telefono = usuario.Telefono,
+                    Direccion = usuario.Direccion,
+                    IdRol = usuario.IdRol,
+                    FechaCreacion = usuario.FechaCreacion,
+                    FechaUltimaModificacion = usuario.FechaUltimaModificacion,
+                    UltimaSesion = usuario.UltimaSesion
+                };
+                usuariosDTO.Add(usuarioDTO);
+            }
+
+            // Devolver la lista de usuarios DTO
+            return usuariosDTO;
+        }
+
         // Método para obtener un usuario por su id
         public async Task<Usuario?> ObtenerUsuarioPorId(int id)
         {
@@ -131,7 +167,6 @@ namespace Usuarios.Implementaciones.Servicios
                 Telefono = usuario.Telefono,
                 Direccion = usuario.Direccion,
                 IdRol = usuario.IdRol,
-                FechaCreacion = usuario.FechaCreacion,
                 FechaUltimaModificacion = usuario.FechaUltimaModificacion
             };
 

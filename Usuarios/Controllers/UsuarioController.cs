@@ -44,6 +44,7 @@ namespace Usuarios.Controllers
             return Ok(respuesta);
         }
 
+
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> ObtenerUsuarios([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)
@@ -79,6 +80,28 @@ namespace Usuarios.Controllers
             };
 
             return Ok(respuesta);
+        }
+
+        [Authorize]
+        [HttpGet("obtenerUsuariosTodos")]
+        public async Task<IActionResult> ObtenerUsuarios()
+        {
+            // Llamar al servicio para obtener la lista de usuarios
+            var usuarios = await _servicioUsuarios.ObtenerUsuariosTodos();
+
+            // Verificar si el usuario tiene el rol adecuado
+            if (!User.TieneRol("1", "2"))
+            {
+                return Unauthorized("No tienes permiso para acceder a esta información");
+            }
+
+            // Verificar si la lista de usuarios está vacía
+            if (usuarios == null)
+            {
+                return NotFound("Lista de de usuarios vacía");
+            }
+
+            return Ok(usuarios);
         }
 
         [Authorize]

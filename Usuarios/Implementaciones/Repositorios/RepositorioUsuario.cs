@@ -30,6 +30,13 @@ namespace Usuarios.Implementaciones.Repositorios
                 .ToListAsync();
         }
 
+        public async Task<List<Usuario>> ObtenerUsuariosTodo()
+        {
+            return await _context.Usuarios
+                .Where(u => u.Activado == true)
+                .ToListAsync();
+        }
+
         //Método para obtener un usuario por su id
         public async Task<Usuario?> obtenerUsuarioPorId(int id)
         {
