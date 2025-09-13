@@ -111,5 +111,99 @@ namespace Reservas.Implementaciones.Servicios
             await smtp.SendMailAsync(mensaje);
 
         }
+
+        public async Task EnviarCorreoAprobacion(string destinatario, string nombreUsuario, string apellidoUsuario, string espacio, string fechaSolicitud, string fechaReserva, string horaInicio, string horaFin)
+        {
+            // Cargar la plantilla HTML desde un archivo
+            var basePath = AppContext.BaseDirectory;
+            var templatePath = Path.Combine(basePath, "Templates", "aprobacion_reserva_plantilla.html");
+            string htmlTemplate = File.ReadAllText(templatePath);
+
+            // Reemplazar el marcador de posición en la plantilla con el OTP
+            var html = htmlTemplate.Replace("{{NOMBRE_USUARIO}}", nombreUsuario).Replace("{{APELLIDO_USUARIO}}", apellidoUsuario).Replace("{{NOMBRE_ESPACIO}}", espacio).Replace("{{FECHA_SOLICITUD}}", fechaSolicitud).Replace("{{FECHA_RESERVA}}", fechaReserva).Replace("{{HORA_INICIO}}", horaInicio).Replace("{{HORA_FIN}}", horaFin);
+
+            // Configuración del cliente SMTP
+            var mensaje = new MailMessage
+            {
+                From = new MailAddress(_configuracion.User, "ERP CIDIL")
+            };
+            mensaje.To.Add(destinatario);
+            mensaje.Subject = $"Aprobación de Solicitud de reserva de espacio, {espacio}";
+            mensaje.IsBodyHtml = true;
+            mensaje.Body = html;
+            mensaje.ReplyToList.Add(new MailAddress(_configuracion.User));
+            mensaje.Priority = MailPriority.High;
+            mensaje.SubjectEncoding = System.Text.Encoding.UTF8;
+            mensaje.BodyEncoding = System.Text.Encoding.UTF8;
+            mensaje.HeadersEncoding = System.Text.Encoding.UTF8;
+            mensaje.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
+
+            // Agregar encabezados adicionales
+            mensaje.Headers.Add("X-Priority", "1");
+            mensaje.Headers.Add("X-MSMail-Priority", "High");
+            mensaje.Headers.Add("X-Mailer", "Microsoft Outlook Express 6.00.2900.2869");
+            mensaje.Headers.Add("X-MimeOLE", "Produced By Microsoft MimeOLE V6.00.2900.2869");
+            mensaje.Headers.Add("X-Message-Flag", "FollowUp");
+            mensaje.Headers.Add("X-OriginalArrivalTime", DateTime.Now.ToString("ddd, dd MMM yyyy HH:mm:ss") + " GMT");
+            mensaje.Headers.Add("X-OriginalMessage-ID", Guid.NewGuid().ToString());
+            mensaje.Headers.Add("X-OriginalSender", _configuracion.User);
+            mensaje.Headers.Add("X-OriginalRecipient", destinatario);
+
+            using var smtp = new SmtpClient(_configuracion.Host, _configuracion.Port)
+            {
+                EnableSsl = _configuracion.EnableSsl,
+                Credentials = new System.Net.NetworkCredential(_configuracion.User, _configuracion.Password)
+            };
+
+            await smtp.SendMailAsync(mensaje);
+
+        }
+
+        public async Task EnviarCorreoRechazo(string destinatario, string nombreUsuario, string apellidoUsuario, string espacio, string fechaSolicitud, string fechaReserva, string motivo_rechazo, string horaInicio, string horaFin)
+        {
+            // Cargar la plantilla HTML desde un archivo
+            var basePath = AppContext.BaseDirectory;
+            var templatePath = Path.Combine(basePath, "Templates", "rechazo_reserva_plantilla.html");
+            string htmlTemplate = File.ReadAllText(templatePath);
+
+            // Reemplazar el marcador de posición en la plantilla con el OTP
+            var html = htmlTemplate.Replace("{{NOMBRE_USUARIO}}", nombreUsuario).Replace("{{APELLIDO_USUARIO}}", apellidoUsuario).Replace("{{NOMBRE_ESPACIO}}", espacio).Replace("{{FECHA_SOLICITUD}}", fechaSolicitud).Replace("{{FECHA_RESERVA}}", fechaReserva).Replace("{{MOTIVO_RECHAZO}}", motivo_rechazo).Replace("{{HORA_INICIO}}", horaInicio).Replace("{{HORA_FIN}}", horaFin);
+
+            // Configuración del cliente SMTP
+            var mensaje = new MailMessage
+            {
+                From = new MailAddress(_configuracion.User, "ERP CIDIL")
+            };
+            mensaje.To.Add(destinatario);
+            mensaje.Subject = $"Rechazo de Solicitud de reserva de espacio, {espacio}";
+            mensaje.IsBodyHtml = true;
+            mensaje.Body = html;
+            mensaje.ReplyToList.Add(new MailAddress(_configuracion.User));
+            mensaje.Priority = MailPriority.High;
+            mensaje.SubjectEncoding = System.Text.Encoding.UTF8;
+            mensaje.BodyEncoding = System.Text.Encoding.UTF8;
+            mensaje.HeadersEncoding = System.Text.Encoding.UTF8;
+            mensaje.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
+
+            // Agregar encabezados adicionales
+            mensaje.Headers.Add("X-Priority", "1");
+            mensaje.Headers.Add("X-MSMail-Priority", "High");
+            mensaje.Headers.Add("X-Mailer", "Microsoft Outlook Express 6.00.2900.2869");
+            mensaje.Headers.Add("X-MimeOLE", "Produced By Microsoft MimeOLE V6.00.2900.2869");
+            mensaje.Headers.Add("X-Message-Flag", "FollowUp");
+            mensaje.Headers.Add("X-OriginalArrivalTime", DateTime.Now.ToString("ddd, dd MMM yyyy HH:mm:ss") + " GMT");
+            mensaje.Headers.Add("X-OriginalMessage-ID", Guid.NewGuid().ToString());
+            mensaje.Headers.Add("X-OriginalSender", _configuracion.User);
+            mensaje.Headers.Add("X-OriginalRecipient", destinatario);
+
+            using var smtp = new SmtpClient(_configuracion.Host, _configuracion.Port)
+            {
+                EnableSsl = _configuracion.EnableSsl,
+                Credentials = new System.Net.NetworkCredential(_configuracion.User, _configuracion.Password)
+            };
+
+            await smtp.SendMailAsync(mensaje);
+
+        }
     }
 }

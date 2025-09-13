@@ -98,9 +98,52 @@ namespace Reservas.Implementaciones.Repositorios
                 ComentarioAprobacion = crearReservaDeEspacioDTO.ComentarioAprobacion,
             };
 
+            //Convertirmos la fecha UTC a OFFSET
+            string fechaSolicitud = crearReservaDeEspacioDTO.FechaSolicitud.ToString();
+            string fechaInicio = crearReservaDeEspacioDTO.FechaInicio.ToString();
+            string horaInicio = crearReservaDeEspacioDTO.HoraInicio.ToString();
+            string horaFinal = crearReservaDeEspacioDTO.HoraFinal.ToString();
+
+            //Se parcea la fecha para que incluya la zona  horaria
+            DateTimeOffset dtoSolicitud = DateTimeOffset.Parse(fechaSolicitud);
+            DateTimeOffset dtoInicio = DateTimeOffset.Parse(fechaInicio);
+            DateTimeOffset dtoHoraInicio = DateTimeOffset.Parse(horaInicio);
+            DateTimeOffset dtoHoraFinal = DateTimeOffset.Parse(horaFinal);
+
+            //Ahora la hora local
+            DateTime fechaLocalSolicitud = dtoSolicitud.LocalDateTime;
+            DateTime fechaLocalInicio = dtoInicio.LocalDateTime;
+            DateTime fechaLocalHoraInicio = dtoHoraInicio.LocalDateTime;
+            DateTime fechaLocalHoraFinal = dtoHoraFinal.LocalDateTime;
+
+            //Formateamos personalizadamente
+
+            string fechaFormateadaSolicitud = fechaLocalSolicitud.ToString("dd/MM/yyyy h:mm tt");
+            string fechaFormateadaInicio = fechaLocalInicio.ToString("dd/MM/yyyy");
+            string fechaFormateadaHoraInicio = fechaLocalHoraInicio.ToString("h:mm tt");
+            string fechaFormateadaHoraFinal = fechaLocalHoraFinal.ToString("h:mm tt");
+
             _context.ReservaDeEspacios.Add(crearReserva);
 
             await _context.SaveChangesAsync();
+
+            if (crearReservaDeEspacioDTO.IdEstado == 1) // Si el estado es "Aprobado"
+            {
+                var usuario = await _context.Usuarios.Where(u => u.Id == crearReservaDeEspacioDTO.IdUsuario).FirstOrDefaultAsync();
+                var laboratorio = await _context.Laboratorios.Where(l => l.Id == crearReservaDeEspacioDTO.IdLaboratorio).FirstOrDefaultAsync();
+                if (usuario != null || laboratorio != null)
+                {
+                    await _servicioEmail.EnviarCorreoAprobacion(usuario.CorreoInstitucional, usuario.NombreUsuario, usuario.ApellidoUsuario, laboratorio.Nombre, fechaFormateadaSolicitud, fechaFormateadaInicio, fechaFormateadaHoraInicio,fechaFormateadaHoraFinal);
+                }
+            } else if (crearReservaDeEspacioDTO.IdEstado == 3) // Si el estado es "Rechazado"
+            {
+                var usuario = await _context.Usuarios.Where(u => u.Id == crearReservaDeEspacioDTO.IdUsuario).FirstOrDefaultAsync();
+                var laboratorio = await _context.Laboratorios.Where(l => l.Id == crearReservaDeEspacioDTO.IdLaboratorio).FirstOrDefaultAsync();
+                if (usuario != null || laboratorio != null)
+                {
+                   await _servicioEmail.EnviarCorreoRechazo(usuario.CorreoInstitucional, usuario.NombreUsuario, usuario.ApellidoUsuario, laboratorio.Nombre, fechaFormateadaSolicitud, fechaFormateadaInicio, crearReservaDeEspacioDTO.ComentarioAprobacion, fechaFormateadaHoraInicio, fechaFormateadaHoraFinal);
+                }
+            }
 
             return crearReserva;
         }
