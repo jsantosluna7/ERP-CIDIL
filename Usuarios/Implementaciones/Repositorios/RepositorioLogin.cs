@@ -194,127 +194,151 @@ namespace Usuarios.Implementaciones.Repositorios
         //Método para registrar un usuario
         public async Task<Resultado<Token?>> RegistrarUsuario(CrearRegistroDTO crearRegistroDTO)
         {
-            // OTP
-            var otp = _servicioOtp.GenerarOtp();
-            var hashOtp = _servicioOtp.HashOtp(otp);
-
-            // Verificar si el usuario ya existe
-            var correoExistente = await _context.Usuarios.FirstOrDefaultAsync(u => u.CorreoInstitucional == crearRegistroDTO.CorreoInstitucional);
-            var matriculaExistente = await _context.Usuarios.FirstOrDefaultAsync(u => u.IdMatricula == crearRegistroDTO.IdMatricula);
-            if (correoExistente != null)
+            try
             {
-                return Resultado<Token?>.Falla("El correo institucional ya está en uso.");
-            }
+                // OTP
+                var otp = _servicioOtp.GenerarOtp();
+                var hashOtp = _servicioOtp.HashOtp(otp);
 
-            if(matriculaExistente != null)
-            {
-                return Resultado<Token?>.Falla("La matricula ya está en uso.");
-            }
-
-            if(crearRegistroDTO.ContrasenaHash.Length < 8)
-            {
-                return Resultado<Token?>.Falla("La contraseña debe tener al menos 8 caracteres.");
-            }
-
-            string correo = crearRegistroDTO.CorreoInstitucional;
-
-            if (!string.IsNullOrEmpty(correo))
-            {
-                if (!correo.EndsWith("@ipl.edu.do", StringComparison.OrdinalIgnoreCase))
+                // Verificar si el usuario ya existe
+                var correoExistente = await _context.Usuarios.FirstOrDefaultAsync(u => u.CorreoInstitucional == crearRegistroDTO.CorreoInstitucional);
+                var matriculaExistente = await _context.Usuarios.FirstOrDefaultAsync(u => u.IdMatricula == crearRegistroDTO.IdMatricula);
+                if (correoExistente != null)
                 {
-                    // El correo no pertenece al dominio institucional
-                    return Resultado<Token?>.Falla("El correo institucional debe terminar con @ipl.edu.do.");
+                    return Resultado<Token?>.Falla("El correo institucional ya está en uso.");
                 }
 
-                char primerCaracter = correo[0];
-
-                if (char.IsDigit(primerCaracter))
+                if (matriculaExistente != null)
                 {
-                    // El correo empieza con número
-
-                    //Creamos el hash de la contraseña
-                    string hash = BCrypt.Net.BCrypt.HashPassword(crearRegistroDTO.ContrasenaHash);
-
-                    // Generar un ID único para el usuario pendiente
-                    var pendingUserId = Guid.NewGuid();
-
-                    // Guardar usuario en PendingUsers
-                    var usuario = new UsuariosPendiente
-                    {
-                        Id = pendingUserId,
-                        IdMatricula = crearRegistroDTO.IdMatricula,
-                        NombreUsuario = crearRegistroDTO.NombreUsuario,
-                        ApellidoUsuario = crearRegistroDTO.ApellidoUsuario,
-                        CorreoInstitucional = crearRegistroDTO.CorreoInstitucional,
-                        ContrasenaHash = hash,
-                        Telefono = crearRegistroDTO.Telefono,
-                        Direccion = crearRegistroDTO.Direccion,
-                        FechaCreacion = DateTime.UtcNow,
-                        IdRol = 4,
-                        OtpHash = hashOtp,
-                        OtpExpira = DateTime.UtcNow.AddMinutes(5), // El OTP expira en 5 minutos
-                        OtpIntentos = 0 // Inicializar intentos a 0
-                    };
-
-
-                    // Guardar el nuevo usuario en la base de datos
-                    await _context.UsuariosPendientes.AddAsync(usuario);
-                    await _context.SaveChangesAsync();
-
-                    await _email.EnviarCorreoOtp(crearRegistroDTO.CorreoInstitucional, otp);
-
-                    var tokenString = SeguridadJwt(usuario);
-
-                    return Resultado<Token?>.Exito(tokenString);
+                    return Resultado<Token?>.Falla("La matricula ya está en uso.");
                 }
-                else if (char.IsLetter(primerCaracter))
+
+                if (string.IsNullOrEmpty(crearRegistroDTO.ContrasenaHash) || crearRegistroDTO.ContrasenaHash.Length < 8)
                 {
-                    // El correo empieza con letras
+                    return Resultado<Token?>.Falla("La contraseña debe tener al menos 8 caracteres.");
+                }
 
-                    //Creamos el hash de la contraseña
-                    string hash = BCrypt.Net.BCrypt.HashPassword(crearRegistroDTO.ContrasenaHash);
+                string correo = crearRegistroDTO.CorreoInstitucional;
 
-                    // Generar un ID único para el usuario pendiente
-                    var pendingUserId = Guid.NewGuid();
-
-                    // Crear un nuevo usuario
-                    var usuario = new UsuariosPendiente
+                if (!string.IsNullOrEmpty(correo))
+                {
+                    if (!correo.EndsWith("@ipl.edu.do", StringComparison.OrdinalIgnoreCase))
                     {
-                        Id = pendingUserId,
-                        IdMatricula = crearRegistroDTO.IdMatricula,
-                        NombreUsuario = crearRegistroDTO.NombreUsuario,
-                        ApellidoUsuario = crearRegistroDTO.ApellidoUsuario,
-                        CorreoInstitucional = crearRegistroDTO.CorreoInstitucional,
-                        ContrasenaHash = hash,
-                        Telefono = crearRegistroDTO.Telefono,
-                        Direccion = crearRegistroDTO.Direccion,
-                        FechaCreacion = DateTime.UtcNow,
-                        IdRol = 3,
-                        OtpHash = hashOtp,
-                        OtpExpira = DateTime.UtcNow.AddMinutes(5), // El OTP expira en 5 minutos
-                        OtpIntentos = 0 // Inicializar intentos a 0
-                    };
+                        // El correo no pertenece al dominio institucional
+                        return Resultado<Token?>.Falla("El correo institucional debe terminar con @ipl.edu.do.");
+                    }
+
+                    char primerCaracter = correo[0];
+
+                    if (char.IsDigit(primerCaracter))
+                    {
+                        // El correo empieza con número
+
+                        //Creamos el hash de la contraseña
+                        string hash = BCrypt.Net.BCrypt.HashPassword(crearRegistroDTO.ContrasenaHash);
+
+                        // Generar un ID único para el usuario pendiente
+                        var pendingUserId = Guid.NewGuid();
+
+                        // Guardar usuario en PendingUsers
+                        var usuario = new UsuariosPendiente
+                        {
+                            Id = pendingUserId,
+                            IdMatricula = crearRegistroDTO.IdMatricula,
+                            NombreUsuario = crearRegistroDTO.NombreUsuario,
+                            ApellidoUsuario = crearRegistroDTO.ApellidoUsuario,
+                            CorreoInstitucional = crearRegistroDTO.CorreoInstitucional,
+                            ContrasenaHash = hash,
+                            Telefono = crearRegistroDTO.Telefono,
+                            Direccion = crearRegistroDTO.Direccion,
+                            FechaCreacion = DateTime.UtcNow,
+                            IdRol = 4,
+                            OtpHash = hashOtp,
+                            OtpExpira = DateTime.UtcNow.AddMinutes(5), // El OTP expira en 5 minutos
+                            OtpIntentos = 0 // Inicializar intentos a 0
+                        };
 
 
-                    // Guardar el nuevo usuario en la base de datos
-                    await _context.UsuariosPendientes.AddAsync(usuario);
-                    await _context.SaveChangesAsync();
+                        // Guardar el nuevo usuario en la base de datos
+                        await _context.UsuariosPendientes.AddAsync(usuario);
+                        await _context.SaveChangesAsync();
 
-                    await _email.EnviarCorreoOtp(crearRegistroDTO.CorreoInstitucional, otp);
+                        try
+                        {
+                            await _email.EnviarCorreoOtp(crearRegistroDTO.CorreoInstitucional, otp);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Error enviando correo: " + ex.Message);
+                            return Resultado<Token?>.Falla("No se pudo enviar el correo de verificación.");
+                        }
 
-                    var tokenString = SeguridadJwt(usuario);
+                        var tokenString = SeguridadJwt(usuario);
 
-                    return Resultado<Token?>.Exito(tokenString);
+                        return Resultado<Token?>.Exito(tokenString);
+                    }
+                    else if (char.IsLetter(primerCaracter))
+                    {
+                        // El correo empieza con letras
+
+                        //Creamos el hash de la contraseña
+                        string hash = BCrypt.Net.BCrypt.HashPassword(crearRegistroDTO.ContrasenaHash);
+
+                        // Generar un ID único para el usuario pendiente
+                        var pendingUserId = Guid.NewGuid();
+
+                        // Crear un nuevo usuario
+                        var usuario = new UsuariosPendiente
+                        {
+                            Id = pendingUserId,
+                            IdMatricula = crearRegistroDTO.IdMatricula,
+                            NombreUsuario = crearRegistroDTO.NombreUsuario,
+                            ApellidoUsuario = crearRegistroDTO.ApellidoUsuario,
+                            CorreoInstitucional = crearRegistroDTO.CorreoInstitucional.Trim(),
+                            ContrasenaHash = hash,
+                            Telefono = crearRegistroDTO.Telefono,
+                            Direccion = crearRegistroDTO.Direccion,
+                            FechaCreacion = DateTime.UtcNow,
+                            IdRol = 3,
+                            OtpHash = hashOtp,
+                            OtpExpira = DateTime.UtcNow.AddMinutes(5), // El OTP expira en 5 minutos
+                            OtpIntentos = 0 // Inicializar intentos a 0
+                        };
+
+
+                        // Guardar el nuevo usuario en la base de datos
+                        await _context.UsuariosPendientes.AddAsync(usuario);
+                        await _context.SaveChangesAsync();
+
+                        try
+                        {
+                            await _email.EnviarCorreoOtp(crearRegistroDTO.CorreoInstitucional, otp);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Error enviando correo: " + ex.Message);
+                            return Resultado<Token?>.Falla("No se pudo enviar el correo de verificación.");
+                        }
+
+                        var tokenString = SeguridadJwt(usuario);
+
+                        return Resultado<Token?>.Exito(tokenString);
+                    }
+                    else
+                    {
+                        // El correo no empieza con letra ni número
+                        return Resultado<Token?>.Falla("El correo institucional debe empezar con una letra o un número.");
+                    }
                 }
                 else
                 {
-                    // El correo no empieza con letra ni número
-                    return Resultado<Token?>.Falla("El correo institucional debe empezar con una letra o un número.");
+                    return Resultado<Token?>.Falla("El correo institucional no puede estar vacío.");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                return Resultado<Token?>.Falla("El correo institucional no puede estar vacío.");
+                Console.WriteLine($"Error en RegistrarUsuario: {ex}");
+                return Resultado<Token?>.Falla("Error inesperado en el servidor: " + ex.Message);
             }
         }
 
