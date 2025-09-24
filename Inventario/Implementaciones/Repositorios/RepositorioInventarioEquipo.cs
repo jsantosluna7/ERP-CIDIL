@@ -124,11 +124,30 @@ namespace Inventario.Implementaciones.Repositorios
             //var totalPaginas = (int)Math.Ceiling(totalInventario / (double)tamanoPagina);
 
             return await _context.InventarioEquipos
-                .Where(i => i.Activado == true)
+                .Where(i => i.ValidacionPrestamo == true)
                 .OrderBy(i => i.Id)
                 .Skip((pagina - 1) * tamanoPagina)
                 .Take(tamanoPagina)
                 .ToListAsync();
+        }
+
+        public async Task<Resultado<List<InventarioEquipo>>> BuscarPorNombre(string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+            {
+                return Resultado<List<InventarioEquipo>>.Falla("El nombre no puede estar vacío.");
+            }
+
+            var resultados = await _context.InventarioEquipos
+                .Where(e => e.Nombre != null && EF.Functions.ILike(e.Nombre, $"%{nombre}%") && e.ValidacionPrestamo == true)
+                .ToListAsync();
+
+            if (resultados == null || resultados.Count == 0)
+            {
+                return Resultado<List<InventarioEquipo>>.Falla("No se encontraron equipos con el nombre proporcionado.");
+            }
+
+            return Resultado<List<InventarioEquipo>>.Exito(resultados);
         }
     }
 }

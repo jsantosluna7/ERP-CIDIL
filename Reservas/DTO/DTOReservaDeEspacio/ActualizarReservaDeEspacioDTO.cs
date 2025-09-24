@@ -26,5 +26,7 @@
 
         public string? ComentarioAprobacion { get; set; }
 
+        public int PersonasCantidad { get; set; }
+
     }
 }

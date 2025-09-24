@@ -34,6 +34,20 @@ namespace Reservas.Controllers
             return Ok(respuesta);
         }
 
+
+        [HttpGet("reserva-espacio-todo")]
+        public async Task<IActionResult> ReservaEspacioTodo()
+        {
+            var respuesta = await _servicioReservaDeEspacio.ObtenerReservasTodo();
+
+            if (respuesta == null)
+            {
+                BadRequest("No se pudo obtener la lista de reserva de espacios.");
+            }
+
+            return Ok(respuesta);
+        }
+
         // Método para obtener todas las reservas
         [HttpGet("obtener-reservas")]
         public async Task<IActionResult> ObtenerReservas([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)
@@ -79,11 +93,11 @@ namespace Reservas.Controllers
         public async Task<IActionResult> ObtenerReservaPorId(int id)
         {
             var reserva = await _servicioReservaDeEspacio.ObtenerReservaPorId(id);
-            if (reserva == null)
+            if (!reserva.esExitoso)
             {
-                return NotFound($"No se encontró la reserva con id {id}.");
+                return BadRequest(new { error = reserva.MensajeError });
             }
-            return Ok(reserva);
+            return Ok(reserva.Valor);
         }
 
         // Método para crear una reserva
@@ -91,11 +105,11 @@ namespace Reservas.Controllers
         public async Task<IActionResult> CrearReserva([FromBody] CrearReservaDeEspacioDTO crearReservaDeEspacioDTO)
         {
             var solicitud = await _servicioReservaDeEspacio.CrearReserva(crearReservaDeEspacioDTO);
-            if (solicitud == null)
+            if (!solicitud.esExitoso)
             {
-                return BadRequest("Ya existe una reserva en el tiempo que definiste.");
+                return BadRequest(new { error = solicitud.MensajeError });
             }
-            return Ok(solicitud);
+            return Ok(solicitud.Valor);
         }
 
         // Método para editar una reserva
@@ -103,16 +117,16 @@ namespace Reservas.Controllers
         public async Task<IActionResult> EditarReserva(int id, [FromBody] ActualizarReservaDeEspacioDTO actualizarReservaDeEspacioDTO)
         {
             var reserva = await _servicioReservaDeEspacio.EditarReserva(id, actualizarReservaDeEspacioDTO);
-            if (reserva == null)
+            if (!reserva.esExitoso)
             {
-                return NotFound($"No se encontró la reserva con id {id} y/o ya existe una reserva en el tiempo que definiste.");
+                return BadRequest(new { error = reserva.MensajeError });
             }
 
             if (!User.TieneRol("1", "2"))
             {
                 return Unauthorized("No tienes permiso para acceder a esta información");
             }
-            return Ok(reserva);
+            return Ok(reserva.Valor);
         }
 
         // Método para cancelar una reserva
@@ -120,16 +134,16 @@ namespace Reservas.Controllers
         public async Task<IActionResult> CancelarReserva(int id)
         {
             var resultado = await _servicioReservaDeEspacio.CancelarReserva(id);
-            if (resultado == null)
+            if (!resultado.esExitoso)
             {
-                return NotFound($"No se encontró la reserva con id {id}.");
+                return BadRequest(new { error = resultado.MensajeError });
             }
 
             if (!User.TieneRol("1"))
             {
                 return Unauthorized("No tienes permiso para acceder a esta información");
             }
-            return Ok(resultado);
+            return Ok(resultado.Valor);
         }
 
         [HttpPatch("{id}")]
@@ -138,9 +152,9 @@ namespace Reservas.Controllers
             // Llamar al servicio para desactivar un equipo por su ID
             var prestamoEquiposDesactivado = await _servicioReservaDeEspacio.desactivarReservaDeEspacio(id);
             // Verificar si el equipo fue desactivado
-            if (prestamoEquiposDesactivado == null)
+            if (!prestamoEquiposDesactivado.esExitoso)
             {
-                return NotFound($"Usuario con ID {id} no encontrado");
+                return BadRequest(new { error = prestamoEquiposDesactivado.MensajeError });
             }
 
             if (!User.TieneRol("1", "2"))

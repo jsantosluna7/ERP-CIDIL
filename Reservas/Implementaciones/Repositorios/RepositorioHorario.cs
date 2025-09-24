@@ -74,24 +74,26 @@ namespace Reservas.Implementaciones.Repositorios
 
         public async Task<(bool Exito, List<HorarioErrores> Errores)> AgregarHorariosAsync(List<CrearHorarioDTO> crearHorariosDTO)
         {
-            //var errores = new List<string>();
             var nuevos = new List<Horario>();
             var errores = new List<HorarioErrores>();
 
-            // Fase 1: Validar todo sin insertar
+            bool EsHoraValida(string hora, out TimeSpan ts)
+            {
+                ts = TimeSpan.Zero;
+                return TimeSpan.TryParse(hora, out ts) && ts < TimeSpan.FromHours(24);
+            }
+
             for (int i = 0; i < crearHorariosDTO.Count; i++)
             {
                 var dtoA = crearHorariosDTO[i];
+                var laboratorioA = await _context.Laboratorios.FindAsync(dtoA.IdLaboratorio);
 
-                if (!TimeSpan.TryParse(dtoA.HoraInicio, out var hiA) ||
-                    !TimeSpan.TryParse(dtoA.HoraFinal, out var hfA))
+                if (!EsHoraValida(dtoA.HoraInicio, out var hiA) || !EsHoraValida(dtoA.HoraFinal, out var hfA))
                 {
-                    var laboratorioA = await _context.Laboratorios.FindAsync(dtoA.IdLaboratorio);
-
                     errores.Add(new HorarioErrores
                     {
                         idError = 3,
-                        titulo = "Formato hora inválido en",
+                        titulo = "Formato hora inválido",
                         labNombre = laboratorioA?.Nombre,
                         asignaturaA = dtoA.Asignatura,
                         diaA = dtoA.Dia,
@@ -101,125 +103,117 @@ namespace Reservas.Implementaciones.Repositorios
                     continue;
                 }
 
-                // Combine fecha+hora en DateTimeOffset
-                var startA = dtoA.FechaInicio.Date + hiA;
-                var endA = dtoA.FechaFinal.Date + hfA;
+                if (hfA <= hiA)
+                {
+                    errores.Add(new HorarioErrores
+                    {
+                        idError = 4,
+                        titulo = "Hora final debe ser mayor a hora inicial",
+                        labNombre = laboratorioA?.Nombre,
+                        asignaturaA = dtoA.Asignatura,
+                        diaA = dtoA.Dia,
+                        horaInicioA = dtoA.HoraInicio,
+                        horaFinalA = dtoA.HoraFinal
+                    });
+                    continue;
+                }
 
-                // Validación interna entre DTOs
+                if (hiA < TimeSpan.FromHours(7) || hfA > TimeSpan.FromHours(22))
+                {
+                    errores.Add(new HorarioErrores
+                    {
+                        idError = 5,
+                        titulo = "Hora fuera de rango permitido",
+                        labNombre = laboratorioA?.Nombre,
+                        asignaturaA = dtoA.Asignatura,
+                        diaA = dtoA.Dia,
+                        horaInicioA = dtoA.HoraInicio,
+                        horaFinalA = dtoA.HoraFinal
+                    });
+                    continue;
+                }
+
+                // Validación entre DTOs
                 for (int j = i + 1; j < crearHorariosDTO.Count; j++)
                 {
                     var dtoB = crearHorariosDTO[j];
                     if (dtoA.IdLaboratorio == dtoB.IdLaboratorio && dtoA.Dia == dtoB.Dia)
                     {
-                        if (!TimeSpan.TryParse(dtoB.HoraInicio, out var hiB) ||
-                            !TimeSpan.TryParse(dtoB.HoraFinal, out var hfB))
+                        if (EsHoraValida(dtoB.HoraInicio, out var hiB) && EsHoraValida(dtoB.HoraFinal, out var hfB))
                         {
-                            var laboratorioB = await _context.Laboratorios.FindAsync(dtoB.IdLaboratorio);
-
-                            errores.Add(new HorarioErrores
+                            // Solapamiento real
+                            if (hiA < hfB && hiB < hfA && !(hfA == hiB || hfB == hiA))
                             {
-                                idError = 3,
-                                titulo = "Formato hora inválido en",
-                                labNombre = laboratorioB?.Nombre,
-                                asignaturaB = dtoB.Asignatura,
-                                diaB = dtoB.Dia,
-                                horaInicioB = dtoB.HoraInicio,
-                                horaFinalB = dtoB.HoraFinal
-                            });
-                            continue;
-                        }
-
-                        var startB = dtoB.FechaInicio.Date + hiB;
-                        var endB = dtoB.FechaFinal.Date + hfB;
-                        var lab = await _context.Laboratorios.FindAsync(dtoA.IdLaboratorio);
-                        bool overlap = startA <= endB && startB <= endA;
-                        // Solapamiento (incluyendo bordes)
-                        if (overlap)
-                        {
-                            errores.Add(new HorarioErrores
-                            {
-                                idError = 1,
-                                titulo = "(En el archivo cargado)",
-                                labNombre = lab?.Nombre,
-                                asignaturaA = dtoA.Asignatura,
-                                diaA = dtoA.Dia,
-                                horaInicioA = dtoA.HoraInicio,
-                                horaFinalA = dtoA.HoraFinal,
-                                asignaturaB = dtoB.Asignatura,
-                                diaB = dtoB.Dia,
-                                horaInicioB = dtoB.HoraInicio,
-                                horaFinalB = dtoB.HoraFinal
-                            });
+                                errores.Add(new HorarioErrores
+                                {
+                                    idError = 1,
+                                    titulo = "(En el archivo cargado)",
+                                    labNombre = laboratorioA?.Nombre,
+                                    asignaturaA = dtoA.Asignatura,
+                                    diaA = dtoA.Dia,
+                                    horaInicioA = dtoA.HoraInicio,
+                                    horaFinalA = dtoA.HoraFinal,
+                                    asignaturaB = dtoB.Asignatura,
+                                    diaB = dtoB.Dia,
+                                    horaInicioB = dtoB.HoraInicio,
+                                    horaFinalB = dtoB.HoraFinal
+                                });
+                            }
                         }
                     }
                 }
 
                 // Validación contra DB
-                if (TimeSpan.TryParse(dtoA.HoraInicio, out _) && TimeSpan.TryParse(dtoA.HoraFinal, out _))
+                var horariosExistentes = await _context.Horarios
+                    .Where(h => h.IdLaboratorio == dtoA.IdLaboratorio && h.Dia == dtoA.Dia)
+                    .ToListAsync();
+
+                foreach (var h in horariosExistentes)
                 {
-                    var conflictos = await _context.Horarios
-                        .Where(h => h.IdLaboratorio == dtoA.IdLaboratorio && h.Dia == dtoA.Dia)
-                        .ToListAsync();
-
-                    foreach (var h in conflictos)
+                    if (hiA < h.HoraFinal && h.HoraInicio < hfA && !(hfA == h.HoraInicio || h.HoraFinal == hiA))
                     {
-                        var startB = h.FechaInicio;
-                        var endB = h.FechaFinal;
-
-                        if (startA <= endB && startB <= endA)
+                        errores.Add(new HorarioErrores
                         {
-                            var lab = await _context.Laboratorios.FindAsync(dtoA.IdLaboratorio);
-
-                            errores.Add(new HorarioErrores
-                            {
-                                idError = 2,
-                                titulo = "(En el horario)",
-                                labNombre = lab?.Nombre,
-                                asignaturaA = dtoA.Asignatura,
-                                diaA = dtoA.Dia,
-                                horaInicioA = dtoA.HoraInicio,
-                                horaFinalA = dtoA.HoraFinal,
-                                asignaturaB = h.Asignatura,
-                                diaB = h.Dia,
-                                horaInicioB = h.HoraInicio.ToString(),
-                                horaFinalB = h.HoraFinal.ToString()
-                            });
-                        }
+                            idError = 2,
+                            titulo = "(En el horario)",
+                            labNombre = laboratorioA?.Nombre,
+                            asignaturaA = dtoA.Asignatura,
+                            diaA = dtoA.Dia,
+                            horaInicioA = dtoA.HoraInicio,
+                            horaFinalA = dtoA.HoraFinal,
+                            asignaturaB = h.Asignatura,
+                            diaB = h.Dia,
+                            horaInicioB = h.HoraInicio?.ToString(@"hh\:mm") ?? "",
+                            horaFinalB = h.HoraFinal?.ToString(@"hh\:mm") ?? ""
+                        });
                     }
                 }
-            }
-
-            // Si hay errores, no insertamos nada
-            if (errores.Any())
-                return (false, errores);
-
-            // Fase 2: Crear e insertar
-            foreach (var dto in crearHorariosDTO)
-            {
-                TimeSpan.TryParse(dto.HoraInicio, out var hi);
-                TimeSpan.TryParse(dto.HoraFinal, out var hf);
 
                 nuevos.Add(new Horario
                 {
-                    Asignatura = dto.Asignatura,
-                    Profesor = dto.Profesor,
-                    IdLaboratorio = dto.IdLaboratorio.Value,
-                    Dia = dto.Dia,
-                    FechaInicio = dto.FechaInicio.Date + hi,
-                    FechaFinal = dto.FechaFinal.Date + hf,
-                    HoraInicio = hi,
-                    HoraFinal = hf,
+                    Asignatura = dtoA.Asignatura,
+                    Profesor = dtoA.Profesor,
+                    IdLaboratorio = dtoA.IdLaboratorio.Value,
+                    Dia = dtoA.Dia,
+                    FechaInicio = dtoA.FechaInicio.Date + hiA,
+                    FechaFinal = dtoA.FechaFinal.Date + hfA,
+                    HoraInicio = hiA,
+                    HoraFinal = hfA,
                     FechaCreacion = DateTime.UtcNow,
                     Activo = true,
                     ActivadoHorario = true
                 });
             }
 
+            if (errores.Any())
+                return (false, errores);
+
             _context.Horarios.AddRange(nuevos);
             await _context.SaveChangesAsync();
 
             return (true, new List<HorarioErrores>());
         }
+
 
         // Método para actualizar un horario existente
         public async Task<Horario?> ActualizarHorario(int id, ActualizarHorarioDTO actualizarHorarioDTO)

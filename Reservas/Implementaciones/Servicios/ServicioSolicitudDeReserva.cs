@@ -1,4 +1,5 @@
-﻿using Reservas.Abstraccion.Repositorio;
+﻿using ERP.Data.Modelos;
+using Reservas.Abstraccion.Repositorio;
 using Reservas.Abstraccion.Servicios;
 using Reservas.DTO.DTOSolicitudDeReserva;
 using Reservas.Implementaciones.Repositorios;
@@ -39,7 +40,8 @@ namespace Reservas.Implementaciones.Servicios
                     FechaFinal = solicitud.FechaFinal,
                     Motivo = solicitud.Motivo,
                     FechaSolicitud = solicitud.FechaSolicitud,
-                    IdEstado = solicitud.IdEstado
+                    IdEstado = solicitud.IdEstado,
+                    PersonasCantidad = solicitud.PersonasCantidad
                 };
                 // Agregar la solicitudDTO a la lista de solicitudesDTO
                 solicitudesDTO.Add(solicitudDTO);
@@ -74,7 +76,8 @@ namespace Reservas.Implementaciones.Servicios
                     FechaFinal = solicitud.FechaFinal,
                     Motivo = solicitud.Motivo,
                     FechaSolicitud = solicitud.FechaSolicitud,
-                    IdEstado = solicitud.IdEstado
+                    IdEstado = solicitud.IdEstado,
+                    PersonasCantidad = solicitud.PersonasCantidad
                 };
                 // Agregar la solicitudDTO a la lista de solicitudesDTO
                 solicitudesDTO.Add(solicitudDTO);
@@ -84,12 +87,14 @@ namespace Reservas.Implementaciones.Servicios
         }
 
         // Método para obtener una solicitud de reserva por id
-        public async Task<SolicitudDeReservaDTO?> ObtenerSolicitudReservaPorId(int id)
+        public async Task<Resultado<SolicitudDeReservaDTO?>> ObtenerSolicitudReservaPorId(int id)
         {
-            var solicitud = await _repositorioSolicitudDeReserva.ObtenerSolicitudReservaPorId(id);
-            if (solicitud == null)
+            var solicitudPorId = await _repositorioSolicitudDeReserva.ObtenerSolicitudReservaPorId(id);
+            var solicitud = solicitudPorId.Valor;
+
+            if (!solicitudPorId.esExitoso)
             {
-                return null;
+                return Resultado<SolicitudDeReservaDTO?>.Falla(solicitudPorId.MensajeError ?? "No se obtuvieron las solicitudes.");
             }
             var solicitudDTO = new SolicitudDeReservaDTO()
             {
@@ -102,19 +107,23 @@ namespace Reservas.Implementaciones.Servicios
                 FechaFinal = solicitud.FechaFinal,
                 Motivo = solicitud.Motivo,
                 FechaSolicitud = solicitud.FechaSolicitud,
-                IdEstado = solicitud.IdEstado
+                IdEstado = solicitud.IdEstado,
+                PersonasCantidad = solicitud.PersonasCantidad
             };
-            return solicitudDTO;
+            return Resultado<SolicitudDeReservaDTO?>.Exito(solicitudDTO);
         }
 
         // Método para solicitar una reserva
-        public async Task<CrearSolicitudDeReservaDTO?> SolicitarCrearReserva(CrearSolicitudDeReservaDTO crearSolicitudDeReservaDTO)
+        public async Task<Resultado<CrearSolicitudDeReservaDTO?>> SolicitarCrearReserva(CrearSolicitudDeReservaDTO crearSolicitudDeReservaDTO)
         {
-            var solicitud = await _repositorioSolicitudDeReserva.SolicitarCrearReserva(crearSolicitudDeReservaDTO);
-            if (solicitud == null)
+            var solicitudPorId = await _repositorioSolicitudDeReserva.SolicitarCrearReserva(crearSolicitudDeReservaDTO);
+            var solicitud = solicitudPorId.Valor;
+
+            if (!solicitudPorId.esExitoso)
             {
-                return null;
+                return Resultado<CrearSolicitudDeReservaDTO?>.Falla(solicitudPorId.MensajeError ?? "No se pudo crear la solicitud de espacio.");
             }
+
             var solicitudDTO = new CrearSolicitudDeReservaDTO()
             {
                 IdUsuario = solicitud.IdUsuario,
@@ -124,19 +133,23 @@ namespace Reservas.Implementaciones.Servicios
                 FechaInicio = solicitud.FechaInicio,
                 FechaFinal = solicitud.FechaFinal,
                 Motivo = solicitud.Motivo,
-                FechaSolicitud = solicitud.FechaSolicitud
+                FechaSolicitud = solicitud.FechaSolicitud,
+                PersonasCantidad = solicitud.PersonasCantidad
             };
-            return solicitudDTO;
+            return Resultado<CrearSolicitudDeReservaDTO?>.Exito(solicitudDTO);
         }
 
         // Método para editar una solicitud de reserva
-        public async Task<ActualizarSolicitudDeReservaDTO?> EditarSolicitudReserva(int id, ActualizarSolicitudDeReservaDTO actualizarSolicitudDeReservaDTO)
+        public async Task<Resultado<ActualizarSolicitudDeReservaDTO?>> EditarSolicitudReserva(int id, ActualizarSolicitudDeReservaDTO actualizarSolicitudDeReservaDTO)
         {
-            var solicitud = await _repositorioSolicitudDeReserva.EditarSolicitudReserva(id, actualizarSolicitudDeReservaDTO);
-            if (solicitud == null)
+            var solicitudPorId = await _repositorioSolicitudDeReserva.EditarSolicitudReserva(id, actualizarSolicitudDeReservaDTO);
+            var solicitud = solicitudPorId.Valor;
+
+            if (!solicitudPorId.esExitoso)
             {
-                return null;
+                return Resultado<ActualizarSolicitudDeReservaDTO?>.Falla(solicitudPorId.MensajeError ?? "No se pudo editar la solicitud de espacio.");
             }
+
             var solicitudDTO = new ActualizarSolicitudDeReservaDTO()
             {
                 IdLaboratorio = solicitud.IdLaboratorio,
@@ -146,20 +159,25 @@ namespace Reservas.Implementaciones.Servicios
                 FechaFinal = solicitud.FechaFinal,
                 Motivo = solicitud.Motivo,
                 FechaSolicitud = solicitud.FechaSolicitud,
-                IdEstado = solicitud.IdEstado
+                IdEstado = solicitud.IdEstado,
+                PersonasCantidad = solicitud.PersonasCantidad
             };
-            return solicitudDTO;
+
+            return Resultado<ActualizarSolicitudDeReservaDTO?>.Exito(solicitudDTO);
         }
 
         // Método para cancelar una solicitud de reserva
-        public async Task<bool?> CancelarSolicitudReserva(int id)
+        public async Task<Resultado<bool?>> CancelarSolicitudReserva(int id)
         {
-            var resultado = await _repositorioSolicitudDeReserva.CancelarSolicitudReserva(id);
-            if (resultado == null)
+            var resultadoPorId = await _repositorioSolicitudDeReserva.CancelarSolicitudReserva(id);
+            var resultado = resultadoPorId.Valor;
+
+            if (!resultadoPorId.esExitoso)
             {
-                return null;
+                return Resultado<bool?>.Falla(resultadoPorId.MensajeError ?? "No se pudo cancelar la solicitud de espacio.");
+
             }
-            return resultado;
+            return Resultado<bool?>.Exito(resultado);
         }
     }
 }

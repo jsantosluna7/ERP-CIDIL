@@ -60,7 +60,7 @@ namespace Inventario.Controllers
                 return NotFound("Lista de Inventario de Equipos no encontrada");
             }
 
-            var totalInventario = await _context.InventarioEquipos.CountAsync();
+            var totalInventario = await _context.InventarioEquipos.Where(i => i.ValidacionPrestamo == true).CountAsync();
             var totalPaginas = (int)Math.Ceiling(totalInventario / (double)tamanoPagina);
 
             var respuesta = new
@@ -75,6 +75,19 @@ namespace Inventario.Controllers
                 datos = resultado
             };
             return Ok(respuesta);
+        }
+
+        [HttpGet("Buscar")]
+        public async Task<IActionResult> BuscarPorNombre([FromQuery] string nombre)
+        {
+            var resultado = await _servicioInventarioEquipo.BuscarPorNombre(nombre);
+
+            if (!resultado.esExitoso)
+            {
+                return BadRequest(new { error = resultado.MensajeError });
+            }
+
+            return Ok(resultado.Valor);
         }
 
         //Para insertar los archivos en lotes

@@ -13,5 +13,6 @@ namespace Inventario.Abstraccion.Servicios
         Task<bool?> Eliminar(int id);
         Task<bool?> DesactivarEquipo(int id);
         Task<List<InventarioEquipoDTO>?> GetInventarioEquipo(int pagina, int tamanoPagina);
+        Task<Resultado<List<InventarioEquipo>>> BuscarPorNombre(string nombre);
     }
 }

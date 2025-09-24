@@ -86,6 +86,9 @@ builder.Services.AddScoped<ServicioEmailReservas>();
 //builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
 builder.Services.AddScoped<ServicioConflictos>();
 
+//Añadimos el servicio de la cantidad de personas en un lab
+builder.Services.AddScoped<ServicioCantidadPersonas>();
+
 // Cargar variables de entorno desde el archivo .env
 DotNetEnv.Env.Load();
 

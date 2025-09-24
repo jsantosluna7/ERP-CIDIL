@@ -17,6 +17,8 @@
         public string Motivo { get; set; } = null!;
 
         public DateTime? FechaSolicitud { get; set; }
+
+        public int PersonasCantidad { get; set; }
         //public int? IdEstado { get; set; }
     }
 }

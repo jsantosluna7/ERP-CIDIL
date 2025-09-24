@@ -341,6 +341,9 @@ public partial class DbErpContext : DbContext
             entity.HasOne(d => d.IdUsuarioAprobadorNavigation).WithMany(p => p.ReservaDeEspacioIdUsuarioAprobadorNavigations)
                 .HasForeignKey(d => d.IdUsuarioAprobador)
                 .HasConstraintName("prestamos_espacios_id_usuario_aprobador_fkey");
+            entity.Property(e => e.PersonasCantidad)
+                .HasDefaultValue(1)
+                .HasColumnName("personas_cantidad");
         });
 
         modelBuilder.Entity<Role>(entity =>
@@ -428,6 +431,9 @@ public partial class DbErpContext : DbContext
                 .HasForeignKey(d => d.IdUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("solicitud_reserva_de_espacios_id_usuario_fkey");
+            entity.Property(e => e.PersonasCantidad)
+                .HasDefaultValue(1)
+                .HasColumnName("personas_cantidad");
         });
 
         modelBuilder.Entity<Usuario>(entity =>

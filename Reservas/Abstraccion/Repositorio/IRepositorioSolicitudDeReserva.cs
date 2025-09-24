@@ -5,11 +5,11 @@ namespace Reservas.Abstraccion.Repositorio
 {
     public interface IRepositorioSolicitudDeReserva
     {
-        Task<bool?> CancelarSolicitudReserva(int id);
-        Task<SolicitudReservaDeEspacio?> EditarSolicitudReserva(int id, ActualizarSolicitudDeReservaDTO actualizarSolicitudDeReservaDTO);
+        Task<Resultado<bool?>> CancelarSolicitudReserva(int id);
+        Task<Resultado<SolicitudReservaDeEspacio?>> EditarSolicitudReserva(int id, ActualizarSolicitudDeReservaDTO actualizarSolicitudDeReservaDTO);
         Task<List<SolicitudReservaDeEspacio>> ObtenerSolicitudesReservas(int pagina, int tamanoPagina);
         Task<List<SolicitudReservaDeEspacio>> ObtenerSolicitudesReservasPorPiso(int piso);
-        Task<SolicitudReservaDeEspacio?> ObtenerSolicitudReservaPorId(int id);
-        Task<SolicitudReservaDeEspacio?> SolicitarCrearReserva(CrearSolicitudDeReservaDTO crearSolicitudDeReservaDTO);
+        Task<Resultado<SolicitudReservaDeEspacio?>> ObtenerSolicitudReservaPorId(int id);
+        Task<Resultado<SolicitudReservaDeEspacio?>> SolicitarCrearReserva(CrearSolicitudDeReservaDTO crearSolicitudDeReservaDTO);
     }
 }

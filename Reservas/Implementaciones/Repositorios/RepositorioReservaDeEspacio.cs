@@ -13,11 +13,14 @@ namespace Reservas.Implementaciones.Repositorios
         private readonly DbErpContext _context;
         private readonly ServicioEmailReservas _servicioEmail;
         private readonly ServicioConflictos _servicioConflictos;
-        public RepositorioReservaDeEspacio(DbErpContext context, ServicioEmailReservas servicioEmail, ServicioConflictos servicioConflictos)
+        private readonly ServicioCantidadPersonas _servicioCantidadPersonas;
+
+        public RepositorioReservaDeEspacio(DbErpContext context, ServicioEmailReservas servicioEmail, ServicioConflictos servicioConflictos, ServicioCantidadPersonas servicioCantidadPersonas)
         {
             _context = context;
             _servicioEmail = servicioEmail;
             _servicioConflictos = servicioConflictos;
+            _servicioCantidadPersonas = servicioCantidadPersonas;
         }
 
         //Método para obtener todas las reservas
@@ -34,16 +37,25 @@ namespace Reservas.Implementaciones.Repositorios
                 .ToListAsync();
         }
 
+        //Método para obtener todas las reservas
+        public async Task<List<ReservaDeEspacio>> ObtenerReservasTodo()
+        {
+
+            return await _context.ReservaDeEspacios
+                .Where(r => r.Activado == true && r.IdEstado == 1)
+                .OrderBy(i => i.Id).ToListAsync();
+        }
+
         //Método para obtener todas las reservas por id
-        public async Task<ReservaDeEspacio?> ObtenerReservaPorId(int id)
+        public async Task<Resultado<ReservaDeEspacio?>> ObtenerReservaPorId(int id)
         {
             var reserva = await _context.ReservaDeEspacios.FirstOrDefaultAsync(r => r.Id == id);
             if (reserva == null)
             {
-                return null;
+                return Resultado<ReservaDeEspacio?>.Falla("No se encontraron reservas de espacio con ese id.");
             }
 
-            return reserva;
+            return Resultado<ReservaDeEspacio?>.Exito(reserva);
         }
 
         //Método para obtener todas las solicitudes de reserva
@@ -59,7 +71,7 @@ namespace Reservas.Implementaciones.Repositorios
 
                 // Obtener todas las solicitudes de esos laboratorios
                 var reservas = await _context.ReservaDeEspacios
-                    .Where(r => idsLaboratorios.Contains(r.IdLaboratorio))
+                    .Where(r => idsLaboratorios.Contains(r.IdLaboratorio) && r.IdEstado == 1)
                     .ToListAsync();
 
                 return reservas;
@@ -71,14 +83,20 @@ namespace Reservas.Implementaciones.Repositorios
         }
 
         //Método para que el usuario apruebe una reserva
-        public async Task<ReservaDeEspacio?> CrearReserva(CrearReservaDeEspacioDTO crearReservaDeEspacioDTO)
+        public async Task<Resultado<ReservaDeEspacio?>> CrearReserva(CrearReservaDeEspacioDTO crearReservaDeEspacioDTO)
         {
             //verificar si la reserva ya existe
             var conflicto = await _servicioConflictos.conflictoReserva(crearReservaDeEspacioDTO.IdLaboratorio, crearReservaDeEspacioDTO.HoraInicio, crearReservaDeEspacioDTO.HoraFinal, crearReservaDeEspacioDTO.FechaSolicitud);
+            Resultado<bool> cantidadPersonas = await _servicioCantidadPersonas.VerificarCantidad(crearReservaDeEspacioDTO.IdLaboratorio, crearReservaDeEspacioDTO.PersonasCantidad);
+
+            if (!cantidadPersonas.esExitoso)
+            {
+                return Resultado<ReservaDeEspacio?>.Falla(cantidadPersonas.MensajeError ?? "La cantidad de personas digitada no se permite.");
+            }
 
             if (!conflicto)
             {
-                return null;
+                return Resultado<ReservaDeEspacio?>.Falla("Ya existe una reserva de espacio en el tiempo y laboratorio establecido.");
             }
 
             //Crear la reserva
@@ -96,6 +114,7 @@ namespace Reservas.Implementaciones.Repositorios
                 IdUsuarioAprobador = crearReservaDeEspacioDTO.IdUsuarioAprobador,
                 FechaAprobacion = NormalizarUtc(DateTime.UtcNow),
                 ComentarioAprobacion = crearReservaDeEspacioDTO.ComentarioAprobacion,
+                PersonasCantidad = crearReservaDeEspacioDTO.PersonasCantidad,
             };
 
             //Convertirmos la fecha UTC a OFFSET
@@ -145,7 +164,7 @@ namespace Reservas.Implementaciones.Repositorios
                 }
             }
 
-            return crearReserva;
+            return Resultado<ReservaDeEspacio?>.Exito(crearReserva);
         }
 
         //Cambiar el tipo de hora
@@ -156,7 +175,7 @@ namespace Reservas.Implementaciones.Repositorios
         }
 
         //Método para que el usuario cancele una reserva
-        public async Task<bool?> CancelarReserva(int id)
+        public async Task<Resultado<bool?>> CancelarReserva(int id)
         {
             //verificar si hay una reserva con ese id
             var reserva = await ObtenerReservaPorId(id);
@@ -164,29 +183,39 @@ namespace Reservas.Implementaciones.Repositorios
             //si la reserva es null, significa que no existe
             if (reserva == null)
             {
-                return null;
+                return Resultado<bool?>.Falla("No hay reservas de espacio por eliminar");
             }
 
+            var resReserva = reserva.Valor;
+
             //Eliminar la reserva
-            _context.ReservaDeEspacios.Remove(reserva);
+            _context.ReservaDeEspacios.Remove(resReserva);
 
             //guardar los cambios
             await _context.SaveChangesAsync();
 
             //si la reserva fue eliminada, retornar true
-            return true;
+            return Resultado<bool?>.Exito(true);
         }
 
         //Método para que el usuario edite una reserva
-        public async Task<ReservaDeEspacio?> EditarReserva(int id, ActualizarReservaDeEspacioDTO actualizarReservaDeEspacioDTO)
+        public async Task<Resultado<ReservaDeEspacio?>> EditarReserva(int id, ActualizarReservaDeEspacioDTO actualizarReservaDeEspacioDTO)
         {
             //verificar si hay una reserva con ese id
-            var reservaExiste = await ObtenerReservaPorId(id);
-            if (reservaExiste == null)
+            var reservaPorId = await ObtenerReservaPorId(id);
+            Resultado<bool> cantidadPersonas = await _servicioCantidadPersonas.VerificarCantidad(actualizarReservaDeEspacioDTO.IdLaboratorio ?? 1, actualizarReservaDeEspacioDTO.PersonasCantidad);
+
+            if (!cantidadPersonas.esExitoso)
             {
-                return null;
+                return Resultado<ReservaDeEspacio?>.Falla(cantidadPersonas.MensajeError ?? "La cantidad de personas digitada no se permite.");
             }
 
+            if (reservaPorId == null)
+            {
+                return Resultado<ReservaDeEspacio?>.Falla("No hay reservas de espacio con ese id.");
+            }
+
+            var reservaExiste = reservaPorId.Valor;
 
             reservaExiste.IdUsuario = actualizarReservaDeEspacioDTO.IdUsuario ?? reservaExiste.IdUsuario;
             reservaExiste.HoraInicio = actualizarReservaDeEspacioDTO.HoraInicio;
@@ -197,13 +226,14 @@ namespace Reservas.Implementaciones.Repositorios
             reservaExiste.IdUsuarioAprobador = actualizarReservaDeEspacioDTO.IdUsuarioAprobador ?? reservaExiste.IdUsuarioAprobador;
             reservaExiste.FechaAprobacion = DateTime.UtcNow;
             reservaExiste.ComentarioAprobacion = actualizarReservaDeEspacioDTO.ComentarioAprobacion ?? reservaExiste.ComentarioAprobacion;
+            reservaExiste.PersonasCantidad = actualizarReservaDeEspacioDTO.PersonasCantidad;
 
             //verificar si la reserva ya existe
             bool conflicto = await _servicioConflictos.conflictoReservaActualizar(reservaExiste.Id, reservaExiste.IdLaboratorio, reservaExiste.HoraInicio, reservaExiste.HoraFinal, reservaExiste.FechaSolicitud);
 
             if (!conflicto)
             {
-                return null; //si la reserva ya existe retorna null
+                return Resultado<ReservaDeEspacio?>.Falla("Ya existe una reserva de espacio en el tiempo y laboratorio establecido.");
             }
 
             //Actualizar la reserva
@@ -213,27 +243,29 @@ namespace Reservas.Implementaciones.Repositorios
 
             if (reservaActualizada == null)
             {
-                return null;
+                return Resultado<ReservaDeEspacio?>.Falla("No hay reservas de espacio con ese id.");
             }
             return reservaActualizada;
 
         }
 
         //Método para desactivar un espacio
-        public async Task<bool?> desactivarReservaDeEspacio(int id)
+        public async Task<Resultado<bool?>> desactivarReservaDeEspacio(int id)
         {
             // Verificar si el espacio existe
-            var espacio = await ObtenerReservaPorId(id);
-            if (espacio == null)
+            var espacioPorId = await ObtenerReservaPorId(id);
+            if (espacioPorId == null)
             {
-                return null;
+                return Resultado<bool?>.Falla("No hay reservas de espacio con ese id.");
             }
+
+            var espacio = espacioPorId.Valor;
             // Desactivar el espacio
             espacio.Activado = false;
             // Guardar los cambios en la base de datos
             _context.Update(espacio);
             await _context.SaveChangesAsync();
-            return true;
+            return Resultado<bool?>.Exito(true);
         }
     }
 }

@@ -25,6 +25,8 @@ public partial class SolicitudReservaDeEspacio
     public DateTime FechaInicio { get; set; }
 
     public DateTime FechaFinal { get; set; }
+    public int PersonasCantidad { get; set; }
+
     [JsonIgnore]
     public virtual Estado? IdEstadoNavigation { get; set; }
     [JsonIgnore]

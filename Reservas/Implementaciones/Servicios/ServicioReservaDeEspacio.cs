@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ERP.Data.Modelos;
+using Microsoft.EntityFrameworkCore;
 using Reservas.Abstraccion.Repositorio;
 using Reservas.Abstraccion.Servicios;
 using Reservas.DTO.DTOHorario;
@@ -44,7 +45,48 @@ namespace Reservas.Implementaciones.Servicios
                     FechaSolicitud = reserva.FechaSolicitud,
                     IdUsuarioAprobador = reserva.IdUsuarioAprobador,
                     FechaAprobacion = reserva.FechaAprobacion,
-                    ComentarioAprobacion = reserva.ComentarioAprobacion
+                    ComentarioAprobacion = reserva.ComentarioAprobacion,
+                    PersonasCantidad = reserva.PersonasCantidad
+                };
+
+                // Agregar la reservaDTO a la lista de reservasDTO
+                reservasDTO.Add(reservaDTO);
+            }
+
+            // Devolver la lista de reservasDTO
+            return reservasDTO;
+        }
+
+        // Metodo para obtener todas las reservas
+        public async Task<List<ReservaDeEspacioDTO>?> ObtenerReservasTodo()
+        {
+            var reservas = await _repositorioReservaDeEspacio.ObtenerReservasTodo();
+
+            if (reservas == null || reservas.Count == 0)
+            {
+                return null;
+            }
+            var reservasDTO = new List<ReservaDeEspacioDTO>();
+
+            // Recorrer la lista de reservas y convertir cada una a ReservaDeEspacioDTO
+            foreach (var reserva in reservas)
+            {
+                var reservaDTO = new ReservaDeEspacioDTO()
+                {
+                    Id = reserva.Id,
+                    IdUsuario = reserva.IdUsuario,
+                    IdLaboratorio = reserva.IdLaboratorio,
+                    HoraInicio = reserva.HoraInicio,
+                    HoraFinal = reserva.HoraFinal,
+                    FechaInicio = reserva.FechaInicio,
+                    FechaFinal = reserva.FechaFinal,
+                    IdEstado = reserva.IdEstado,
+                    Motivo = reserva.Motivo,
+                    FechaSolicitud = reserva.FechaSolicitud,
+                    IdUsuarioAprobador = reserva.IdUsuarioAprobador,
+                    FechaAprobacion = reserva.FechaAprobacion,
+                    ComentarioAprobacion = reserva.ComentarioAprobacion,
+                    PersonasCantidad = reserva.PersonasCantidad
                 };
 
                 // Agregar la reservaDTO a la lista de reservasDTO
@@ -81,7 +123,8 @@ namespace Reservas.Implementaciones.Servicios
                     FechaFinal = reserva.FechaFinal,
                     Motivo = reserva.Motivo,
                     FechaSolicitud = reserva.FechaSolicitud,
-                    IdEstado = reserva.IdEstado
+                    IdEstado = reserva.IdEstado,
+                    PersonasCantidad = reserva.PersonasCantidad
                 };
                 // Agregar la solicitudDTO a la lista de solicitudesDTO
                 reservasDTO.Add(reservaDTO);
@@ -91,12 +134,13 @@ namespace Reservas.Implementaciones.Servicios
         }
 
         // Método para obtener una reserva por id
-        public async Task<ReservaDeEspacioDTO?> ObtenerReservaPorId(int id)
+        public async Task<Resultado<ReservaDeEspacioDTO?>> ObtenerReservaPorId(int id)
         {
-            var reserva = await _repositorioReservaDeEspacio.ObtenerReservaPorId(id);
-            if (reserva == null)
+            var reservaPorId = await _repositorioReservaDeEspacio.ObtenerReservaPorId(id);
+            var reserva = reservaPorId.Valor;
+            if (!reservaPorId.esExitoso)
             {
-                return null;
+                return Resultado<ReservaDeEspacioDTO?>.Falla(reservaPorId.MensajeError ?? "No se pudo obtener la reserva por id.");
             }
             var reservaDTO = new ReservaDeEspacioDTO()
             {
@@ -112,19 +156,22 @@ namespace Reservas.Implementaciones.Servicios
                 FechaSolicitud = reserva.FechaSolicitud,
                 IdUsuarioAprobador = reserva.IdUsuarioAprobador,
                 FechaAprobacion = reserva.FechaAprobacion,
-                ComentarioAprobacion = reserva.ComentarioAprobacion
+                ComentarioAprobacion = reserva.ComentarioAprobacion,
+                PersonasCantidad = reserva.PersonasCantidad
             };
-            return reservaDTO;
+            return Resultado<ReservaDeEspacioDTO?>.Exito(reservaDTO);
         }
 
         // Método para crear una reserva
-        public async Task<CrearReservaDeEspacioDTO?> CrearReserva(CrearReservaDeEspacioDTO crearReservaDeEspacioDTO)
+        public async Task<Resultado<CrearReservaDeEspacioDTO?>> CrearReserva(CrearReservaDeEspacioDTO crearReservaDeEspacioDTO)
         {
             // Validar el DTO
-            var reserva = await _repositorioReservaDeEspacio.CrearReserva(crearReservaDeEspacioDTO);
-            if (reserva == null)
+            var reservaPorId = await _repositorioReservaDeEspacio.CrearReserva(crearReservaDeEspacioDTO);
+            var reserva = reservaPorId.Valor;
+
+            if (!reservaPorId.esExitoso)
             {
-                return null;
+                return Resultado<CrearReservaDeEspacioDTO?>.Falla(reservaPorId.MensajeError ?? "No se pudo crear la reserva.");
             }
 
             // Convertir la reserva a DTO
@@ -141,20 +188,23 @@ namespace Reservas.Implementaciones.Servicios
                 FechaSolicitud = reserva.FechaSolicitud,
                 IdUsuarioAprobador = reserva.IdUsuarioAprobador,
                 FechaAprobacion = reserva.FechaAprobacion,
-                ComentarioAprobacion = reserva.ComentarioAprobacion
+                ComentarioAprobacion = reserva.ComentarioAprobacion,
+                PersonasCantidad = reserva.PersonasCantidad
             };
 
             // Devolver la reservaDTO
-            return reservaDTO;
+            return Resultado<CrearReservaDeEspacioDTO?>.Exito(reservaDTO);
         }
 
         // Método para editar una reserva
-        public async Task<ActualizarReservaDeEspacioDTO?> EditarReserva(int id, ActualizarReservaDeEspacioDTO actualizarReservaDeEspacioDTO)
+        public async Task<Resultado<ActualizarReservaDeEspacioDTO?>> EditarReserva(int id, ActualizarReservaDeEspacioDTO actualizarReservaDeEspacioDTO)
         {
-            var reserva = await _repositorioReservaDeEspacio.EditarReserva(id, actualizarReservaDeEspacioDTO);
-            if (reserva == null)
+            var reservaPorId = await _repositorioReservaDeEspacio.EditarReserva(id, actualizarReservaDeEspacioDTO);
+            var reserva = reservaPorId.Valor;
+
+            if (!reservaPorId.esExitoso)
             {
-                return null;
+                return Resultado<ActualizarReservaDeEspacioDTO?>.Falla(reservaPorId.MensajeError ?? "No se pudo actualizar la reserva de espacio.");
             }
             var reservaDTO = new ActualizarReservaDeEspacioDTO()
             {
@@ -169,36 +219,42 @@ namespace Reservas.Implementaciones.Servicios
                 FechaSolicitud = reserva.FechaSolicitud,
                 IdUsuarioAprobador = reserva.IdUsuarioAprobador,
                 FechaAprobacion = reserva.FechaAprobacion,
-                ComentarioAprobacion = reserva.ComentarioAprobacion
+                ComentarioAprobacion = reserva.ComentarioAprobacion,
+                PersonasCantidad = reserva.PersonasCantidad
             };
-            return reservaDTO;
+            return Resultado<ActualizarReservaDeEspacioDTO?>.Exito(reservaDTO);
         }
 
         // Método para cancelar una reserva
-        public async Task<bool?> CancelarReserva(int id)
+        public async Task<Resultado<bool?>> CancelarReserva(int id)
         {
-            var resultado = await _repositorioReservaDeEspacio.CancelarReserva(id);
-            if (resultado == null)
+            var resultadoPorId = await _repositorioReservaDeEspacio.CancelarReserva(id);
+            var resultado = resultadoPorId.Valor;
+
+            if (!resultadoPorId.esExitoso)
             {
-                return null;
+                return Resultado<bool?>.Falla(resultadoPorId.MensajeError ?? "No se pudo cancelar la reserva");
             }
-            return resultado;
+            return Resultado<bool?>.Exito(resultado);
         }
 
         //Método para desactivar un espacio
-        public async Task<bool?> desactivarReservaDeEspacio(int id)
+        public async Task<Resultado<bool?>> desactivarReservaDeEspacio(int id)
         {
             // Verificar si el espacio existe
-            var espacio = await _repositorioReservaDeEspacio.ObtenerReservaPorId(id);
-            if (espacio == null)
+            var espacioPorId = await _repositorioReservaDeEspacio.ObtenerReservaPorId(id);
+
+            var espacio = espacioPorId.Valor;
+
+            if (!espacioPorId.esExitoso)
             {
-                return null;
+                return Resultado<bool?>.Falla(espacioPorId.MensajeError ?? "No se pudo obtener la reserva por id.");
             }
             // Desactivar el espacio
             espacio.Activado = false;
             // Guardar los cambios en la base de datos
             await _repositorioReservaDeEspacio.desactivarReservaDeEspacio(id);
-            return true;
+            return Resultado<bool?>.Exito(true);
         }
     }
 }

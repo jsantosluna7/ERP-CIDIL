@@ -64,11 +64,11 @@ namespace Reservas.Controllers
         public async Task<IActionResult> ObtenerSolicitudReservaPorId(int id)
         {
             var solicitud = await _servicioSolicitudDeReserva.ObtenerSolicitudReservaPorId(id);
-            if (solicitud == null)
+            if (!solicitud.esExitoso)
             {
-                return NotFound($"No se encontró la solicitud de reserva con id {id}.");
+                return BadRequest(new { error = solicitud.MensajeError });
             }
-            return Ok(solicitud);
+            return Ok(solicitud.Valor);
         }
 
         // Método para crear una solicitud de reserva
@@ -76,11 +76,11 @@ namespace Reservas.Controllers
         public async Task<IActionResult> CrearSolicitudReserva([FromBody] CrearSolicitudDeReservaDTO crearSolicitudDeReservaDTO)
         {
             var solicitud = await _servicioSolicitudDeReserva.SolicitarCrearReserva(crearSolicitudDeReservaDTO);
-            if (solicitud == null)
+            if (!solicitud.esExitoso)
             {
-                return BadRequest("Ya existe una reserva en el tiempo que definiste.");
+                return BadRequest(new { error = solicitud.MensajeError });
             }
-            return Ok(solicitud);
+            return Ok(solicitud.Valor);
         }
 
         // Método para editar una solicitud de reserva
@@ -88,9 +88,9 @@ namespace Reservas.Controllers
         public async Task<IActionResult> EditarSolicitudReserva(int id, [FromBody] ActualizarSolicitudDeReservaDTO actualizarSolicitudDeReservaDTO)
         {
             var solicitud = await _servicioSolicitudDeReserva.EditarSolicitudReserva(id, actualizarSolicitudDeReservaDTO);
-            if (solicitud == null)
+            if (!solicitud.esExitoso)
             {
-                return NotFound($"No se encontró la solicitud de reserva con id {id} y/o ya existe una reserva en el tiempo que definiste.");
+                return BadRequest(new { error = solicitud.MensajeError });
             }
 
             // Verificar si el usuario tiene el rol adecuado
@@ -98,7 +98,7 @@ namespace Reservas.Controllers
             {
                 return Unauthorized("No tienes permiso para acceder a esta información");
             }
-            return Ok(solicitud);
+            return Ok(solicitud.Valor);
         }
 
         // Método para cancelar una solicitud de reserva
@@ -106,12 +106,12 @@ namespace Reservas.Controllers
         public async Task<IActionResult> CancelarSolicitudReserva(int id)
         {
             var resultado = await _servicioSolicitudDeReserva.CancelarSolicitudReserva(id);
-            if (resultado == null)
+            if (!resultado.esExitoso)
             {
-                return NotFound($"No se encontró la solicitud de reserva con id {id}.");
+                return BadRequest(new { error = resultado.MensajeError });
             }
 
-            return Ok(resultado);
+            return Ok(resultado.Valor);
         }
     }
 }
