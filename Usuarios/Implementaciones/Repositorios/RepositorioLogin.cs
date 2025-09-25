@@ -77,7 +77,7 @@ namespace Usuarios.Implementaciones.Repositorios
                 issuer: "cidilipl.online",
                 audience: "cidilipl.online",
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: creds
             );
 
@@ -171,11 +171,12 @@ namespace Usuarios.Implementaciones.Repositorios
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("8aSX$jhE6WX2&jW9XaZUT4LiEP#TK!VyC^wt3ZqdRWJYtcv75J%cCRZd867JjXqtAAZgL%")); // Clave secreta para firmar el token
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+
             var token = new JwtSecurityToken(
                 issuer: "cidilipl.online",
                 audience: "cidilipl.online",
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: creds
             );
 
@@ -366,7 +367,7 @@ namespace Usuarios.Implementaciones.Repositorios
                 issuer: "cidilipl.online",
                 audience: "cidilipl.online",
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: creds
             );
 
