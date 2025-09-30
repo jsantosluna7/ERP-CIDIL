@@ -42,6 +42,8 @@ public partial class Usuario
 
     public virtual ICollection<PrestamosEquipo> PrestamosEquipoIdUsuarioNavigations { get; set; } = new List<PrestamosEquipo>();
 
+    public virtual ICollection<ReporteFalla> ReporteFallaIdUsuarioNavigations { get; set; } = new List<ReporteFalla>();
+
     public virtual ICollection<ReservaDeEspacio> ReservaDeEspacioIdUsuarioAprobadorNavigations { get; set; } = new List<ReservaDeEspacio>();
 
     public virtual ICollection<ReservaDeEspacio> ReservaDeEspacioIdUsuarioNavigations { get; set; } = new List<ReservaDeEspacio>();

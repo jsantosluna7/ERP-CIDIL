@@ -23,33 +23,33 @@ namespace Usuarios.Controllers
         public async Task<IActionResult?> GetReporteFalla()
         {
             var resultado = await _servicioReporteFalla.GetReporteFalla();
-            if (resultado == null)
+            if (!resultado.esExitoso)
             {
-                return NotFound("No se pudo encontrar los Reportes");
+                return BadRequest(new { error = resultado.MensajeError });
             }
-            return Ok(resultado);
+            return Ok(resultado.Valor);
         }
 
         [HttpPost]
         public async Task<IActionResult> CrearReporte(CrearReporteFallaDTO crearReporteFallaDTO)
         {
             var resultado = await _servicioReporteFalla.CrearReporte(crearReporteFallaDTO);
-            if (resultado == null)
+            if (!resultado.esExitoso)
             {
-                return NotFound("No se pudo crear el reporte");
+                return BadRequest(new { error = resultado.MensajeError });
             }
-            return Ok(resultado);
+            return Ok(resultado.Valor);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> ActualizarReporte(int id, ActualizarReporteFallaDTO actualizarReporteFallaDTO)
         {
             var resultado = await _servicioReporteFalla.ActualizarReporte(id, actualizarReporteFallaDTO);
-            if(resultado == null)
+            if(!resultado.esExitoso)
             {
-                return NotFound("No se pudo actualizar el reporte");
+                return BadRequest(new { error = resultado.MensajeError });
             }
-            return Ok(resultado);
+            return Ok(resultado.Valor);
         }
 
 
@@ -57,18 +57,22 @@ namespace Usuarios.Controllers
         public async Task<IActionResult> GetByIdReporte(int id)
         {
             var resultado = await _servicioReporteFalla.GetByIdReporteFalla(id);
-            if(resultado == null)
+            if(!resultado.esExitoso)
             {
-                return NotFound("No se pudo encontrar el reporte con ese Id");
+                return BadRequest(new { error = resultado.MensajeError });
             }
-            return Ok(resultado);
+            return Ok(resultado.Valor);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Eliminar(int id)
         {
-            await _servicioReporteFalla.Eliminar(id);
-            return Ok();
+            var resultado = await _servicioReporteFalla.Eliminar(id);
+            if(!resultado.esExitoso)
+            {
+                return BadRequest(new { error = resultado.MensajeError });
+            }
+            return Ok(resultado.Valor);
         }
     }
 }

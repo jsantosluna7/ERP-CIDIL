@@ -3,7 +3,8 @@
     public class ActualizarReporteFallaDTO
     {
         public int IdReporte { get; set; }
-        public int IdEstado { get; set; }
+
+        public int Estado { get; set; }
 
     }
 }

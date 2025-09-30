@@ -8,13 +8,7 @@ public partial class ReporteFalla
 {
     public int IdReporte { get; set; }
 
-    public int? IdLaboratorio { get; set; }
-
     public string Descripcion { get; set; } = null!;
-
-    public string NombreSolicitante { get; set; } = null!;
-
-    public int IdEstado { get; set; }
 
     public DateTime? FechaCreacion { get; set; }
 
@@ -22,8 +16,10 @@ public partial class ReporteFalla
 
     public string? Lugar { get; set; }
 
+    public int Estado { get; set; }
+
+    public int IdUsuario { get; set; }
+
     [JsonIgnore]
-    public virtual Estado IdEstadoNavigation { get; set; } = null!;
-    [JsonIgnore]
-    public virtual Laboratorio? IdLaboratorioNavigation { get; set; }
+    public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
 }

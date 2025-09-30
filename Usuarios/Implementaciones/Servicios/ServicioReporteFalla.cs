@@ -19,82 +19,98 @@ namespace Usuarios.Implementaciones.Servicios
         }
 
 
-        public async Task<ReporteFallaDTO?> ActualizarReporte(int id, ActualizarReporteFallaDTO actualizarReporteFallaDTO)
+        public async Task<Resultado<ReporteFallaDTO?>> ActualizarReporte(int id, ActualizarReporteFallaDTO actualizarReporteFallaDTO)
         {
-           var reporte = await repositorioReporteFalla.ActualizarReporte(id, actualizarReporteFallaDTO);
-            if (reporte == null)
+            var reporteAll = await repositorioReporteFalla.ActualizarReporte(id, actualizarReporteFallaDTO);
+            var reporte = reporteAll.Valor;
+            if (!reporteAll.esExitoso)
             {
-                return null;
+                return Resultado<ReporteFallaDTO?>.Falla(reporteAll.MensajeError ?? "No se puede actualizar reporte de falla.");
             }
 
             var reporteFallaDTO = new ReporteFallaDTO
             {
-                IdEstado = id,
-                IdReporte =id
+                IdReporte = id,
+                Estado = reporte.Estado,
             };
 
-            return reporteFallaDTO;
+            return Resultado<ReporteFallaDTO?>.Exito(reporteFallaDTO);
         }
 
-        public async Task<ReporteFallaDTO?> CrearReporte(CrearReporteFallaDTO crearReporteFallaDTO)
+        public async Task<Resultado<ReporteFallaDTO?>> CrearReporte(CrearReporteFallaDTO crearReporteFallaDTO)
         {
-            var reporte = await repositorioReporteFalla.CrearReporte(crearReporteFallaDTO);
-            if(reporte == null)
+            var reporteAll = await repositorioReporteFalla.CrearReporte(crearReporteFallaDTO);
+            var reporte = reporteAll.Valor;
+            if(!reporteAll.esExitoso)
             {
-                return null;
+                return Resultado<ReporteFallaDTO?>.Falla(reporteAll.MensajeError ?? "No se puede crear un reporte de falla.");
             }
 
             var reporteFallaDTO = new ReporteFallaDTO
             {
-                IdEstado = reporte.IdEstado,
+                IdReporte = reporte.IdReporte,
                 Descripcion = reporte.Descripcion,
-                NombreSolicitante = reporte.NombreSolicitante,
                 Lugar = reporte.Lugar,
-                IdLaboratorio = reporte.IdLaboratorio,
+                Estado = reporte.Estado,
+                FechaCreacion = DateTime.UtcNow,
+                IdUsuario = reporte.IdUsuario,
+                FechaUltimaActualizacion = reporte.FechaUltimaActualizacion
+
             };
-            return reporteFallaDTO;
+            return Resultado<ReporteFallaDTO?>.Exito(reporteFallaDTO);
         }
 
-        public async Task<bool?> Eliminar(int id)
+        public async Task<Resultado<bool?>> Eliminar(int id)
         {
-            var reporte = await repositorioReporteFalla.Eliminar(id);
-            if(reporte == null)
+            var reporteAll = await repositorioReporteFalla.Eliminar(id);
+            var reporte = reporteAll.Valor;
+            if (!reporteAll.esExitoso)
             {
-                return null;
+                return Resultado<bool?>.Falla(reporteAll.MensajeError ?? "No se pudo eliminar el reporte de falla.");
             }
-            return reporte;
+            return Resultado<bool?>.Exito(reporte);
         }
 
-        public async Task<ReporteFalla?> GetByIdReporteFalla(int id)
+        public async Task<Resultado<ReporteFalla?>> GetByIdReporteFalla(int id)
         {
-           return await repositorioReporteFalla.GetByIdReporteFalla(id);
-        }
+            var reporteAll = await repositorioReporteFalla.GetByIdReporteFalla(id);
+            var reporte = reporteAll.Valor;
 
-        public async Task<List<ReporteFallaDTO?>> GetReporteFalla()
-        {
-            var reporte = await repositorioReporteFalla.GetReporteFalla();
-            if(reporte == null)
+            if (!reporteAll.esExitoso)
             {
-                return null;
+                return Resultado<ReporteFalla?>.Falla(reporteAll.MensajeError ?? "No se pudo encontrar el reporte de falla.");
+            }
+
+            return Resultado<ReporteFalla?>.Exito(reporte);
+        }
+
+        public async Task<Resultado<List<ReporteFallaDTO?>>> GetReporteFalla()
+        {
+            var reporteAll = await repositorioReporteFalla.GetReporteFalla();
+            var reporte = reporteAll.Valor;
+
+            if (!reporteAll.esExitoso)
+            {
+                return Resultado<List<ReporteFallaDTO?>>.Falla(reporteAll.MensajeError ?? "No se encontraton reportes de falla.");
             }
 
             var reporteFallaDTO = new List<ReporteFallaDTO>();
+
             foreach(ReporteFalla r in reporte)
             {
                 var nuevoReporte = new ReporteFallaDTO
                 {
                     IdReporte = r.IdReporte,
-                    IdLaboratorio = r.IdLaboratorio,
                     Descripcion = r.Descripcion,
-                    NombreSolicitante = r.NombreSolicitante,
                     Lugar = r.Lugar,
                     FechaCreacion = r.FechaCreacion,
                     FechaUltimaActualizacion =r.FechaUltimaActualizacion,
-                    IdEstado = r.IdEstado,
+                    Estado = r.Estado,
+                    IdUsuario = r.IdUsuario
                 };
                 reporteFallaDTO.Add(nuevoReporte);
             }
-            return reporteFallaDTO;
+            return Resultado<List<ReporteFallaDTO?>>.Exito(reporteFallaDTO);
         }
     }
 }

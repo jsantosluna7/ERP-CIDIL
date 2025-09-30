@@ -5,14 +5,10 @@ namespace Usuarios.Abstraccion.Servicios
 {
     public interface IServicioReporteFalla
     {
-        Task<List<ReporteFallaDTO?>> GetReporteFalla();
-        Task<ReporteFalla?> GetByIdReporteFalla(int id);
-        Task<ReporteFallaDTO?> CrearReporte(CrearReporteFallaDTO crearReporteFallaDTO);
-        Task<ReporteFallaDTO?> ActualizarReporte(int id, ActualizarReporteFallaDTO actualizarReporteFallaDTO);
-        Task<bool?> Eliminar (int  id);
-
-
-
-
+        Task<Resultado<ReporteFallaDTO?>> ActualizarReporte(int id, ActualizarReporteFallaDTO actualizarReporteFallaDTO);
+        Task<Resultado<ReporteFallaDTO?>> CrearReporte(CrearReporteFallaDTO crearReporteFallaDTO);
+        Task<Resultado<bool?>> Eliminar(int id);
+        Task<Resultado<ReporteFalla?>> GetByIdReporteFalla(int id);
+        Task<Resultado<List<ReporteFallaDTO?>>> GetReporteFalla();
     }
 }

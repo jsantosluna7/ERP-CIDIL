@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Nuevo Reporte de Falla</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 0; }
+  .container {
+    max-width: 520px; background: white; margin: 40px auto;
+    border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border: 1px solid #ddd; overflow: hidden;
+  }
+  .header {
+    background-color: #ef6c00; color: white; text-align: center;
+    padding: 20px 15px; font-size: 22px; font-weight: bold;
+  }
+  .content { padding: 25px 20px; color: #333; font-size: 15px; line-height: 1.5; }
+  .field { margin-bottom: 10px; }
+  .field strong { color: #000; }
+  .button-container {
+    text-align: center; /* ✅ centra el botón */
+    margin: 25px 0;
+  }
+  .button {
+    display: inline-block; padding: 12px 20px;
+    background-color: #1976d2; color: white; text-decoration: none;
+    border-radius: 6px; font-weight: bold;
+  }
+  .footer {
+    background-color: #f4f6f8; font-size: 12px; color: #888;
+    text-align: center; padding: 15px 10px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">Nuevo Reporte de Falla</div>
+    <div class="content">
+      <p>Se ha registrado un nuevo reporte de falla:</p>
+      <div class="field"><strong>Descripción:</strong> {{DESCRIPCION}}</div>
+      <div class="field"><strong>Lugar:</strong> {{LUGAR}}</div>
+      <div class="field"><strong>Reportado por:</strong> {{NOMBRE_REPORTANTE}}</div>
+      <p>Por favor, gestiona este reporte en el sistema:</p>
+      <div class="button-container">
+        <a href="{{URL_CAMBIAR_ESTADO}}" class="button">Cambiar Estado</a>
+      </div>
+    </div>
+    <div class="footer">&copy; 2025 ERP CIDIL. Todos los derechos reservados.</div>
+  </div>
+</body>
+</html>

@@ -268,8 +268,13 @@ public partial class DbErpContext : DbContext
 
             entity.ToTable("reporte_falla");
 
+            entity.HasIndex(e => e.IdUsuario, "fki_reporte_falla_id_usuario_fkey");
+
             entity.Property(e => e.IdReporte).HasColumnName("id_reporte");
             entity.Property(e => e.Descripcion).HasColumnName("descripcion");
+            entity.Property(e => e.Estado)
+                .HasDefaultValue(1)
+                .HasColumnName("estado");
             entity.Property(e => e.FechaCreacion)
                 .HasDefaultValueSql("now()")
                 .HasColumnType("timestamp without time zone")
@@ -277,21 +282,13 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.FechaUltimaActualizacion)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("fecha_ultima_actualizacion");
-            entity.Property(e => e.IdEstado).HasColumnName("id_estado");
-            entity.Property(e => e.IdLaboratorio).HasColumnName("id_laboratorio");
+            entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
             entity.Property(e => e.Lugar).HasColumnName("lugar");
-            entity.Property(e => e.NombreSolicitante)
-                .HasMaxLength(200)
-                .HasColumnName("nombre_solicitante");
 
-            entity.HasOne(d => d.IdEstadoNavigation).WithMany(p => p.ReporteFallas)
-                .HasForeignKey(d => d.IdEstado)
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.ReporteFallaIdUsuarioNavigations)
+                .HasForeignKey(d => d.IdUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("reporte_falla_id_estado_fkey");
-
-            entity.HasOne(d => d.IdLaboratorioNavigation).WithMany(p => p.ReporteFallas)
-                .HasForeignKey(d => d.IdLaboratorio)
-                .HasConstraintName("reporte_falla_id_laboratorio_fkey");
+                .HasConstraintName("reporte_falla_id_usuario_fkey");
         });
 
         modelBuilder.Entity<ReservaDeEspacio>(entity =>

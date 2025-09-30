@@ -5,11 +5,10 @@ namespace Usuarios.Abstraccion.Repositorios
 {
     public interface IRepositorioReporteFalla
     {
-        Task<List<ReporteFalla?>> GetReporteFalla();
-        Task <ReporteFalla?> GetByIdReporteFalla(int id);
-        Task <ReporteFalla?> CrearReporte(CrearReporteFallaDTO crearReporteFallaDTO);
-        Task <ReporteFalla?> ActualizarReporte(int id, ActualizarReporteFallaDTO actualizarReporteFallaDTO);
-        Task<bool?> Eliminar (int id);
-
+        Task<Resultado<ReporteFalla?>> ActualizarReporte(int id, ActualizarReporteFallaDTO actualizarReporteFallaDTO);
+        Task<Resultado<ReporteFalla?>> CrearReporte(CrearReporteFallaDTO crearReporteFallaDTO);
+        Task<Resultado<bool?>> Eliminar(int id);
+        Task<Resultado<ReporteFalla?>> GetByIdReporteFalla(int id);
+        Task<Resultado<List<ReporteFalla?>>> GetReporteFalla();
     }
 }
