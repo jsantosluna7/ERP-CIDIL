@@ -34,6 +34,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+//nuevo
+
+//nuevo
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -55,6 +58,23 @@ builder.Services.AddScoped<IRepositorioLogin, RepositorioLogin>();
 builder.Services.AddScoped<IRepositorioResetPassword, RepositorioResetPassword>();
 builder.Services.AddScoped<IRepositorioReporteFalla, RepositorioReporteFalla>();
 
+//nuevo
+// Repositorios de comentarios y anuncios
+builder.Services.AddScoped<ICurriculumRepositorio, CurriculumRepositorio>();
+
+//nuevo
+// Servicios de Likes
+builder.Services.AddScoped<ILikeRepositorio, LikeRepositorio>();
+builder.Services.AddScoped<ILikeServicio, LikeServicio>();
+
+//nuevo es
+builder.Services.AddScoped<IComentarioRepositorio, ComentarioRepositorio>();
+builder.Services.AddScoped<IAnuncioRepositorio, AnuncioRepositorio>();
+
+
+
+//nuevo
+
 
 
 //A�adir los Servicios
@@ -73,6 +93,32 @@ builder.Services.AddScoped<IServicioUsuarios, ServicioUsuarios>();
 builder.Services.AddScoped<IServicioLogin, ServicioLogin>();
 builder.Services.AddScoped<IServicioResetPassword, ServicioResetPassword>();
 builder.Services.AddScoped<IServicioReporteFalla, ServicioReporteFalla>();
+
+//anuncio
+// ✅ Agrega este registro para solucionar el error
+
+//nuevo tambien
+// Servicios de comentarios y anuncios
+builder.Services.AddScoped<IComentarioServicio, ComentarioServicio>();
+
+
+
+
+
+
+//nuevo tambien
+builder.Services.AddScoped<IAnuncioServicio, AnuncioServicio>();
+// Servicios de Curriculum
+builder.Services.AddScoped<ICurriculumServicio, CurriculumServicio>();
+
+
+//anuncio
+// ✅ Agrega estos registros para solucionar el error
+builder.Services.AddScoped<IAnuncioRepositorio, AnuncioRepositorio>();
+builder.Services.AddScoped<IAnuncioServicio, AnuncioServicio>();
+//anuncio
+
+//anuncio
 
 //Añadimos el servicio de OTP
 builder.Services.AddScoped<ServicioOtp>();

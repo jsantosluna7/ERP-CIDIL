@@ -1,6 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ERP.Data.Modelos;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 
 namespace Reservas.Modelos;
 
@@ -38,6 +39,16 @@ public partial class DbErpContext : DbContext
     public virtual DbSet<SolicitudReservaDeEspacio> SolicitudReservaDeEspacios { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
+
+
+    //nuevo
+
+    public virtual DbSet<Anuncio> Anuncios { get; set; }
+    public virtual DbSet<Comentario> Comentarios { get; set; }
+    public virtual DbSet<Like> Likes { get; set; }
+    public virtual DbSet<Curriculum> Curriculums { get; set; }
+
+    //nuevo
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -434,6 +445,112 @@ public partial class DbErpContext : DbContext
             entity.HasOne(d => d.IdRolNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.IdRol)
                 .HasConstraintName("usuarios_id_rol_fkey");
+
+
+            //nuevo
+
+            // Configuración de Anuncio
+            modelBuilder.Entity<Anuncio>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.ToTable("anuncios");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Titulo)
+                      .HasMaxLength(100)
+                      .IsRequired()
+                      .HasColumnName("titulo");
+                entity.Property(e => e.Descripcion)
+                      .HasColumnName("descripcion");
+                entity.Property(e => e.ImagenUrl)
+                      .HasColumnName("imagen_url");
+                entity.Property(e => e.FechaPublicacion)
+                      .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                      .HasColumnName("fecha_publicacion");
+
+                entity.HasMany(e => e.Comentarios)
+                      .WithOne(c => c.Anuncio)
+                      .HasForeignKey(c => c.AnuncioId);
+
+                entity.HasMany(e => e.Likes)
+                      .WithOne(l => l.Anuncio)
+                      .HasForeignKey(l => l.AnuncioId);
+            });
+
+            // Configuración de Comentario
+            modelBuilder.Entity<Comentario>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.ToTable("comentarios");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Texto)
+                      .IsRequired()
+                      .HasColumnName("texto");
+                entity.Property(e => e.Usuario)
+                      .IsRequired()
+                      .HasColumnName("usuario");
+                entity.Property(e => e.Fecha)
+                      .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                      .HasColumnName("fecha");
+                entity.Property(e => e.AnuncioId).HasColumnName("anuncio_id");
+
+                entity.HasOne(d => d.Anuncio)
+                      .WithMany(p => p.Comentarios)
+                      .HasForeignKey(d => d.AnuncioId)
+                      .HasConstraintName("comentarios_anuncio_id_fkey");
+            });
+
+            // Configuración de Like
+            modelBuilder.Entity<Like>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.ToTable("likes");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Usuario)
+                      .IsRequired()
+                      .HasColumnName("usuario");
+                entity.Property(e => e.AnuncioId).HasColumnName("anuncio_id");
+
+                entity.HasOne(d => d.Anuncio)
+                      .WithMany(p => p.Likes)
+                      .HasForeignKey(d => d.AnuncioId)
+                      .HasConstraintName("likes_anuncio_id_fkey");
+            });
+
+            // Configuración de Curriculum
+            modelBuilder.Entity<Curriculum>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.ToTable("curriculums");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Nombre)
+                      .IsRequired()
+                      .HasColumnName("nombre");
+                entity.Property(e => e.Email)
+                      .IsRequired()
+                      .HasColumnName("email");
+                entity.Property(e => e.ArchivoUrl)
+                      .IsRequired()
+                      .HasColumnName("archivo_url");
+                entity.Property(e => e.FechaEnvio)
+                      .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                      .HasColumnName("fecha_envio");
+            });
+
+
+
+
+
+
+
+            //nuevo
+
+
+
+
         });
 
         OnModelCreatingPartial(modelBuilder);

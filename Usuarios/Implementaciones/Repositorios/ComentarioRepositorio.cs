@@ -1,0 +1,61 @@
+﻿using ERP.Data.Modelos;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Usuarios.Abstraccion.Repositorios;
+
+namespace Usuarios.Implementaciones.Repositorios
+{
+    public class ComentarioRepositorio : IComentarioRepositorio
+    {
+        private readonly DbErpContext _context;
+
+        public ComentarioRepositorio(DbErpContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<List<Comentario>> ObtenerTodosAsync()
+        {
+            return await _context.Comentarios
+                .Include(c => c.Anuncio)
+                .ToListAsync();
+        }
+
+        public async Task<Comentario?> ObtenerPorIdAsync(int id)
+        {
+            return await _context.Comentarios
+                .Include(c => c.Anuncio)
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
+
+        public async Task CrearAsync(Comentario comentario)
+        {
+            await _context.Comentarios.AddAsync(comentario);
+        }
+
+        public async Task ActualizarAsync(Comentario comentario)
+        {
+            _context.Comentarios.Update(comentario);
+        }
+
+        public async Task EliminarAsync(Comentario comentario)
+        {
+            _context.Comentarios.Remove(comentario);
+        }
+
+        public async Task<bool> EliminarPorIdAsync(int id)
+        {
+            var comentario = await _context.Comentarios.FindAsync(id);
+            if (comentario == null) return false;
+
+            _context.Comentarios.Remove(comentario);
+            return true;
+        }
+
+        public async Task GuardarAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+    }
+}

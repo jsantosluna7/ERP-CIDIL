@@ -19,7 +19,7 @@ builder.Services.AddSwaggerGen();
 
 
 
-////Añadiendo al ensamblado principal
+////Aï¿½adiendo al ensamblado principal
 //builder.Services.AddControllers()
 //    .PartManager.ApplicationParts.Add(new AssemblyPart(typeof(RolController).Assembly));
 
