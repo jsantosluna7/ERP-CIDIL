@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Usuarios.Implementaciones.Repositorios
 {
+    /// <summary>
+    /// Implementación de la interfaz IAnuncioRepositorio para operaciones CRUD de anuncios.
+    /// </summary>
     public class AnuncioRepositorio : IAnuncioRepositorio
     {
         private readonly DbErpContext _context;
@@ -15,16 +18,23 @@ namespace Usuarios.Implementaciones.Repositorios
             _context = context;
         }
 
-        // Obtener todos los anuncios con comentarios y likes
+        /// <summary>
+        /// Obtiene todos los anuncios, incluyendo comentarios y likes asociados.
+        /// </summary>
+        /// <returns>Lista de anuncios completa.</returns>
         public async Task<List<Anuncio>> ObtenerTodosAsync()
         {
             return await _context.Anuncios
                 .Include(a => a.Comentarios)
-                .Include(a => a.Likes) // EF Core ahora mapea Likes correctamente
+                .Include(a => a.Likes)
                 .ToListAsync();
         }
 
-        // Obtener un anuncio por Id
+        /// <summary>
+        /// Obtiene un anuncio específico por su ID, incluyendo comentarios y likes.
+        /// </summary>
+        /// <param name="id">Identificador del anuncio.</param>
+        /// <returns>Anuncio encontrado o null si no existe.</returns>
         public async Task<Anuncio?> ObtenerPorIdAsync(int id)
         {
             return await _context.Anuncios
@@ -33,25 +43,36 @@ namespace Usuarios.Implementaciones.Repositorios
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
 
-        // Crear un nuevo anuncio
+        /// <summary>
+        /// Crea un nuevo anuncio en la base de datos.
+        /// </summary>
+        /// <param name="anuncio">Entidad del anuncio a crear.</param>
         public async Task CrearAsync(Anuncio anuncio)
         {
             await _context.Anuncios.AddAsync(anuncio);
         }
 
-        // Actualizar un anuncio existente
+        /// <summary>
+        /// Actualiza un anuncio existente.
+        /// </summary>
+        /// <param name="anuncio">Entidad del anuncio con cambios.</param>
         public void Actualizar(Anuncio anuncio)
         {
             _context.Anuncios.Update(anuncio);
         }
 
-        // Eliminar un anuncio
+        /// <summary>
+        /// Elimina un anuncio existente.
+        /// </summary>
+        /// <param name="anuncio">Entidad del anuncio a eliminar.</param>
         public void Eliminar(Anuncio anuncio)
         {
             _context.Anuncios.Remove(anuncio);
         }
 
-        // Guardar cambios en la base de datos
+        /// <summary>
+        /// Guarda todos los cambios pendientes en la base de datos.
+        /// </summary>
         public async Task GuardarAsync()
         {
             await _context.SaveChangesAsync();

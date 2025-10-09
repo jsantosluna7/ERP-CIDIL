@@ -1,21 +1,42 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Usuarios.DTO.AnuncioDTO;    // DTOs: CrearAnuncioDTO, ActualizarAnuncioDTO, AnuncioDetalleDTO
+using Usuarios.DTO.AnuncioDTO;
 
-namespace Usuarios.Implementaciones.Servicios
+namespace Usuarios.Abstraccion.Servicios
 {
+    /// <summary>
+    /// Define las operaciones disponibles para la gestión de anuncios.
+    /// Incluye métodos para crear, actualizar, eliminar y obtener anuncios.
+    /// </summary>
     public interface IAnuncioServicio
     {
-        // ✅ Obtener todos los anuncios (devuelve DTOs para el frontend)
+        /// <summary>
+        /// Obtiene una lista de todos los anuncios con sus detalles,
+        /// incluyendo comentarios y cantidad de likes.
+        /// </summary>
+        /// <returns>Lista de objetos <see cref="AnuncioDetalleDTO"/>.</returns>
         Task<List<AnuncioDetalleDTO>> ObtenerTodosAsync();
 
-        // ✅ Crear un nuevo anuncio usando un DTO
+        /// <summary>
+        /// Crea un nuevo anuncio a partir de un DTO que incluye la imagen.
+        /// </summary>
+        /// <param name="dto">Datos necesarios para crear el anuncio.</param>
         Task CrearAsync(CrearAnuncioDTO dto);
 
-        // ✅ Actualizar un anuncio existente por ID
+        /// <summary>
+        /// Actualiza un anuncio existente.
+        /// </summary>
+        /// <param name="id">ID del anuncio a actualizar.</param>
+        /// <param name="dto">Datos actualizados del anuncio.</param>
+        /// <returns>True si se actualizó correctamente, false en caso contrario.</returns>
         Task<bool> ActualizarAsync(int id, ActualizarAnuncioDTO dto);
 
-        // ✅ Eliminar un anuncio por ID
+        /// <summary>
+        /// Elimina un anuncio por su ID.
+        /// </summary>
+        /// <param name="id">ID del anuncio a eliminar.</param>
+        /// <returns>True si se eliminó correctamente, false en caso contrario.</returns>
         Task<bool> EliminarAsync(int id);
     }
 }
+
