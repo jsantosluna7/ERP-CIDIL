@@ -33,9 +33,6 @@ namespace Reservas.Implementaciones.Repositorios
 
         }
 
-
-
-
         //Método para obtener todas las Prestamos por id
         public async Task<SolicitudPrestamosDeEquipo> GetByIdSolicitudPEquipos(int id)
         {
@@ -65,6 +62,15 @@ namespace Reservas.Implementaciones.Repositorios
                 FechaSolicitud = crearSolicitudPrestamosDeEquiposDTO.FechaSolicitud,
                 Cantidad = crearSolicitudPrestamosDeEquiposDTO.Cantidad,
             };
+
+            var roles = new int?[] { 1,2 }; //Roles de administrador y superusuario.
+
+            var usuario = await _context.Usuarios.Where(u => roles.Contains(u.IdRol)).ToListAsync();
+
+            foreach (var usuarios in usuario)
+            {
+                await _servicioEmail.EnviarCorreoReservaEquipos(usuarios.CorreoInstitucional); //Agregar la url que porque el usuario aprobador podra acceder al id de la solicitud
+            }
 
             _context.SolicitudPrestamosDeEquipos.Add(crearReservas);
             await _context.SaveChangesAsync();

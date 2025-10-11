@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Reservas.Abstraccion.Repositorio;
 using Reservas.DTO.DTOPrestamosEquipo;
+using Reservas.DTO.DTOReservaDeEspacio;
 using Reservas.Implementaciones.Servicios;
 
 namespace Reservas.Implementaciones.Repositorios
@@ -70,8 +71,46 @@ namespace Reservas.Implementaciones.Repositorios
 
             };
 
+            //Convertirmos la fecha UTC a OFFSET
+            string fechaInicio = crearPrestamosEquipoDTO.FechaInicio.ToString();
+            string fechaEntrega = crearPrestamosEquipoDTO.FechaEntrega.ToString() ?? "" ;
+            string fechaFinal = crearPrestamosEquipoDTO.FechaFinal.ToString();
+
+            //Se parcea la fecha para que incluya la zona  horaria
+            DateTimeOffset dtoInicio = DateTimeOffset.Parse(fechaInicio);
+            DateTimeOffset dtofechaEntrega = DateTimeOffset.Parse(fechaEntrega);
+            DateTimeOffset dtofechaFinal = DateTimeOffset.Parse(fechaFinal);
+
+            //Ahora la hora local
+            DateTime fechaLocalInicio = dtoInicio.LocalDateTime;
+            DateTime fechaLocalfechaEntrega = dtofechaEntrega.LocalDateTime;
+            DateTime fechaLocalfechaFinal = dtofechaFinal.LocalDateTime;
+
+            //Formateamos personalizadamente
+
+            string fechaFormateadaInicio = fechaLocalInicio.ToString("dd/MM/yyyy");
+            string fechaFormateadafechaEntrega = fechaLocalfechaEntrega.ToString("h:mm tt");
+            string fechaFormateadafechaFinal = fechaLocalfechaFinal.ToString("h:mm tt");
+
             _context.PrestamosEquipos.Add(pEquipo);
             await _context.SaveChangesAsync();
+
+            if (crearPrestamosEquipoDTO.IdEstado == 1) // Si el estado es "Aprobado"
+            {
+                var usuario = await _context.Usuarios.Where(u => u.Id == crearPrestamosEquipoDTO.IdUsuario).FirstOrDefaultAsync();
+                if (usuario != null)
+                {
+                    await _servicioEmail.EnviarCorreoAprobacionEquipos(usuario.CorreoInstitucional, usuario.NombreUsuario, usuario.ApellidoUsuario, fechaFormateadaInicio, fechaFormateadaHoraInicio, fechaFormateadaHoraFinal);
+                }
+            }
+            else if (crearPrestamosEquipoDTO.IdEstado == 3) // Si el estado es "Rechazado"
+            {
+                var usuario = await _context.Usuarios.Where(u => u.Id == crearPrestamosEquipoDTO.IdUsuario).FirstOrDefaultAsync();
+                if (usuario != null)
+                {
+                    await _servicioEmail.EnviarCorreoRechazoEquipos(usuario.CorreoInstitucional, usuario.NombreUsuario, usuario.ApellidoUsuario, fechaFormateadaInicio, crearPrestamosEquipoDTO.ComentarioAprobacion, fechaFormateadaHoraInicio, fechaFormateadaHoraFinal);
+                }
+            }
             return pEquipo;
         }
 
