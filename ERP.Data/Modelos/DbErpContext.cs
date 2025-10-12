@@ -43,7 +43,8 @@ public partial class DbErpContext : DbContext
 
     public virtual DbSet<UsuariosPendiente> UsuariosPendientes { get; set; }
 
-   //nuevo
+    //nuevo
+   
     public virtual DbSet<Anuncio> Anuncios { get; set; }
     public virtual DbSet<Comentario> Comentarios { get; set; }
     public virtual DbSet<Like> Likes { get; set; }

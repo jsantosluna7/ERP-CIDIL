@@ -5,44 +5,46 @@ using System.Threading.Tasks;
 namespace Usuarios.Abstraccion.Repositorios
 {
     /// <summary>
-    /// Interfaz para manejar todas las operaciones relacionadas con los anuncios.
+    /// Interfaz para manejar las operaciones con los anuncios.
     /// </summary>
     public interface IAnuncioRepositorio
     {
         /// <summary>
-        /// Obtiene todos los anuncios junto con sus comentarios y likes.
+        /// Obtiene todos los anuncios disponibles.
         /// </summary>
-        /// <returns>Lista de anuncios completos.</returns>
         Task<List<Anuncio>> ObtenerTodosAsync();
 
         /// <summary>
         /// Obtiene un anuncio específico por su ID.
         /// </summary>
-        /// <param name="id">Identificador único del anuncio.</param>
-        /// <returns>Objeto Anuncio o null si no existe.</returns>
         Task<Anuncio?> ObtenerPorIdAsync(int id);
 
         /// <summary>
         /// Crea un nuevo anuncio en la base de datos.
         /// </summary>
-        /// <param name="anuncio">Entidad del anuncio a crear.</param>
         Task CrearAsync(Anuncio anuncio);
 
         /// <summary>
-        /// Actualiza los datos de un anuncio existente.
+        /// Actualiza la información de un anuncio existente.
         /// </summary>
-        /// <param name="anuncio">Entidad del anuncio modificada.</param>
         void Actualizar(Anuncio anuncio);
 
         /// <summary>
-        /// Elimina un anuncio existente de la base de datos.
+        /// Elimina un anuncio existente.
         /// </summary>
-        /// <param name="anuncio">Entidad del anuncio a eliminar.</param>
         void Eliminar(Anuncio anuncio);
 
         /// <summary>
         /// Guarda los cambios realizados en la base de datos.
         /// </summary>
         Task GuardarAsync();
+
+        /// <summary>
+        /// Alterna el "like" de un usuario en un anuncio (añadir o quitar).
+        /// </summary>
+        /// <param name="anuncioId">ID del anuncio</param>
+        /// <param name="usuario">Identificador o nombre del usuario</param>
+        /// <returns>True si el like fue añadido, False si fue quitado</returns>
+        Task<bool> ToggleLikeAsync(int anuncioId, string usuario);
     }
 }

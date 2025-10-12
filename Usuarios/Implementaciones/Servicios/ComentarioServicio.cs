@@ -52,7 +52,23 @@ namespace Usuarios.Implementaciones.Servicios
             };
         }
 
-        public async Task CrearAsync(CrearComentarioDTO dto)
+        public async Task<List<ComentarioDetalleDTO>> ObtenerPorAnuncioIdAsync(int anuncioId)
+        {
+            var comentarios = await _repo.ObtenerPorAnuncioAsync(anuncioId);
+
+            return comentarios.Select(c => new ComentarioDetalleDTO
+            {
+                Id = c.Id,
+                AnuncioId = c.AnuncioId,
+                Usuario = c.Usuario,
+                Texto = c.Texto,
+                Fecha = c.Fecha,
+                TituloAnuncio = c.Anuncio?.Titulo
+            }).ToList();
+        }
+
+        // ✅ Devuelve el comentario recién creado
+        public async Task<ComentarioDetalleDTO> CrearAsync(CrearComentarioDTO dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Texto))
                 throw new ArgumentException("El texto del comentario no puede estar vacío.");
@@ -71,6 +87,17 @@ namespace Usuarios.Implementaciones.Servicios
 
             await _repo.CrearAsync(comentario);
             await _repo.GuardarAsync();
+
+            // ✅ Devolver el DTO recién creado
+            return new ComentarioDetalleDTO
+            {
+                Id = comentario.Id,
+                AnuncioId = comentario.AnuncioId,
+                Usuario = comentario.Usuario,
+                Texto = comentario.Texto,
+                Fecha = comentario.Fecha,
+                TituloAnuncio = anuncio.Titulo
+            };
         }
 
         public async Task<bool> ActualizarAsync(int id, ActualizarComentarioDTO dto)

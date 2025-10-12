@@ -1,6 +1,7 @@
 ﻿using ERP.Data.Modelos;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Usuarios.Abstraccion.Repositorios;
 
@@ -29,6 +30,14 @@ namespace Usuarios.Implementaciones.Repositorios
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
+        public async Task<List<Comentario>> ObtenerPorAnuncioAsync(int anuncioId)
+        {
+            return await _context.Comentarios
+                .Where(c => c.AnuncioId == anuncioId)
+                .Include(c => c.Anuncio)
+                .ToListAsync();
+        }
+
         public async Task CrearAsync(Comentario comentario)
         {
             await _context.Comentarios.AddAsync(comentario);
@@ -37,11 +46,6 @@ namespace Usuarios.Implementaciones.Repositorios
         public async Task ActualizarAsync(Comentario comentario)
         {
             _context.Comentarios.Update(comentario);
-        }
-
-        public async Task EliminarAsync(Comentario comentario)
-        {
-            _context.Comentarios.Remove(comentario);
         }
 
         public async Task<bool> EliminarPorIdAsync(int id)

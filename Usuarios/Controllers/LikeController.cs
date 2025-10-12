@@ -17,95 +17,70 @@ namespace Usuarios.Controllers
             _likeServicio = likeServicio;
         }
 
-        // 🔹 GET: api/like
-        [HttpGet]
-        public async Task<IActionResult> ObtenerTodos()
-        {
-            try
-            {
-                var lista = await _likeServicio.ObtenerTodosAsync();
-                return Ok(lista);
-            }
-            catch (Exception ex)
-            {
-                // Aquí puedes loguear el error: _logger.LogError(ex, "Error obteniendo likes");
-                return StatusCode(500, new { mensaje = "Ocurrió un error al obtener los likes" });
-            }
-        }
-
-        // 🔹 GET: api/like/{id}
-        [HttpGet("{id}")]
-        public async Task<IActionResult> ObtenerPorId(int id)
-        {
-            try
-            {
-                var like = await _likeServicio.ObtenerPorIdAsync(id);
-                if (like == null)
-                    return NotFound(new { mensaje = "Like no encontrado" });
-
-                return Ok(like);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { mensaje = "Ocurrió un error al obtener el like" });
-            }
-        }
-
-        // 🔹 POST: api/like
+        /// <summary>
+        /// Alterna el estado de un like (añadir o quitar)
+        /// </summary>
         [HttpPost]
-        public async Task<IActionResult> Crear([FromBody] LikeDTO dto)
+        public async Task<IActionResult> ToggleLike([FromBody] LikeDTO dto)
         {
-            if (dto == null)
-                return BadRequest(new { mensaje = "Datos inválidos" });
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Usuario) || dto.AnuncioId <= 0)
+                return BadRequest(new { mensaje = "Datos inválidos para like." });
 
             try
             {
-                var creado = await _likeServicio.CrearAsync(dto);
-                if (!creado)
-                    return BadRequest(new { mensaje = "No se pudo crear el like (posiblemente el anuncio no existe o ya fue likeado)" });
+                var resultado = await _likeServicio.CrearAsync(dto);
 
-                return Ok(new { mensaje = "Like creado correctamente" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { mensaje = "Ocurrió un error al crear el like" });
-            }
-        }
-
-        // 🔹 DELETE: api/like/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Eliminar(int id)
-        {
-            try
-            {
-                var eliminado = await _likeServicio.EliminarAsync(id);
-                if (!eliminado)
-                    return NotFound(new { mensaje = "Like no encontrado para eliminar" });
-
-                return Ok(new { mensaje = "Like eliminado correctamente" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { mensaje = "Ocurrió un error al eliminar el like" });
-            }
-        }
-
-        // 🔹 GET: api/like/contar/{anuncioId}
-        [HttpGet("contar/{anuncioId}")]
-        public async Task<IActionResult> ContarPorAnuncio(int anuncioId)
-        {
-            try
-            {
-                var cantidad = await _likeServicio.ContarPorAnuncioAsync(anuncioId);
                 return Ok(new
                 {
-                    anuncioId,
-                    cantidadLikes = cantidad
+                    mensaje = resultado.estadoActual ? "Like añadido" : "Like quitado",
+                    anuncioId = dto.AnuncioId,
+                    estado = resultado.estadoActual,
+                    totalLikes = resultado.totalLikes
                 });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { mensaje = "Ocurrió un error al contar los likes" });
+                return StatusCode(500, new { mensaje = "Error al procesar el like.", detalle = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Obtiene la cantidad total de likes de un anuncio
+        /// </summary>
+        [HttpGet("contar/{anuncioId}")]
+        public async Task<IActionResult> ContarPorAnuncio(int anuncioId)
+        {
+            if (anuncioId <= 0)
+                return BadRequest(new { mensaje = "ID de anuncio inválido." });
+
+            try
+            {
+                int total = await _likeServicio.ContarPorAnuncioAsync(anuncioId);
+                return Ok(new { anuncioId, totalLikes = total });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = "Error al contar likes.", detalle = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// ✅ Verifica si el usuario ya dio like a un anuncio
+        /// </summary>
+        [HttpGet("existe/{anuncioId}/{usuario}")]
+        public async Task<IActionResult> ExisteLike(int anuncioId, string usuario)
+        {
+            if (anuncioId <= 0 || string.IsNullOrWhiteSpace(usuario))
+                return BadRequest(new { mensaje = "Datos inválidos." });
+
+            try
+            {
+                bool existe = await _likeServicio.ExisteLikeAsync(anuncioId, usuario);
+                return Ok(new { anuncioId, usuario, existe });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = "Error al verificar el like.", detalle = ex.Message });
             }
         }
     }

@@ -9,7 +9,7 @@ namespace ERP.Data.Modelos
     public class Anuncio
     {
         [Key]
-        [Column("Id")] //  así, con mayúscula como en la BD
+        [Column("Id")]
         public int Id { get; set; }
 
         [Column("titulo")]
@@ -29,6 +29,10 @@ namespace ERP.Data.Modelos
 
         [Column("usuario_id")]
         public int UsuarioId { get; set; }
+
+        // Nuevo campo para diferenciar tipo de anuncio
+        [Column("es_pasantia")]
+        public bool EsPasantia { get; set; } = false;
 
         public List<Comentario> Comentarios { get; set; } = new();
         public List<Like> Likes { get; set; } = new();

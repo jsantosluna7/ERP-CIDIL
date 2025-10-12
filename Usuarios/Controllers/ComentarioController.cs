@@ -18,6 +18,7 @@ namespace Usuarios.Controllers
             _comentarioServicio = comentarioServicio;
         }
 
+        // 🔹 Obtener todos los comentarios
         [HttpGet]
         public async Task<IActionResult> ObtenerComentarios()
         {
@@ -25,15 +26,15 @@ namespace Usuarios.Controllers
             return Ok(comentarios);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> ObtenerComentarioPorId(int id)
+        // 🔹 Obtener comentarios por anuncio
+        [HttpGet("anuncio/{anuncioId}")]
+        public async Task<IActionResult> ObtenerComentariosPorAnuncio(int anuncioId)
         {
-            var comentario = await _comentarioServicio.ObtenerPorIdAsync(id);
-            if (comentario == null)
-                return NotFound("Comentario no encontrado.");
-            return Ok(comentario);
+            var comentarios = await _comentarioServicio.ObtenerPorAnuncioIdAsync(anuncioId);
+            return Ok(comentarios);
         }
 
+        // 🔹 Crear comentario (devuelve el creado con ID)
         [HttpPost]
         public async Task<IActionResult> CrearComentario([FromBody] CrearComentarioDTO dto)
         {
@@ -42,23 +43,24 @@ namespace Usuarios.Controllers
 
             try
             {
-                await _comentarioServicio.CrearAsync(dto);
-                return Ok("Comentario creado correctamente.");
+                var nuevoComentario = await _comentarioServicio.CrearAsync(dto); // ✅ ya devuelve un objeto
+                return Ok(nuevoComentario); // ✅ sin error de tipo
             }
             catch (KeyNotFoundException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { error = ex.Message });
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { error = ex.Message });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "Ocurrió un error al crear el comentario.");
+                return StatusCode(500, new { error = "Ocurrió un error al crear el comentario.", detalle = ex.Message });
             }
         }
 
+        // 🔹 Actualizar comentario
         [HttpPut("{id}")]
         public async Task<IActionResult> ActualizarComentario(int id, [FromBody] ActualizarComentarioDTO dto)
         {
@@ -72,6 +74,7 @@ namespace Usuarios.Controllers
             return Ok("Comentario actualizado correctamente.");
         }
 
+        // 🔹 Eliminar comentario
         [HttpDelete("{id}")]
         public async Task<IActionResult> EliminarComentario(int id)
         {

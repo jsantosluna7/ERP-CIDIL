@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Usuarios.Abstraccion.Servicios; // ✅ Namespace correcto
-using Usuarios.DTO.AnuncioDTO;
+using Usuarios.Abstraccion.Servicios;
+using Usuarios.DTO;
+using ERP.Data.Modelos;
 
 namespace Usuarios.Controllers
 {
@@ -18,66 +20,48 @@ namespace Usuarios.Controllers
             _anuncioServicio = anuncioServicio ?? throw new ArgumentNullException(nameof(anuncioServicio));
         }
 
-        // GET: api/anuncio
+        [AllowAnonymous]
         [HttpGet]
-        public async Task<IActionResult> ObtenerAnuncios()
+        public async Task<IActionResult> ObtenerAnuncios([FromQuery] bool? esPasantia)
         {
-            var anuncios = await _anuncioServicio.ObtenerTodosAsync();
+            var anuncios = await _anuncioServicio.ObtenerTodosAsync(esPasantia);
             return Ok(anuncios);
         }
 
-        // POST: api/anuncio
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> CrearAnuncio([FromForm] CrearAnuncioDTO dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Titulo) || string.IsNullOrWhiteSpace(dto.Descripcion))
-                return BadRequest(new { error = "El título y la descripción son obligatorios." });
-
-            if (dto.Imagen == null || dto.Imagen.Length == 0)
-                return BadRequest(new { error = "Debe proporcionar una imagen para el anuncio." });
-
-            var extension = Path.GetExtension(dto.Imagen.FileName).ToLower();
-            if (extension != ".jpg" && extension != ".jpeg" && extension != ".png")
-                return BadRequest(new { error = "Solo se permiten imágenes en formato JPG, JPEG o PNG." });
-
-            if (dto.Imagen.Length > 3 * 1024 * 1024)
-                return BadRequest(new { error = "La imagen es demasiado grande (máx. 3 MB)." });
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             try
             {
-                // Crear carpeta si no existe
-                var carpeta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagenes", "anuncios");
-                Directory.CreateDirectory(carpeta);
+                var extension = Path.GetExtension(dto.Imagen.FileName).ToLower();
+                if (extension != ".jpg" && extension != ".jpeg")
+                    return BadRequest(new { error = "Solo se permiten imágenes JPG o JPEG." });
 
-                // Guardar imagen con nombre único
+                var carpeta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagenes", "anuncios");
+                if (!Directory.Exists(carpeta)) Directory.CreateDirectory(carpeta);
+
                 var nombreArchivo = $"{Guid.NewGuid()}{extension}";
                 var rutaCompleta = Path.Combine(carpeta, nombreArchivo);
 
                 using (var stream = new FileStream(rutaCompleta, FileMode.Create))
-                {
                     await dto.Imagen.CopyToAsync(stream);
-                }
 
-                var urlImagen = $"/imagenes/anuncios/{nombreArchivo}";
-
-                // Crear DTO para servicio (solo con datos necesarios)
-                var crearDto = new CrearAnuncioDTO
+                var anuncio = new Anuncio
                 {
                     Titulo = dto.Titulo,
                     Descripcion = dto.Descripcion,
-                    Imagen = dto.Imagen
+                    ImagenUrl = $"/imagenes/anuncios/{nombreArchivo}",
+                    EsPasantia = dto.EsPasantia,
+                    FechaPublicacion = DateTime.Now
                 };
 
-                // Guardar en la base de datos mediante el servicio
-                await _anuncioServicio.CrearAsync(crearDto);
+                await _anuncioServicio.CrearAsync(anuncio);
 
-                return Ok(new
-                {
-                    mensaje = "Anuncio creado correctamente.",
-                    titulo = dto.Titulo,
-                    descripcion = dto.Descripcion,
-                    imagen = urlImagen
-                });
+                return Ok(new { mensaje = "Anuncio creado correctamente.", anuncio });
             }
             catch (Exception ex)
             {
@@ -85,26 +69,63 @@ namespace Usuarios.Controllers
             }
         }
 
-        // PUT: api/anuncio/{id}
+        [AllowAnonymous]
         [HttpPut("{id}")]
-        public async Task<IActionResult> ActualizarAnuncio(int id, [FromBody] ActualizarAnuncioDTO dto)
+        public async Task<IActionResult> ActualizarAnuncio(int id, [FromForm] ActualizarAnuncioDTO dto)
         {
-            var actualizado = await _anuncioServicio.ActualizarAsync(id, dto);
-            if (!actualizado)
-                return NotFound(new { error = $"No se encontró el anuncio con ID {id}." });
+            if (dto == null) return BadRequest(new { error = "Los datos del anuncio no pueden estar vacíos." });
 
-            return Ok(new { mensaje = "Anuncio actualizado correctamente." });
+            var anuncioExistente = await _anuncioServicio.ObtenerPorIdAsync(id);
+            if (anuncioExistente == null) return NotFound(new { error = $"No se encontró el anuncio con ID {id}." });
+
+            string nuevaUrlImagen = anuncioExistente.ImagenUrl;
+
+            if (dto.Imagen != null && dto.Imagen.Length > 0)
+            {
+                var extension = Path.GetExtension(dto.Imagen.FileName).ToLower();
+                if (extension != ".jpg" && extension != ".jpeg")
+                    return BadRequest(new { error = "Solo se permiten imágenes JPG o JPEG." });
+
+                var carpeta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagenes", "anuncios");
+                if (!Directory.Exists(carpeta)) Directory.CreateDirectory(carpeta);
+
+                var nombreArchivo = $"{Guid.NewGuid()}{extension}";
+                var rutaCompleta = Path.Combine(carpeta, nombreArchivo);
+
+                using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+                    await dto.Imagen.CopyToAsync(stream);
+
+                nuevaUrlImagen = $"/imagenes/anuncios/{nombreArchivo}";
+            }
+
+            dto.ImagenUrl = nuevaUrlImagen;
+            var actualizado = await _anuncioServicio.ActualizarAsync(id, dto);
+
+            if (!actualizado) return StatusCode(500, new { error = "No se pudo actualizar el anuncio." });
+
+            return Ok(new { mensaje = "Anuncio actualizado correctamente.", anuncio = dto });
         }
 
-        // DELETE: api/anuncio/{id}
+        [AllowAnonymous]
         [HttpDelete("{id}")]
         public async Task<IActionResult> EliminarAnuncio(int id)
         {
             var eliminado = await _anuncioServicio.EliminarAsync(id);
-            if (!eliminado)
-                return NotFound(new { error = $"No se encontró el anuncio con ID {id}." });
+            if (!eliminado) return NotFound(new { error = $"No se encontró el anuncio con ID {id}." });
 
             return Ok(new { mensaje = "Anuncio eliminado correctamente." });
+        }
+
+        [AllowAnonymous]
+        [HttpGet("{id}/curriculums")]
+        public async Task<IActionResult> VerCurriculums(int id)
+        {
+            var anuncio = await _anuncioServicio.ObtenerPorIdAsync(id);
+            if (anuncio == null) return NotFound(new { error = "Anuncio no encontrado." });
+            if (!anuncio.EsPasantia) return Ok(new { mensaje = "Este anuncio no es de pasantía.", curriculums = Array.Empty<object>() });
+
+            var curriculums = await _anuncioServicio.ObtenerCurriculumsAsync(id);
+            return Ok(curriculums);
         }
     }
 }

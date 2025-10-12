@@ -1,4 +1,5 @@
 ﻿using ERP.Data.Modelos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,12 +15,9 @@ namespace Usuarios.Implementaciones.Servicios
 
         public LikeServicio(ILikeRepositorio repo)
         {
-            _repo = repo;
+            _repo = repo ?? throw new ArgumentNullException(nameof(repo));
         }
 
-        /// <summary>
-        /// Obtiene todos los likes y los transforma a LikeDTO.
-        /// </summary>
         public async Task<List<LikeDTO>> ObtenerTodosAsync()
         {
             var likes = await _repo.ObtenerTodosAsync();
@@ -30,9 +28,6 @@ namespace Usuarios.Implementaciones.Servicios
             }).ToList();
         }
 
-        /// <summary>
-        /// Obtiene un like por su Id.
-        /// </summary>
         public async Task<LikeDTO?> ObtenerPorIdAsync(int id)
         {
             var like = await _repo.ObtenerPorIdAsync(id);
@@ -46,48 +41,53 @@ namespace Usuarios.Implementaciones.Servicios
         }
 
         /// <summary>
-        /// Crea un like asegurándose de que no se generen errores crudos.
+        /// Alterna el like: si existe lo elimina, si no existe lo crea.
         /// </summary>
-        public async Task<bool> CrearAsync(LikeDTO dto)
+        public async Task<(bool estadoActual, int totalLikes)> CrearAsync(LikeDTO dto)
         {
-            try
+            if (dto == null) throw new ArgumentNullException(nameof(dto));
+            if (string.IsNullOrWhiteSpace(dto.Usuario))
+                throw new ArgumentException("Usuario obligatorio", nameof(dto.Usuario));
+
+            var existente = await _repo.ObtenerPorAnuncioYUsuarioAsync(dto.AnuncioId, dto.Usuario);
+
+            if (existente != null)
             {
-                var like = new Like
+                await _repo.EliminarAsync(existente.Id); // quitar like
+            }
+            else
+            {
+                var nuevoLike = new Like
                 {
                     AnuncioId = dto.AnuncioId,
-                    Usuario = dto.Usuario
+                    Usuario = dto.Usuario,
+                    Fecha = DateTime.UtcNow
                 };
+                await _repo.CrearAsync(nuevoLike);
+            }
 
-                await _repo.CrearAsync(like);
-                await _repo.GuardarAsync();
-                return true;
-            }
-            catch (InvalidOperationException ex)
-            {
-                // Aquí puedes loguear el error si quieres
-                // Por ejemplo: _logger.LogWarning(ex.Message);
-                // Devuelve false indicando que no se pudo crear
-                return false;
-            }
+            int total = await _repo.ContarPorAnuncioAsync(dto.AnuncioId);
+            bool estadoActual = existente == null; // true = añadido, false = quitado
+            return (estadoActual, total);
         }
 
-        /// <summary>
-        /// Elimina un like por su Id.
-        /// </summary>
         public async Task<bool> EliminarAsync(int id)
         {
-            var eliminado = await _repo.EliminarAsync(id);
-            await _repo.GuardarAsync();
-            return eliminado;
+            return await _repo.EliminarAsync(id);
+        }
+
+        public async Task<int> ContarPorAnuncioAsync(int anuncioId)
+        {
+            return await _repo.ContarPorAnuncioAsync(anuncioId);
         }
 
         /// <summary>
-        /// Cuenta los likes de un anuncio específico.
+        /// ✅ Verifica si un usuario ya dio like.
         /// </summary>
-        public async Task<int> ContarPorAnuncioAsync(int anuncioId)
+        public async Task<bool> ExisteLikeAsync(int anuncioId, string usuario)
         {
-            var likes = await _repo.ObtenerTodosAsync();
-            return likes.Count(l => l.AnuncioId == anuncioId);
+            var existente = await _repo.ObtenerPorAnuncioYUsuarioAsync(anuncioId, usuario);
+            return existente != null;
         }
     }
 }

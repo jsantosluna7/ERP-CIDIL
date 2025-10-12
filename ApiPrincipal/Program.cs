@@ -1,6 +1,3 @@
-using System.Net.Mail;
-using Microsoft.AspNetCore.RateLimiting;
-using System.Threading.RateLimiting;
 using ERP.Data.Modelos;
 using Inventario.Abstraccion.Repositorio;
 using Inventario.Abstraccion.Servicios;
@@ -10,24 +7,28 @@ using IoT.Abstraccion.Repositorio;
 using IoT.Abstraccion.Servicios;
 using IoT.Implementaciones.Repositorios;
 using IoT.Implementaciones.Servicios;
-using Microsoft.EntityFrameworkCore;
-using MimeKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using MimeKit;
 using Reservas.Abstraccion.Repositorio;
 using Reservas.Abstraccion.Servicios;
 using Reservas.Implementaciones.Repositorios;
 using Reservas.Implementaciones.Servicios;
 using StackExchange.Redis;
+using System.Net.Mail;
+using System.Text;
+using System.Threading.RateLimiting;
 using Usuarios.Abstraccion.Repositorios;
 using Usuarios.Abstraccion.Servicios;
+using Usuarios.Implementaciones;
 using Usuarios.Implementaciones.Repositorios;
 using Usuarios.Implementaciones.Servicios;
 using Usuarios.Modelos;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -104,7 +105,7 @@ builder.Services.AddScoped<IComentarioServicio, ComentarioServicio>();
 
 
 
-
+builder.Services.AddScoped<IAnuncioServicio, AnuncioServicio>();
 
 //nuevo tambien
 builder.Services.AddScoped<IAnuncioServicio, AnuncioServicio>();
@@ -115,7 +116,7 @@ builder.Services.AddScoped<ICurriculumServicio, CurriculumServicio>();
 //anuncio
 // ✅ Agrega estos registros para solucionar el error
 builder.Services.AddScoped<IAnuncioRepositorio, AnuncioRepositorio>();
-builder.Services.AddScoped<IAnuncioServicio, AnuncioServicio>();
+//builder.Services.AddScoped<IAnuncioServicio, AnuncioServicio>();
 //anuncio
 
 //anuncio
