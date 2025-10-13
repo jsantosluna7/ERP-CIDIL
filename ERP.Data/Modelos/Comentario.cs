@@ -16,12 +16,12 @@ namespace ERP.Data.Modelos
         [MaxLength(500)]
         public string Texto { get; set; } = string.Empty;
 
-        // 🔗 Relación con UsuarioPublico (clave foránea)
+        // 🔗 Relación opcional con UsuarioPublico (clave foránea)
         [Column("usuario_id")]
-        public int UsuarioId { get; set; }
+        public int? UsuarioId { get; set; } // <- ahora nullable
 
         [ForeignKey(nameof(UsuarioId))]
-        public UsuarioPublico Usuario { get; set; } = null!;
+        public UsuarioPublico? Usuario { get; set; } // <- navegación opcional
 
         [Column("fecha")]
         public DateTime Fecha { get; set; } = DateTime.UtcNow;

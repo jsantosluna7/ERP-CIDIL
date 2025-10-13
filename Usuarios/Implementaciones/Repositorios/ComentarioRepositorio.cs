@@ -20,6 +20,8 @@ namespace Usuarios.Implementaciones.Repositorios
         {
             return await _context.Comentarios
                 .Include(c => c.Anuncio)
+                .Include(c => c.Usuario)
+                .OrderByDescending(c => c.Fecha)
                 .ToListAsync();
         }
 
@@ -27,6 +29,7 @@ namespace Usuarios.Implementaciones.Repositorios
         {
             return await _context.Comentarios
                 .Include(c => c.Anuncio)
+                .Include(c => c.Usuario)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
@@ -35,6 +38,8 @@ namespace Usuarios.Implementaciones.Repositorios
             return await _context.Comentarios
                 .Where(c => c.AnuncioId == anuncioId)
                 .Include(c => c.Anuncio)
+                .Include(c => c.Usuario)
+                .OrderByDescending(c => c.Fecha)
                 .ToListAsync();
         }
 
@@ -46,6 +51,7 @@ namespace Usuarios.Implementaciones.Repositorios
         public async Task ActualizarAsync(Comentario comentario)
         {
             _context.Comentarios.Update(comentario);
+            await Task.CompletedTask;
         }
 
         public async Task<bool> EliminarPorIdAsync(int id)

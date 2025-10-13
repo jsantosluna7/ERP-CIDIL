@@ -14,7 +14,7 @@ namespace Usuarios.Implementaciones.Servicios
     {
         private readonly IComentarioRepositorio _repo;
         private readonly IAnuncioRepositorio _anuncioRepo;
-        private readonly IUsuarioPublicoRepositorio _usuarioRepo; // <-- Para validar usuario registrado
+        private readonly IUsuarioPublicoRepositorio _usuarioRepo;
 
         public ComentarioServicio(
             IComentarioRepositorio repo,
@@ -34,8 +34,8 @@ namespace Usuarios.Implementaciones.Servicios
             {
                 Id = c.Id,
                 AnuncioId = c.AnuncioId,
-                UsuarioId = c.UsuarioId,
-                NombreUsuario = c.Usuario?.Nombre,
+                UsuarioId = c.UsuarioId ?? 0, // <- si es null, poner 0
+                NombreUsuario = c.Usuario?.Nombre ?? "Usuario público",
                 Texto = c.Texto,
                 Fecha = c.Fecha,
                 TituloAnuncio = c.Anuncio?.Titulo
@@ -51,8 +51,8 @@ namespace Usuarios.Implementaciones.Servicios
             {
                 Id = comentario.Id,
                 AnuncioId = comentario.AnuncioId,
-                UsuarioId = comentario.UsuarioId,
-                NombreUsuario = comentario.Usuario?.Nombre,
+                UsuarioId = comentario.UsuarioId ?? 0,
+                NombreUsuario = comentario.Usuario?.Nombre ?? "Usuario público",
                 Texto = comentario.Texto,
                 Fecha = comentario.Fecha,
                 TituloAnuncio = comentario.Anuncio?.Titulo
@@ -67,50 +67,46 @@ namespace Usuarios.Implementaciones.Servicios
             {
                 Id = c.Id,
                 AnuncioId = c.AnuncioId,
-                UsuarioId = c.UsuarioId,
-                NombreUsuario = c.Usuario?.Nombre,
+                UsuarioId = c.UsuarioId ?? 0,
+                NombreUsuario = c.Usuario?.Nombre ?? "Usuario público",
                 Texto = c.Texto,
                 Fecha = c.Fecha,
                 TituloAnuncio = c.Anuncio?.Titulo
             }).ToList();
         }
 
-        /// <summary>
-        /// ✅ Devuelve el comentario recién creado, validando que el usuario esté registrado
-        /// </summary>
         public async Task<ComentarioDetalleDTO> CrearAsync(CrearComentarioDTO dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Texto))
                 throw new ArgumentException("El texto del comentario no puede estar vacío.");
 
-            // Validar anuncio
             var anuncio = await _anuncioRepo.ObtenerPorIdAsync(dto.AnuncioId);
             if (anuncio == null)
                 throw new KeyNotFoundException($"No existe un anuncio con Id = {dto.AnuncioId}");
 
-            // Validar usuario
-            var usuario = await _usuarioRepo.ObtenerPorIdAsync(dto.UsuarioId);
+            UsuarioPublico? usuario = await _usuarioRepo.ObtenerPorIdAsync(dto.UsuarioId);
             if (usuario == null)
-                throw new KeyNotFoundException($"No existe un usuario registrado con Id = {dto.UsuarioId}");
+            {
+                usuario = new UsuarioPublico { Id = 0, Nombre = "Usuario público" };
+            }
 
             var comentario = new Comentario
             {
                 AnuncioId = dto.AnuncioId,
-                UsuarioId = dto.UsuarioId,
-                Usuario = usuario, // navegación
-                Texto = dto.Texto,
+                UsuarioId = usuario.Id == 0 ? null : usuario.Id, // <- nullable
+                Usuario = usuario,
+                Texto = dto.Texto.Trim(),
                 Fecha = DateTime.UtcNow
             };
 
             await _repo.CrearAsync(comentario);
             await _repo.GuardarAsync();
 
-            // ✅ Devolver el DTO recién creado
             return new ComentarioDetalleDTO
             {
                 Id = comentario.Id,
                 AnuncioId = comentario.AnuncioId,
-                UsuarioId = comentario.UsuarioId,
+                UsuarioId = comentario.UsuarioId ?? 0,
                 NombreUsuario = usuario.Nombre,
                 Texto = comentario.Texto,
                 Fecha = comentario.Fecha,
@@ -126,7 +122,7 @@ namespace Usuarios.Implementaciones.Servicios
             var comentario = await _repo.ObtenerPorIdAsync(id);
             if (comentario == null) return false;
 
-            comentario.Texto = dto.Texto;
+            comentario.Texto = dto.Texto.Trim();
             await _repo.ActualizarAsync(comentario);
             await _repo.GuardarAsync();
 
