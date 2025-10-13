@@ -3,7 +3,9 @@
     public class LikeDTO
     {
         public int AnuncioId { get; set; }
-        public string Usuario { get; set; } = string.Empty;
+
+        // Puedes enviar el nombre, correo o Id
+        public int? UsuarioId { get; set; }
+        public string? Usuario { get; set; }
     }
 }
-

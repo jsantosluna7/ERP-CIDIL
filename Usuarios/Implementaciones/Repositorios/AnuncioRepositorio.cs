@@ -31,7 +31,9 @@ namespace Usuarios.Implementaciones.Repositorios
         {
             return await _context.Anuncios
                 .Include(a => a.Comentarios)
+                    .ThenInclude(c => c.Usuario) // Cargar UsuarioPublico de cada comentario
                 .Include(a => a.Likes)
+                    .ThenInclude(l => l.Usuario) // Cargar UsuarioPublico de cada like
                 .ToListAsync();
         }
 
@@ -42,7 +44,9 @@ namespace Usuarios.Implementaciones.Repositorios
         {
             return await _context.Anuncios
                 .Include(a => a.Comentarios)
+                    .ThenInclude(c => c.Usuario)
                 .Include(a => a.Likes)
+                    .ThenInclude(l => l.Usuario)
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
 
@@ -91,16 +95,13 @@ namespace Usuarios.Implementaciones.Repositorios
         /// Alterna (añade o quita) un "like" según si el usuario ya lo dio o no.
         /// </summary>
         /// <param name="anuncioId">ID del anuncio</param>
-        /// <param name="usuario">Nombre del usuario (string)</param>
+        /// <param name="usuarioId">ID del usuario público</param>
         /// <returns>True si el like fue añadido, False si fue quitado</returns>
-        public async Task<bool> ToggleLikeAsync(int anuncioId, string usuario)
+        public async Task<bool> ToggleLikeAsync(int anuncioId, int usuarioId)
         {
-            if (string.IsNullOrWhiteSpace(usuario))
-                throw new ArgumentException("El usuario no puede ser nulo o vacío.", nameof(usuario));
-
             // Verifica si el usuario ya dio like
             var likeExistente = await _context.Likes
-                .FirstOrDefaultAsync(l => l.AnuncioId == anuncioId && l.Usuario == usuario);
+                .FirstOrDefaultAsync(l => l.AnuncioId == anuncioId && l.UsuarioId == usuarioId);
 
             if (likeExistente != null)
             {
@@ -114,7 +115,7 @@ namespace Usuarios.Implementaciones.Repositorios
             var nuevoLike = new Like
             {
                 AnuncioId = anuncioId,
-                Usuario = usuario,
+                UsuarioId = usuarioId,
                 Fecha = DateTime.UtcNow
             };
 
@@ -124,3 +125,4 @@ namespace Usuarios.Implementaciones.Repositorios
         }
     }
 }
+

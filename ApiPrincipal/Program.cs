@@ -103,7 +103,10 @@ builder.Services.AddScoped<IServicioReporteFalla, ServicioReporteFalla>();
 builder.Services.AddScoped<IComentarioServicio, ComentarioServicio>();
 
 
+//prueba
+builder.Services.AddScoped<IUsuarioPublicoRepositorio, UsuarioPublicoRepositorio>();
 
+//prueba
 
 builder.Services.AddScoped<IAnuncioServicio, AnuncioServicio>();
 

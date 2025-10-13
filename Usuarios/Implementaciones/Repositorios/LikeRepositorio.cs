@@ -19,22 +19,32 @@ namespace Usuarios.Implementaciones.Repositorios
 
         public async Task<List<Like>> ObtenerTodosAsync()
         {
-            return await _context.Likes.Include(l => l.Anuncio).ToListAsync();
+            return await _context.Likes
+                .Include(l => l.Anuncio)
+                .Include(l => l.Usuario)
+                .ToListAsync();
         }
 
         public async Task<Like?> ObtenerPorIdAsync(int id)
         {
-            return await _context.Likes.Include(l => l.Anuncio)
+            return await _context.Likes
+                .Include(l => l.Anuncio)
+                .Include(l => l.Usuario)
                 .FirstOrDefaultAsync(l => l.Id == id);
         }
 
-        public async Task<Like?> ObtenerPorAnuncioYUsuarioAsync(int anuncioId, string usuario)
+        /// <summary>
+        /// Busca si un usuario (por correo) ya ha dado like a un anuncio.
+        /// </summary>
+        public async Task<Like?> ObtenerPorAnuncioYUsuarioAsync(int anuncioId, string correoUsuario)
         {
             return await _context.Likes
+                .Include(l => l.Usuario)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(l =>
                     l.AnuncioId == anuncioId &&
-                    l.Usuario.ToLower() == usuario.ToLower());
+                    l.Usuario != null &&
+                    l.Usuario.Correo.ToLower() == correoUsuario.ToLower());
         }
 
         public async Task<bool> CrearAsync(Like like)
@@ -54,7 +64,8 @@ namespace Usuarios.Implementaciones.Repositorios
 
         public async Task<int> ContarPorAnuncioAsync(int anuncioId)
         {
-            return await _context.Likes.CountAsync(l => l.AnuncioId == anuncioId);
+            return await _context.Likes
+                .CountAsync(l => l.AnuncioId == anuncioId);
         }
     }
 }

@@ -43,8 +43,8 @@ namespace Usuarios.Abstraccion.Repositorios
         /// Alterna el "like" de un usuario en un anuncio (añadir o quitar).
         /// </summary>
         /// <param name="anuncioId">ID del anuncio</param>
-        /// <param name="usuario">Identificador o nombre del usuario</param>
+        /// <param name="usuarioId">ID del usuario público</param>
         /// <returns>True si el like fue añadido, False si fue quitado</returns>
-        Task<bool> ToggleLikeAsync(int anuncioId, string usuario);
+        Task<bool> ToggleLikeAsync(int anuncioId, int usuarioId);
     }
 }

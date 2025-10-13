@@ -106,14 +106,10 @@ namespace Usuarios.Implementaciones
             return new List<string>();
         }
 
-        // Alternar "like" de un usuario (usando string Usuario)
-        public async Task<bool> ToggleLikeAsync(int anuncioId, string usuario)
+        // Alternar "like" de un usuario usando su Id (int)
+        public async Task<bool> ToggleLikeAsync(int anuncioId, int usuarioId)
         {
-            if (string.IsNullOrWhiteSpace(usuario))
-                throw new ArgumentException("El usuario no puede ser nulo o vacío.", nameof(usuario));
-
-            // Delegamos la lógica al repositorio, que ya maneja crear o eliminar el like
-            var resultado = await _repositorio.ToggleLikeAsync(anuncioId, usuario);
+            var resultado = await _repositorio.ToggleLikeAsync(anuncioId, usuarioId);
             return resultado;
         }
     }

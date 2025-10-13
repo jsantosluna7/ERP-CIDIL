@@ -3,7 +3,10 @@
     public class CrearComentarioDTO
     {
         public int AnuncioId { get; set; }
-        public string Usuario { get; set; } = string.Empty;
+
+        // ID del usuario registrado que comenta
+        public int UsuarioId { get; set; }
+
         public string Texto { get; set; } = string.Empty;
     }
 }

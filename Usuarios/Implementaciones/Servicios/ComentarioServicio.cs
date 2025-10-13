@@ -14,11 +14,16 @@ namespace Usuarios.Implementaciones.Servicios
     {
         private readonly IComentarioRepositorio _repo;
         private readonly IAnuncioRepositorio _anuncioRepo;
+        private readonly IUsuarioPublicoRepositorio _usuarioRepo; // <-- Para validar usuario registrado
 
-        public ComentarioServicio(IComentarioRepositorio repo, IAnuncioRepositorio anuncioRepo)
+        public ComentarioServicio(
+            IComentarioRepositorio repo,
+            IAnuncioRepositorio anuncioRepo,
+            IUsuarioPublicoRepositorio usuarioRepo)
         {
             _repo = repo;
             _anuncioRepo = anuncioRepo;
+            _usuarioRepo = usuarioRepo;
         }
 
         public async Task<List<ComentarioDetalleDTO>> ObtenerTodosAsync()
@@ -29,7 +34,8 @@ namespace Usuarios.Implementaciones.Servicios
             {
                 Id = c.Id,
                 AnuncioId = c.AnuncioId,
-                Usuario = c.Usuario,
+                UsuarioId = c.UsuarioId,
+                NombreUsuario = c.Usuario?.Nombre,
                 Texto = c.Texto,
                 Fecha = c.Fecha,
                 TituloAnuncio = c.Anuncio?.Titulo
@@ -45,7 +51,8 @@ namespace Usuarios.Implementaciones.Servicios
             {
                 Id = comentario.Id,
                 AnuncioId = comentario.AnuncioId,
-                Usuario = comentario.Usuario,
+                UsuarioId = comentario.UsuarioId,
+                NombreUsuario = comentario.Usuario?.Nombre,
                 Texto = comentario.Texto,
                 Fecha = comentario.Fecha,
                 TituloAnuncio = comentario.Anuncio?.Titulo
@@ -60,27 +67,37 @@ namespace Usuarios.Implementaciones.Servicios
             {
                 Id = c.Id,
                 AnuncioId = c.AnuncioId,
-                Usuario = c.Usuario,
+                UsuarioId = c.UsuarioId,
+                NombreUsuario = c.Usuario?.Nombre,
                 Texto = c.Texto,
                 Fecha = c.Fecha,
                 TituloAnuncio = c.Anuncio?.Titulo
             }).ToList();
         }
 
-        // ✅ Devuelve el comentario recién creado
+        /// <summary>
+        /// ✅ Devuelve el comentario recién creado, validando que el usuario esté registrado
+        /// </summary>
         public async Task<ComentarioDetalleDTO> CrearAsync(CrearComentarioDTO dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Texto))
                 throw new ArgumentException("El texto del comentario no puede estar vacío.");
 
+            // Validar anuncio
             var anuncio = await _anuncioRepo.ObtenerPorIdAsync(dto.AnuncioId);
             if (anuncio == null)
                 throw new KeyNotFoundException($"No existe un anuncio con Id = {dto.AnuncioId}");
 
+            // Validar usuario
+            var usuario = await _usuarioRepo.ObtenerPorIdAsync(dto.UsuarioId);
+            if (usuario == null)
+                throw new KeyNotFoundException($"No existe un usuario registrado con Id = {dto.UsuarioId}");
+
             var comentario = new Comentario
             {
                 AnuncioId = dto.AnuncioId,
-                Usuario = dto.Usuario,
+                UsuarioId = dto.UsuarioId,
+                Usuario = usuario, // navegación
                 Texto = dto.Texto,
                 Fecha = DateTime.UtcNow
             };
@@ -93,7 +110,8 @@ namespace Usuarios.Implementaciones.Servicios
             {
                 Id = comentario.Id,
                 AnuncioId = comentario.AnuncioId,
-                Usuario = comentario.Usuario,
+                UsuarioId = comentario.UsuarioId,
+                NombreUsuario = usuario.Nombre,
                 Texto = comentario.Texto,
                 Fecha = comentario.Fecha,
                 TituloAnuncio = anuncio.Titulo
