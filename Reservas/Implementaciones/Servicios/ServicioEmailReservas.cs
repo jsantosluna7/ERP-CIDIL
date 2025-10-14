@@ -206,7 +206,7 @@ namespace Reservas.Implementaciones.Servicios
 
         }
 
-        public async Task EnviarCorreoReservaEquipos(string destinatario)
+        public async Task EnviarCorreoReservaEquipos(string destinatario, string? nombreEquipo, string cantidad, string fechaInicio, string fechaFinal)
         {
             // Cargar la plantilla HTML desde un archivo
             var basePath = AppContext.BaseDirectory;
@@ -216,7 +216,7 @@ namespace Reservas.Implementaciones.Servicios
             var link = $"https://cidilipl.online/home/solicitud-equipo";
 
             // Reemplazar el marcador de posición en la plantilla con el OTP
-            string html = htmlTemplate.Replace("{{FRONTEND_RESERVA_URL}}", link);
+            string html = htmlTemplate.Replace("{{NOMBRE_EQUIPO}}", nombreEquipo).Replace("{{CANTIDAD}}", cantidad).Replace("{{FECHA_INICIO}}", fechaInicio).Replace("{{FECHA_FINAL}}", fechaFinal).Replace("{{FRONTEND_RESERVA_URL}}", link);
 
             // Configuración del cliente SMTP
             var mensaje = new MailMessage
@@ -255,7 +255,7 @@ namespace Reservas.Implementaciones.Servicios
 
         }
 
-        public async Task EnviarCorreoAprobacionEquipos(string destinatario, string nombreUsuario, string apellidoUsuario, string fechaReserva, string fechaEntrega, string fechaFin)
+        public async Task EnviarCorreoAprobacionEquipos(string destinatario, string nombreUsuario, string cantidad, string apellidoUsuario, string? nombreEquipo, string fechaInicio, string fechaFinal)
         {
             // Cargar la plantilla HTML desde un archivo
             var basePath = AppContext.BaseDirectory;
@@ -263,7 +263,7 @@ namespace Reservas.Implementaciones.Servicios
             string htmlTemplate = File.ReadAllText(templatePath);
 
             // Reemplazar el marcador de posición en la plantilla con el OTP
-            var html = htmlTemplate.Replace("{{NOMBRE_USUARIO}}", nombreUsuario).Replace("{{APELLIDO_USUARIO}}", apellidoUsuario).Replace("{{FECHA_RESERVA}}", fechaReserva).Replace("{{HORA_INICIO}}", fechaEntrega).Replace("{{HORA_FIN}}", fechaFin);
+            var html = htmlTemplate.Replace("{{NOMBRE_USUARIO}}", nombreUsuario).Replace("{{APELLIDO_USUARIO}}", apellidoUsuario).Replace("{{NOMBRE_EQUIPO}}", nombreEquipo).Replace("{{CANTIDAD}}", cantidad).Replace("{{FECHA_INICIO}}", fechaInicio).Replace("{{FECHA_FINAL}}", fechaFinal);
 
             // Configuración del cliente SMTP
             var mensaje = new MailMessage
@@ -302,7 +302,7 @@ namespace Reservas.Implementaciones.Servicios
 
         }
 
-        public async Task EnviarCorreoRechazoEquipos(string destinatario, string nombreUsuario, string apellidoUsuario, string fechaReserva, string motivo_rechazo, string fechaEntrega, string fechaFin)
+        public async Task EnviarCorreoRechazoEquipos(string destinatario, string nombreUsuario, string cantidad, string apellidoUsuario, string? nombreEquipo, string motivo_rechazo, string fechaInicio, string fechaFinal)
         {
             // Cargar la plantilla HTML desde un archivo
             var basePath = AppContext.BaseDirectory;
@@ -310,7 +310,7 @@ namespace Reservas.Implementaciones.Servicios
             string htmlTemplate = File.ReadAllText(templatePath);
 
             // Reemplazar el marcador de posición en la plantilla con el OTP
-            var html = htmlTemplate.Replace("{{NOMBRE_USUARIO}}", nombreUsuario).Replace("{{APELLIDO_USUARIO}}", apellidoUsuario).Replace("{{FECHA_RESERVA}}", fechaReserva).Replace("{{MOTIVO_RECHAZO}}", motivo_rechazo).Replace("{{HORA_INICIO}}", fechaEntrega).Replace("{{HORA_FIN}}", fechaFin);
+            var html = htmlTemplate.Replace("{{NOMBRE_USUARIO}}", nombreUsuario).Replace("{{APELLIDO_USUARIO}}", apellidoUsuario).Replace("{{NOMBRE_EQUIPO}}", nombreEquipo).Replace("{{CANTIDAD}}", cantidad).Replace("{{MOTIVO_RECHAZO}}", motivo_rechazo).Replace("{{FECHA_INICIO}}", fechaInicio).Replace("{{FECHA_FINAL}}", fechaFinal);
 
             // Configuración del cliente SMTP
             var mensaje = new MailMessage

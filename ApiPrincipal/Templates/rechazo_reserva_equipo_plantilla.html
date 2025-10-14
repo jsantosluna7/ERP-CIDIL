@@ -1,92 +1,87 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Reserva de Equipo Rechazada</title>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        background: #f4f6f8;
-        margin: 0;
-        padding: 0;
-      }
-      .container {
-        max-width: 480px;
-        background: white;
-        margin: 40px auto;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        border: 1px solid #ddd;
-        overflow: hidden;
-      }
-      .header {
-        background-color: #d32f2f;
-        color: white;
-        text-align: center;
-        padding: 20px 15px;
-        font-size: 22px;
-        font-weight: bold;
-      }
-      .content {
-        padding: 25px 20px;
-        color: #333;
-        font-size: 15px;
-        line-height: 1.5;
-      }
-      .motivo {
-        background: #fbe9e7;
-        border-left: 4px solid #d32f2f;
-        padding: 15px;
-        margin: 20px 0;
-        border-radius: 4px;
-        color: #444;
-        font-size: 14px;
-      }
-      .motivo strong {
-        display: block;
-        margin-bottom: 6px;
-        color: #d32f2f;
-      }
-      .footer {
-        background-color: #f4f6f8;
-        font-size: 12px;
-        color: #888;
-        text-align: center;
-        padding: 15px 10px;
-      }
-      @media screen and (max-width: 520px) {
-        .container {
-          margin: 20px 10px;
-          width: auto !important;
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 0;
         }
-      }
+
+        .container {
+            max-width: 480px;
+            background: white;
+            margin: 40px auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #ddd;
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #d32f2f;
+            color: white;
+            text-align: center;
+            padding: 20px 15px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 25px 20px;
+            color: #333;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .motivo {
+            background: #fbe9e7;
+            border-left: 4px solid #d32f2f;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            color: #444;
+            font-size: 14px;
+        }
+
+            .motivo strong {
+                display: block;
+                margin-bottom: 6px;
+                color: #d32f2f;
+            }
+
+        .footer {
+            background-color: #f4f6f8;
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+            padding: 15px 10px;
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
-      <div class="header">Reserva de Equipo Rechazada</div>
-      <div class="content">
-        <p>Hola <strong>{{NOMBRE_USUARIO}} {{APELLIDO_USUARIO}}</strong>,</p>
-        <p>
-          Tu solicitud de reserva para el equipo
-          <strong>{{NOMBRE_EQUIPO}}</strong>, realizada el
-          <strong>{{FECHA_SOLICITUD}}</strong>, con uso para el
-          <strong>{{FECHA_RESERVA}}</strong> de
-          <strong>{{HORA_INICIO}}</strong> a <strong>{{HORA_FIN}}</strong>, ha
-          sido <span style="color: #d32f2f; font-weight: bold">rechazada</span>.
-        </p>
+        <div class="header">Reserva de Equipo Rechazada</div>
+        <div class="content">
+            <p>Hola <strong>{{NOMBRE_USUARIO}} {{APELLIDO_USUARIO}}</strong>,</p>
+            <p>
+                Tu solicitud de reserva para el equipo <strong>{{NOMBRE_EQUIPO}}</strong>, cantidad <strong>{{CANTIDAD}}</strong>, con fecha de uso desde
+                <strong>{{FECHA_INICIO}}</strong> hasta <strong>{{FECHA_FINAL}}</strong>, ha sido
+                <span style="color: #d32f2f; font-weight: bold;">rechazada</span>.
+            </p>
 
-        <div class="motivo">
-          <strong>Motivo del rechazo:</strong>
-          <p>{{MOTIVO_RECHAZO}}</p>
+            <div class="motivo">
+                <strong>Motivo del rechazo:</strong>
+                <p>{{MOTIVO_RECHAZO}}</p>
+            </div>
+
+            <p>Si tienes dudas, contacta al administrador o al área de soporte.</p>
         </div>
-
-        <p>Si tienes dudas o deseas realizar otra solicitud, contacta a nuestras oficinas.</p>
-      </div>
-      <div class="footer">
-        &copy; 2025 ERP CIDIL. Todos los derechos reservados.
-      </div>
+        <div class="footer">&copy; 2025 ERP CIDIL. Todos los derechos reservados.</div>
     </div>
-  </body>
+</body>
 </html>

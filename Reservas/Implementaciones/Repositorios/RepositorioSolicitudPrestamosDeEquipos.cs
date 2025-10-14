@@ -1,6 +1,7 @@
 ﻿using ERP.Data.Modelos;
 using Microsoft.EntityFrameworkCore;
 using Reservas.Abstraccion.Repositorio;
+using Reservas.DTO.DTOPrestamosEquipo;
 using Reservas.DTO.DTOSolicitudDeEquipos;
 using Reservas.Implementaciones.Servicios;
 
@@ -63,13 +64,32 @@ namespace Reservas.Implementaciones.Repositorios
                 Cantidad = crearSolicitudPrestamosDeEquiposDTO.Cantidad,
             };
 
-            var roles = new int?[] { 1,2 }; //Roles de administrador y superusuario.
+            //Convertirmos la fecha UTC a OFFSET
+            string fechaInicio = crearReservas.FechaInicio.ToString();
+            string fechaFinal = crearReservas.FechaFinal.ToString();
+
+            //Se parcea la fecha para que incluya la zona  horaria
+            DateTimeOffset dtoInicio = DateTimeOffset.Parse(fechaInicio);
+            DateTimeOffset dtoFinal = DateTimeOffset.Parse(fechaFinal);
+
+            //Ahora la hora local
+            DateTime fechaLocalInicio = dtoInicio.LocalDateTime;
+            DateTime fechaLocalFinal = dtoFinal.LocalDateTime;
+
+            //Formateamos personalizadamente
+
+            string fechaFormateadaInicio = fechaLocalInicio.ToString("dd/MM/yyyy h:mm tt");
+            string fechaFormateadaFinal = fechaLocalFinal.ToString("dd/MM/yyyy h:mm tt");
+
+            var roles = new int?[] { 1 }; //Roles de administrador y superusuario.
 
             var usuario = await _context.Usuarios.Where(u => roles.Contains(u.IdRol)).ToListAsync();
+            var inventario = await _context.InventarioEquipos.Where(i => i.Id == crearReservas.IdInventario).FirstOrDefaultAsync();
+
 
             foreach (var usuarios in usuario)
             {
-                await _servicioEmail.EnviarCorreoReservaEquipos(usuarios.CorreoInstitucional); //Agregar la url que porque el usuario aprobador podra acceder al id de la solicitud
+                await _servicioEmail.EnviarCorreoReservaEquipos(usuarios.CorreoInstitucional, inventario.Nombre, crearReservas.Cantidad.ToString(),fechaFormateadaInicio, fechaFormateadaFinal); //Agregar la url que porque el usuario aprobador podra acceder al id de la solicitud
             }
 
             _context.SolicitudPrestamosDeEquipos.Add(crearReservas);
