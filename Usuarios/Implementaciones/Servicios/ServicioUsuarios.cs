@@ -202,5 +202,19 @@ namespace Usuarios.Implementaciones.Servicios
             await _repositorioUsuario.desactivarUsuario(id);
             return true;
         }
+
+        public async Task<Resultado<List<Usuario>>> BuscarUsuario(string termino, string filtro)
+        {
+            var resultado = await _repositorioUsuario.BuscarUsuario(termino, filtro);
+
+            if (!resultado.esExitoso)
+            {
+                return Resultado<List<Usuario>>.Falla(resultado.MensajeError ?? "Error en la búsqueda de usuarios.");
+            }
+
+            var usuarios = resultado.Valor!;
+
+            return Resultado<List<Usuario>>.Exito(usuarios);
+        }
     }
 }

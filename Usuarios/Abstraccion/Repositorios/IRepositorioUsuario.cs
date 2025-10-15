@@ -7,6 +7,7 @@ namespace Usuarios.Abstraccion.Repositorios
     public interface IRepositorioUsuario
     {
         Task<Usuario?> actualizarUsuario(int id, ActualizarUsuarioDTO actualizarUsuarioDTO);
+        Task<Resultado<List<Usuario>>> BuscarUsuario(string termino, string filtro);
         Task<bool?> desactivarUsuario(int id);
 
         //Usuario crearUsuario(UsuarioDTO usuarioDTO);

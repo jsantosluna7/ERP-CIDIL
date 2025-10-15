@@ -7,6 +7,7 @@ namespace Usuarios.Abstraccion.Servicios
     public interface IServicioUsuarios
     {
         Task<ActualizarUsuarioDTO?> actualizarUsuario(int id, ActualizarUsuarioDTO actualizarUsuarioDTO);
+        Task<Resultado<List<Usuario>>> BuscarUsuario(string termino, string filtro);
         Task<bool?> desactivarUsuario(int id);
         Task<bool?> eliminarUsuario(int id);
         Task<Usuario?> ObtenerUsuarioPorId(int id);

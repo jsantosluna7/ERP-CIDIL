@@ -135,7 +135,7 @@ namespace Inventario.Implementaciones.Repositorios
         {
             if (string.IsNullOrWhiteSpace(nombre))
             {
-                return Resultado<List<InventarioEquipo>>.Falla("El nombre no puede estar vacío.");
+                return Resultado<List<InventarioEquipo>>.Falla("El campo de búsqueda no debe estar vacío.");
             }
 
             var resultados = await _context.InventarioEquipos

@@ -4,6 +4,7 @@ using Usuarios.Abstraccion.Repositorios;
 using Usuarios.DTO.LoginDTO;
 using Usuarios.DTO.UsuarioDTO;
 using Usuarios.Modelos;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Usuarios.Implementaciones.Repositorios
 {
@@ -153,6 +154,46 @@ namespace Usuarios.Implementaciones.Repositorios
             _context.Update(usuario);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<Resultado<List<Usuario>>> BuscarUsuario(string termino, string filtro) {
+            if (string.IsNullOrEmpty(termino))
+            {
+                return Resultado<List<Usuario>>.Falla("El campo de búsqueda no debe estar vacío.");
+            }
+
+            if (string.IsNullOrEmpty(filtro))
+            {
+                return Resultado<List<Usuario>>.Falla("Debe dar un tipo de filtro, no debe estar vacío.");
+            }
+
+            IQueryable<Usuario> query = _context.Usuarios;
+
+            switch (filtro.ToLower())
+            {
+                case "nombre":
+                    query = query.Where(e => e.NombreUsuario != null && EF.Functions.ILike(e.NombreUsuario, $"%{termino}%") && e.Activado == true);
+                    break;
+                case "apellido":
+                    query = query.Where(e => e.ApellidoUsuario != null && EF.Functions.ILike(e.ApellidoUsuario, $"%{termino}%") && e.Activado == true);
+                    break;
+                case "matricula":
+                    query = query.Where(e => e.IdMatricula.ToString() != null && EF.Functions.ILike(e.IdMatricula.ToString(), $"%{termino}%") && e.Activado == true);
+                    break;
+                case "email":
+                    query = query.Where(e => e.CorreoInstitucional != null && EF.Functions.ILike(e.CorreoInstitucional, $"%{termino}%") && e.Activado == true);
+                    break;
+                case "rol":
+                    query = query.Where(e => e.IdRol.ToString() != null && EF.Functions.ILike(e.IdRol.ToString(), $"%{termino}%") && e.Activado == true);
+                    break;
+            }
+
+            var resultado = await query.ToListAsync();
+            if(resultado == null || resultado.Count == 0)
+            {
+                return Resultado<List<Usuario>>.Falla("No se encontraron usuarios con el termino y/o filtro seleccionado.");
+            }
+            return Resultado<List<Usuario>>.Exito(resultado);
         }
 
     }

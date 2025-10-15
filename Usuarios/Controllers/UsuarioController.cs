@@ -125,6 +125,20 @@ namespace Usuarios.Controllers
             return Ok(usuario);
         }
 
+        [Authorize]
+        [HttpGet("buscar")]
+        public async Task<IActionResult> BuscarUsuario([FromQuery] string termino, [FromQuery] string filtro)
+        {
+            var resultado = await _servicioUsuarios.BuscarUsuario(termino, filtro);
+
+            if (!resultado.esExitoso)
+            {
+                return BadRequest(new { error = resultado.MensajeError });
+            }
+
+            return Ok(resultado.Valor);
+        }
+
         //[HttpPost]
         //public IActionResult CrearUsuario([FromBody] UsuarioDTO usuarioDTO)
         //{
