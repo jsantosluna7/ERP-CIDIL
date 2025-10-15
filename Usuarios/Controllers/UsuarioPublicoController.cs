@@ -16,8 +16,8 @@ namespace ERP.Api.Controllers
             _context = context;
         }
 
-        // DTO para registrar un nuevo usuario público
-        public class CrearUsuarioPublicoDTO
+        // ✅ DTO para registrar o iniciar sesión
+        public class UsuarioPublicoDTO
         {
             [Required(ErrorMessage = "El nombre es obligatorio.")]
             public string Nombre { get; set; } = string.Empty;
@@ -27,19 +27,20 @@ namespace ERP.Api.Controllers
             public string Correo { get; set; } = string.Empty;
         }
 
+        // ✅ REGISTRAR USUARIO
         // POST: api/UsuarioPublico/registrar
         [HttpPost("registrar")]
-        public async Task<IActionResult> Registrar([FromBody] CrearUsuarioPublicoDTO dto)
+        public async Task<IActionResult> Registrar([FromBody] UsuarioPublicoDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             // Verificar si ya existe un usuario con el mismo correo
             var existente = await _context.UsuarioPublicos
-                .FirstOrDefaultAsync(u => u.Correo == dto.Correo);
+                .FirstOrDefaultAsync(u => u.Correo.ToLower() == dto.Correo.ToLower());
 
             if (existente != null)
-                return BadRequest($"Ya existe un usuario registrado con el correo {dto.Correo}.");
+                return Conflict(new { mensaje = $"El correo {dto.Correo} ya está registrado." });
 
             var usuario = new UsuarioPublico
             {
@@ -61,6 +62,40 @@ namespace ERP.Api.Controllers
             });
         }
 
+        // ✅ LOGIN USUARIO
+        // POST: api/UsuarioPublico/login
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UsuarioPublicoDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // Buscar usuario por correo
+            var usuario = await _context.UsuarioPublicos
+                .FirstOrDefaultAsync(u => u.Correo.ToLower() == dto.Correo.ToLower());
+
+            if (usuario == null)
+            {
+                return NotFound(new { mensaje = "Usuario no encontrado. Por favor, regístrate primero." });
+            }
+
+            // Validar nombre (opcional, pero recomendable)
+            if (!string.Equals(usuario.Nombre, dto.Nombre, StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest(new { mensaje = "El nombre no coincide con el correo." });
+            }
+
+            // Retornar usuario existente
+            return Ok(new
+            {
+                mensaje = "Inicio de sesión exitoso.",
+                usuario.Id,
+                usuario.Nombre,
+                usuario.Correo
+            });
+        }
+
+        // ✅ OBTENER USUARIO POR ID
         // GET: api/UsuarioPublico/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> Obtener(int id)
