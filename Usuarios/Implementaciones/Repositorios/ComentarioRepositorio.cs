@@ -46,12 +46,13 @@ namespace Usuarios.Implementaciones.Repositorios
         public async Task CrearAsync(Comentario comentario)
         {
             await _context.Comentarios.AddAsync(comentario);
+            await _context.SaveChangesAsync(); // ✅ Guarda automáticamente
         }
 
         public async Task ActualizarAsync(Comentario comentario)
         {
             _context.Comentarios.Update(comentario);
-            await Task.CompletedTask;
+            await _context.SaveChangesAsync(); // ✅ Guarda automáticamente
         }
 
         public async Task<bool> EliminarPorIdAsync(int id)
@@ -60,12 +61,23 @@ namespace Usuarios.Implementaciones.Repositorios
             if (comentario == null) return false;
 
             _context.Comentarios.Remove(comentario);
+            await _context.SaveChangesAsync(); // ✅ Guarda automáticamente
             return true;
         }
 
         public async Task GuardarAsync()
         {
             await _context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Devuelve un IQueryable para consultas personalizadas
+        /// </summary>
+        public IQueryable<Comentario> ObtenerQueryable()
+        {
+            return _context.Comentarios
+                .Include(c => c.Usuario)
+                .Include(c => c.Anuncio);
         }
     }
 }

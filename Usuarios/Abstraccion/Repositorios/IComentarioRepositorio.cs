@@ -1,5 +1,6 @@
 ﻿using ERP.Data.Modelos;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Usuarios.Abstraccion.Repositorios
@@ -13,5 +14,8 @@ namespace Usuarios.Abstraccion.Repositorios
         Task ActualizarAsync(Comentario comentario);
         Task<bool> EliminarPorIdAsync(int id);
         Task GuardarAsync();
+
+        // ✅ Nuevo método para consultas personalizadas
+        IQueryable<Comentario> ObtenerQueryable();
     }
 }

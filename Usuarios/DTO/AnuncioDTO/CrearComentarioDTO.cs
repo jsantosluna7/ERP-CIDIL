@@ -7,6 +7,10 @@
         // ID del usuario registrado que comenta
         public int UsuarioId { get; set; }
 
+        // 🔑 CORRECCIÓN: Se añade la propiedad NombreUsuario para que el backend 
+        // pueda recibir y guardar el dato que envía la aplicación de Angular.
+        public string? NombreUsuario { get; set; }
+
         public string Texto { get; set; } = string.Empty;
     }
 }

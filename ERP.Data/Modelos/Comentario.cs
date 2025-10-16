@@ -16,17 +16,23 @@ namespace ERP.Data.Modelos
         [MaxLength(500)]
         public string Texto { get; set; } = string.Empty;
 
-        // 🔗 Relación opcional con UsuarioPublico (clave foránea)
-        [Column("usuario_id")]
-        public int? UsuarioId { get; set; } // <- ahora nullable
-
-        [ForeignKey(nameof(UsuarioId))]
-        public UsuarioPublico? Usuario { get; set; } // <- navegación opcional
-
         [Column("fecha")]
         public DateTime Fecha { get; set; } = DateTime.UtcNow;
 
-        // 🔗 Relación con Anuncio (clave foránea)
+        // 🔑 CORRECCIÓN CRÍTICA: Se añade la propiedad para guardar el nombre de usuario
+        // Mapea al campo 'usuario' (o similar) que debe existir en la tabla 'comentarios'
+        [Column("usuario")] // Ajusta este nombre si la columna se llama diferente, ej: 'nombre_usuario'
+        [MaxLength(150)]
+        public string? NombreUsuario { get; set; }
+
+        // ✅ Relación con UsuarioPublico (no debe ser null si existe)
+        [Column("usuario_id")]
+        public int UsuarioId { get; set; }
+
+        [ForeignKey(nameof(UsuarioId))]
+        public UsuarioPublico Usuario { get; set; } = null!;
+
+        // ✅ Relación con Anuncio
         [Column("anuncio_id")]
         public int AnuncioId { get; set; }
 

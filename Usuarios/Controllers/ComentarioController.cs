@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Usuarios.Abstraccion.Servicios;
 using Usuarios.DTO.AnuncioDTO;
@@ -18,7 +19,7 @@ namespace Usuarios.Controllers
             _comentarioServicio = comentarioServicio;
         }
 
-        // 🔹 Obtener todos los comentarios
+        // ✅ Obtener todos los comentarios (opcional)
         [HttpGet]
         public async Task<IActionResult> ObtenerComentarios()
         {
@@ -26,7 +27,7 @@ namespace Usuarios.Controllers
             return Ok(comentarios);
         }
 
-        // 🔹 Obtener comentarios por anuncio
+        // ✅ Obtener comentarios por anuncio
         [HttpGet("anuncio/{anuncioId}")]
         public async Task<IActionResult> ObtenerComentariosPorAnuncio(int anuncioId)
         {
@@ -34,7 +35,7 @@ namespace Usuarios.Controllers
             return Ok(comentarios);
         }
 
-        // 🔹 Crear comentario (devuelve el creado con ID)
+        // ✅ Crear comentario (devuelve con el usuario incluido)
         [HttpPost]
         public async Task<IActionResult> CrearComentario([FromBody] CrearComentarioDTO dto)
         {
@@ -43,8 +44,12 @@ namespace Usuarios.Controllers
 
             try
             {
-                var nuevoComentario = await _comentarioServicio.CrearAsync(dto); // ✅ ya devuelve un objeto
-                return Ok(nuevoComentario); // ✅ sin error de tipo
+                var comentarioCreado = await _comentarioServicio.CrearAsync(dto);
+
+                if (comentarioCreado == null)
+                    return StatusCode(500, new { error = "No se pudo crear el comentario." });
+
+                return Ok(comentarioCreado);
             }
             catch (KeyNotFoundException ex)
             {
@@ -60,7 +65,6 @@ namespace Usuarios.Controllers
             }
         }
 
-        // 🔹 Actualizar comentario
         [HttpPut("{id}")]
         public async Task<IActionResult> ActualizarComentario(int id, [FromBody] ActualizarComentarioDTO dto)
         {
@@ -74,7 +78,6 @@ namespace Usuarios.Controllers
             return Ok("Comentario actualizado correctamente.");
         }
 
-        // 🔹 Eliminar comentario
         [HttpDelete("{id}")]
         public async Task<IActionResult> EliminarComentario(int id)
         {

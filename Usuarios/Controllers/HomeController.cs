@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Usuarios.Abstraccion.Servicios;
 using Usuarios.DTO;
@@ -20,11 +21,16 @@ namespace Usuarios.Controllers
             _anuncioServicio = anuncioServicio ?? throw new ArgumentNullException(nameof(anuncioServicio));
         }
 
+        // ✅ Obtener todos los anuncios con comentarios, likes y usuario
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> ObtenerAnuncios([FromQuery] bool? esPasantia)
         {
             var anuncios = await _anuncioServicio.ObtenerTodosAsync(esPasantia);
+
+            if (anuncios == null || !anuncios.Any())
+                return Ok(Array.Empty<object>());
+
             return Ok(anuncios);
         }
 
@@ -60,7 +66,6 @@ namespace Usuarios.Controllers
                 };
 
                 await _anuncioServicio.CrearAsync(anuncio);
-
                 return Ok(new { mensaje = "Anuncio creado correctamente.", anuncio });
             }
             catch (Exception ex)
@@ -73,10 +78,12 @@ namespace Usuarios.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> ActualizarAnuncio(int id, [FromForm] ActualizarAnuncioDTO dto)
         {
-            if (dto == null) return BadRequest(new { error = "Los datos del anuncio no pueden estar vacíos." });
+            if (dto == null)
+                return BadRequest(new { error = "Los datos del anuncio no pueden estar vacíos." });
 
             var anuncioExistente = await _anuncioServicio.ObtenerPorIdAsync(id);
-            if (anuncioExistente == null) return NotFound(new { error = $"No se encontró el anuncio con ID {id}." });
+            if (anuncioExistente == null)
+                return NotFound(new { error = $"No se encontró el anuncio con ID {id}." });
 
             string nuevaUrlImagen = anuncioExistente.ImagenUrl;
 
@@ -101,7 +108,8 @@ namespace Usuarios.Controllers
             dto.ImagenUrl = nuevaUrlImagen;
             var actualizado = await _anuncioServicio.ActualizarAsync(id, dto);
 
-            if (!actualizado) return StatusCode(500, new { error = "No se pudo actualizar el anuncio." });
+            if (!actualizado)
+                return StatusCode(500, new { error = "No se pudo actualizar el anuncio." });
 
             return Ok(new { mensaje = "Anuncio actualizado correctamente.", anuncio = dto });
         }
@@ -111,7 +119,8 @@ namespace Usuarios.Controllers
         public async Task<IActionResult> EliminarAnuncio(int id)
         {
             var eliminado = await _anuncioServicio.EliminarAsync(id);
-            if (!eliminado) return NotFound(new { error = $"No se encontró el anuncio con ID {id}." });
+            if (!eliminado)
+                return NotFound(new { error = $"No se encontró el anuncio con ID {id}." });
 
             return Ok(new { mensaje = "Anuncio eliminado correctamente." });
         }
@@ -121,8 +130,11 @@ namespace Usuarios.Controllers
         public async Task<IActionResult> VerCurriculums(int id)
         {
             var anuncio = await _anuncioServicio.ObtenerPorIdAsync(id);
-            if (anuncio == null) return NotFound(new { error = "Anuncio no encontrado." });
-            if (!anuncio.EsPasantia) return Ok(new { mensaje = "Este anuncio no es de pasantía.", curriculums = Array.Empty<object>() });
+            if (anuncio == null)
+                return NotFound(new { error = "Anuncio no encontrado." });
+
+            if (!anuncio.EsPasantia)
+                return Ok(new { mensaje = "Este anuncio no es de pasantía.", curriculums = Array.Empty<object>() });
 
             var curriculums = await _anuncioServicio.ObtenerCurriculumsAsync(id);
             return Ok(curriculums);

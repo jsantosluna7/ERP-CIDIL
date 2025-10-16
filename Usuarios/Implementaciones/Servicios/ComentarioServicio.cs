@@ -1,4 +1,5 @@
 ﻿using ERP.Data.Modelos;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,11 +22,12 @@ namespace Usuarios.Implementaciones.Servicios
             IAnuncioRepositorio anuncioRepo,
             IUsuarioPublicoRepositorio usuarioRepo)
         {
-            _repo = repo;
-            _anuncioRepo = anuncioRepo;
-            _usuarioRepo = usuarioRepo;
+            _repo = repo ?? throw new ArgumentNullException(nameof(repo));
+            _anuncioRepo = anuncioRepo ?? throw new ArgumentNullException(nameof(anuncioRepo));
+            _usuarioRepo = usuarioRepo ?? throw new ArgumentNullException(nameof(usuarioRepo));
         }
 
+        // 🔹 Obtener todos los comentarios (incluye Usuario y Anuncio)
         public async Task<List<ComentarioDetalleDTO>> ObtenerTodosAsync()
         {
             var comentarios = await _repo.ObtenerTodosAsync();
@@ -34,14 +36,16 @@ namespace Usuarios.Implementaciones.Servicios
             {
                 Id = c.Id,
                 AnuncioId = c.AnuncioId,
-                UsuarioId = c.UsuarioId ?? 0, // <- si es null, poner 0
-                NombreUsuario = c.Usuario?.Nombre ?? "Usuario público",
+                UsuarioId = c.UsuarioId, // ✅ No usar ?? si es int
+                // 💡 Al obtener, priorizar el campo guardado 'NombreUsuario' o usar la relación si existe
+                NombreUsuario = c.NombreUsuario ?? (c.Usuario != null ? c.Usuario.Nombre : "Usuario desconocido"),
                 Texto = c.Texto,
                 Fecha = c.Fecha,
-                TituloAnuncio = c.Anuncio?.Titulo
+                TituloAnuncio = c.Anuncio?.Titulo ?? string.Empty
             }).ToList();
         }
 
+        // 🔹 Obtener comentario por Id
         public async Task<ComentarioDetalleDTO?> ObtenerPorIdAsync(int id)
         {
             var comentario = await _repo.ObtenerPorIdAsync(id);
@@ -51,14 +55,16 @@ namespace Usuarios.Implementaciones.Servicios
             {
                 Id = comentario.Id,
                 AnuncioId = comentario.AnuncioId,
-                UsuarioId = comentario.UsuarioId ?? 0,
-                NombreUsuario = comentario.Usuario?.Nombre ?? "Usuario público",
+                UsuarioId = comentario.UsuarioId, // ✅ No usar ?? si es int
+                // 💡 Al obtener, priorizar el campo guardado 'NombreUsuario' o usar la relación si existe
+                NombreUsuario = comentario.NombreUsuario ?? (comentario.Usuario != null ? comentario.Usuario.Nombre : "Usuario desconocido"),
                 Texto = comentario.Texto,
                 Fecha = comentario.Fecha,
-                TituloAnuncio = comentario.Anuncio?.Titulo
+                TituloAnuncio = comentario.Anuncio?.Titulo ?? string.Empty
             };
         }
 
+        // 🔹 Obtener comentarios por anuncio
         public async Task<List<ComentarioDetalleDTO>> ObtenerPorAnuncioIdAsync(int anuncioId)
         {
             var comentarios = await _repo.ObtenerPorAnuncioAsync(anuncioId);
@@ -67,14 +73,16 @@ namespace Usuarios.Implementaciones.Servicios
             {
                 Id = c.Id,
                 AnuncioId = c.AnuncioId,
-                UsuarioId = c.UsuarioId ?? 0,
-                NombreUsuario = c.Usuario?.Nombre ?? "Usuario público",
+                UsuarioId = c.UsuarioId, // ✅ No usar ?? si es int
+                // 💡 Al obtener, priorizar el campo guardado 'NombreUsuario' o usar la relación si existe
+                NombreUsuario = c.NombreUsuario ?? (c.Usuario != null ? c.Usuario.Nombre : "Usuario desconocido"),
                 Texto = c.Texto,
                 Fecha = c.Fecha,
-                TituloAnuncio = c.Anuncio?.Titulo
+                TituloAnuncio = c.Anuncio?.Titulo ?? string.Empty
             }).ToList();
         }
 
+        // 🔹 Crear comentario
         public async Task<ComentarioDetalleDTO> CrearAsync(CrearComentarioDTO dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Texto))
@@ -84,36 +92,47 @@ namespace Usuarios.Implementaciones.Servicios
             if (anuncio == null)
                 throw new KeyNotFoundException($"No existe un anuncio con Id = {dto.AnuncioId}");
 
-            UsuarioPublico? usuario = await _usuarioRepo.ObtenerPorIdAsync(dto.UsuarioId);
+            var usuario = await _usuarioRepo.ObtenerPorIdAsync(dto.UsuarioId);
             if (usuario == null)
-            {
-                usuario = new UsuarioPublico { Id = 0, Nombre = "Usuario público" };
-            }
+                throw new KeyNotFoundException($"No existe un usuario con Id = {dto.UsuarioId}");
 
             var comentario = new Comentario
             {
                 AnuncioId = dto.AnuncioId,
-                UsuarioId = usuario.Id == 0 ? null : usuario.Id, // <- nullable
-                Usuario = usuario,
+                UsuarioId = usuario.Id, // ✅ int normal
                 Texto = dto.Texto.Trim(),
+                // 🔑 CORRECCIÓN APLICADA: Se asigna el NombreUsuario desde el DTO
+                NombreUsuario = dto.NombreUsuario,
                 Fecha = DateTime.UtcNow
             };
 
             await _repo.CrearAsync(comentario);
             await _repo.GuardarAsync();
 
+            // --- Recuperar el comentario con las relaciones (para devolver al frontend) ---
+            var comentarioConRelaciones = await _repo
+                .ObtenerQueryable()
+                .Include(c => c.Usuario)
+                .Include(c => c.Anuncio)
+                .FirstOrDefaultAsync(c => c.Id == comentario.Id);
+
+            if (comentarioConRelaciones == null)
+                throw new Exception("Error al recuperar el comentario creado.");
+
             return new ComentarioDetalleDTO
             {
-                Id = comentario.Id,
-                AnuncioId = comentario.AnuncioId,
-                UsuarioId = comentario.UsuarioId ?? 0,
-                NombreUsuario = usuario.Nombre,
-                Texto = comentario.Texto,
-                Fecha = comentario.Fecha,
-                TituloAnuncio = anuncio.Titulo
+                Id = comentarioConRelaciones.Id,
+                AnuncioId = comentarioConRelaciones.AnuncioId,
+                UsuarioId = comentarioConRelaciones.UsuarioId, // ✅ int normal
+                // 💡 Al devolver, se usa el campo NombreUsuario que acabamos de guardar
+                NombreUsuario = comentarioConRelaciones.NombreUsuario ?? "Usuario desconocido",
+                Texto = comentarioConRelaciones.Texto,
+                Fecha = comentarioConRelaciones.Fecha,
+                TituloAnuncio = comentarioConRelaciones.Anuncio?.Titulo ?? string.Empty
             };
         }
 
+        // 🔹 Actualizar comentario
         public async Task<bool> ActualizarAsync(int id, ActualizarComentarioDTO dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Texto))
@@ -129,6 +148,7 @@ namespace Usuarios.Implementaciones.Servicios
             return true;
         }
 
+        // 🔹 Eliminar comentario
         public async Task<bool> EliminarAsync(int id)
         {
             var eliminado = await _repo.EliminarPorIdAsync(id);

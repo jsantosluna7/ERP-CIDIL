@@ -29,6 +29,7 @@ namespace Usuarios.Controllers
             {
                 UsuarioPublico? usuario;
 
+                // Buscar usuario por Id o por nombre/correo
                 if (dto.UsuarioId != null)
                 {
                     usuario = await _context.UsuarioPublicos.FindAsync(dto.UsuarioId.Value);
@@ -42,6 +43,7 @@ namespace Usuarios.Controllers
                 if (usuario == null)
                     return BadRequest(new { mensaje = "Usuario no encontrado." });
 
+                // Buscar si ya existe el like
                 var likeExistente = await _context.Likes
                     .FirstOrDefaultAsync(l => l.AnuncioId == dto.AnuncioId && l.UsuarioId == usuario.Id);
 
@@ -49,11 +51,13 @@ namespace Usuarios.Controllers
 
                 if (likeExistente != null)
                 {
+                    // Quitar like existente
                     _context.Likes.Remove(likeExistente);
                     estadoActual = false;
                 }
                 else
                 {
+                    // Agregar nuevo like
                     var nuevoLike = new Like
                     {
                         AnuncioId = dto.AnuncioId,
@@ -66,6 +70,7 @@ namespace Usuarios.Controllers
 
                 await _context.SaveChangesAsync();
 
+                // Contar likes actuales del anuncio
                 int totalLikes = await _context.Likes.CountAsync(l => l.AnuncioId == dto.AnuncioId);
 
                 return Ok(new
@@ -73,7 +78,7 @@ namespace Usuarios.Controllers
                     mensaje = estadoActual ? "Like añadido" : "Like quitado",
                     anuncioId = dto.AnuncioId,
                     estado = estadoActual,
-                    totalLikes
+                    totalLikes = totalLikes
                 });
             }
             catch (Exception ex)
