@@ -99,7 +99,7 @@ namespace Reservas.Implementaciones.Repositorios
                 PersonasCantidad = crearSolicitudDeReservaDTO.PersonasCantidad
             };
 
-            var roles = new int?[] { 1,2 }; //Roles de administrador y superusuario.
+            var roles = new int?[] { 1, 2 }; //Roles de administrador y superusuario.
 
             var usuario = await _context.Usuarios.Where(u => roles.Contains(u.IdRol)).ToListAsync();
 

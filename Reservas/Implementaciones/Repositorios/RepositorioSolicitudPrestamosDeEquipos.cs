@@ -81,7 +81,7 @@ namespace Reservas.Implementaciones.Repositorios
             string fechaFormateadaInicio = fechaLocalInicio.ToString("dd/MM/yyyy h:mm tt");
             string fechaFormateadaFinal = fechaLocalFinal.ToString("dd/MM/yyyy h:mm tt");
 
-            var roles = new int?[] { 1 }; //Roles de administrador y superusuario.
+            var roles = new int?[] { 1, 2 }; //Roles de administrador y superusuario.
 
             var usuario = await _context.Usuarios.Where(u => roles.Contains(u.IdRol)).ToListAsync();
             var inventario = await _context.InventarioEquipos.Where(i => i.Id == crearReservas.IdInventario).FirstOrDefaultAsync();

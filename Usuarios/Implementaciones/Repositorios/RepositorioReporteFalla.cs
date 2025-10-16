@@ -64,7 +64,7 @@ namespace Usuarios.Implementaciones.Repositorios
                     IdUsuario = crearReporteFallaDTO.IdUsuario
                 };
 
-                var roles = new int?[] { 1,2 }; //Roles de administrador y superusuario.
+                var roles = new int?[] { 1, 2 }; //Roles de administrador y superusuario.
 
                 var usuario = await _context.Usuarios.Where(u => roles.Contains(u.IdRol)).ToListAsync();
                 var usuarioReporta = await _context.Usuarios.Where(u => u.Id == crearReporteFallaDTO.IdUsuario).FirstOrDefaultAsync();
