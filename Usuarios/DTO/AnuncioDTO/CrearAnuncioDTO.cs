@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Usuarios.DTO
 {
     /// <summary>
-    /// DTO utilizado para crear un nuevo anuncio con imagen.
+    /// DTO utilizado para crear un nuevo anuncio con varias imágenes.
     /// Compatible con [FromForm] para subida de archivos.
     /// </summary>
     public class CrearAnuncioDTO
@@ -15,10 +15,8 @@ namespace Usuarios.DTO
         [Required(ErrorMessage = "La descripción es obligatoria.")]
         public string Descripcion { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Debe proporcionar una imagen para el anuncio.")]
-        public IFormFile Imagen { get; set; } = null!;
-
-        public string? ImagenUrl { get; set; }
+        [Required(ErrorMessage = "Debe proporcionar al menos una imagen para el anuncio.")]
+        public IFormFile[] Imagenes { get; set; } = Array.Empty<IFormFile>();
 
         public bool EsPasantia { get; set; } = false;
     }

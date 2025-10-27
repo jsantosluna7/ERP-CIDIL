@@ -99,28 +99,20 @@ builder.Services.AddScoped<IServicioReporteFalla, ServicioReporteFalla>();
 // ✅ Agrega este registro para solucionar el error
 
 //nuevo tambien
-// Servicios de comentarios y anuncios
+// REPOSITORIOS
+builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
+builder.Services.AddScoped<IAnuncioRepositorio, AnuncioRepositorio>();
+builder.Services.AddScoped<IComentarioRepositorio, ComentarioRepositorio>();
+builder.Services.AddScoped<ILikeRepositorio, LikeRepositorio>();
+// Si manejas usuarios públicos
+// builder.Services.AddScoped<IUsuarioPublicoRepositorio, UsuarioPublicoRepositorio>();
+
+// SERVICIOS
+builder.Services.AddScoped<ILikeServicio, LikeServicio>();
 builder.Services.AddScoped<IComentarioServicio, ComentarioServicio>();
-
-
-//prueba
-builder.Services.AddScoped<IUsuarioPublicoRepositorio, UsuarioPublicoRepositorio>();
-
-//prueba
-
 builder.Services.AddScoped<IAnuncioServicio, AnuncioServicio>();
-
-//nuevo tambien
-builder.Services.AddScoped<IAnuncioServicio, AnuncioServicio>();
-// Servicios de Curriculum
 builder.Services.AddScoped<ICurriculumServicio, CurriculumServicio>();
 
-
-//anuncio
-// ✅ Agrega estos registros para solucionar el error
-builder.Services.AddScoped<IAnuncioRepositorio, AnuncioRepositorio>();
-//builder.Services.AddScoped<IAnuncioServicio, AnuncioServicio>();
-//anuncio
 
 //anuncio
 

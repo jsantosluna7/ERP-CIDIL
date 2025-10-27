@@ -17,14 +17,20 @@ namespace Usuarios.Implementaciones.Repositorios
             _context = context;
         }
 
+        /// <summary>
+        /// Obtiene todos los likes incluyendo relaciones.
+        /// </summary>
         public async Task<List<Like>> ObtenerTodosAsync()
         {
             return await _context.Likes
                 .Include(l => l.Anuncio)
-                .Include(l => l.Usuario)
+                .Include(l => l.Usuario) // Usuario institucional
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Obtiene un like por su Id.
+        /// </summary>
         public async Task<Like?> ObtenerPorIdAsync(int id)
         {
             return await _context.Likes
@@ -34,7 +40,7 @@ namespace Usuarios.Implementaciones.Repositorios
         }
 
         /// <summary>
-        /// Busca si un usuario (por correo) ya ha dado like a un anuncio.
+        /// Busca si un usuario (por correo institucional) ya ha dado like a un anuncio.
         /// </summary>
         public async Task<Like?> ObtenerPorAnuncioYUsuarioAsync(int anuncioId, string correoUsuario)
         {
@@ -44,15 +50,21 @@ namespace Usuarios.Implementaciones.Repositorios
                 .FirstOrDefaultAsync(l =>
                     l.AnuncioId == anuncioId &&
                     l.Usuario != null &&
-                    l.Usuario.Correo.ToLower() == correoUsuario.ToLower());
+                    l.Usuario.CorreoInstitucional.ToLower() == correoUsuario.ToLower());
         }
 
+        /// <summary>
+        /// Crea un nuevo like.
+        /// </summary>
         public async Task<bool> CrearAsync(Like like)
         {
             await _context.Likes.AddAsync(like);
             return await _context.SaveChangesAsync() > 0;
         }
 
+        /// <summary>
+        /// Elimina un like por Id.
+        /// </summary>
         public async Task<bool> EliminarAsync(int id)
         {
             var like = await _context.Likes.FindAsync(id);
@@ -62,10 +74,12 @@ namespace Usuarios.Implementaciones.Repositorios
             return await _context.SaveChangesAsync() > 0;
         }
 
+        /// <summary>
+        /// Cuenta los likes de un anuncio.
+        /// </summary>
         public async Task<int> ContarPorAnuncioAsync(int anuncioId)
         {
-            return await _context.Likes
-                .CountAsync(l => l.AnuncioId == anuncioId);
+            return await _context.Likes.CountAsync(l => l.AnuncioId == anuncioId);
         }
     }
 }

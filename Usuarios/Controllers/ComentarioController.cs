@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Usuarios.Abstraccion.Servicios;
 using Usuarios.DTO.AnuncioDTO;
 using Usuarios.DTO.Comentarios;
+using ERP.Data.Modelos;
 
 namespace Usuarios.Controllers
 {
@@ -19,7 +20,7 @@ namespace Usuarios.Controllers
             _comentarioServicio = comentarioServicio;
         }
 
-        // ✅ Obtener todos los comentarios (opcional)
+        // ==================== Obtener todos los comentarios ====================
         [HttpGet]
         public async Task<IActionResult> ObtenerComentarios()
         {
@@ -27,7 +28,7 @@ namespace Usuarios.Controllers
             return Ok(comentarios);
         }
 
-        // ✅ Obtener comentarios por anuncio
+        // ==================== Obtener comentarios por anuncio ====================
         [HttpGet("anuncio/{anuncioId}")]
         public async Task<IActionResult> ObtenerComentariosPorAnuncio(int anuncioId)
         {
@@ -35,10 +36,13 @@ namespace Usuarios.Controllers
             return Ok(comentarios);
         }
 
-        // ✅ Crear comentario (devuelve con el usuario incluido)
+        // ==================== Crear comentario (Solo ESTUDIANTE/PROFESOR) ====================
         [HttpPost]
         public async Task<IActionResult> CrearComentario([FromBody] CrearComentarioDTO dto)
         {
+            if (!User.TieneRol("ESTUDIANTE", "PROFESOR"))
+                return Unauthorized("No tienes permisos para crear comentarios.");
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -65,9 +69,13 @@ namespace Usuarios.Controllers
             }
         }
 
+        // ==================== Actualizar comentario (Solo ADMINISTRADOR/SUPERUSUARIO) ====================
         [HttpPut("{id}")]
         public async Task<IActionResult> ActualizarComentario(int id, [FromBody] ActualizarComentarioDTO dto)
         {
+            if (!User.TieneRol("ADMINISTRADOR", "SUPERUSUARIO"))
+                return Unauthorized("No tienes permisos para actualizar comentarios.");
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -78,9 +86,13 @@ namespace Usuarios.Controllers
             return Ok("Comentario actualizado correctamente.");
         }
 
+        // ==================== Eliminar comentario (Solo ADMINISTRADOR/SUPERUSUARIO) ====================
         [HttpDelete("{id}")]
         public async Task<IActionResult> EliminarComentario(int id)
         {
+            if (!User.TieneRol("ADMINISTRADOR", "SUPERUSUARIO"))
+                return Unauthorized("No tienes permisos para eliminar comentarios.");
+
             var exito = await _comentarioServicio.EliminarAsync(id);
             if (!exito)
                 return NotFound("Comentario no encontrado para eliminar.");

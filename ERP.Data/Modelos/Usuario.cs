@@ -49,4 +49,12 @@ public partial class Usuario
     public virtual ICollection<SolicitudPrestamosDeEquipo> SolicitudPrestamosDeEquipos { get; set; } = new List<SolicitudPrestamosDeEquipo>();
 
     public virtual ICollection<SolicitudReservaDeEspacio> SolicitudReservaDeEspacios { get; set; } = new List<SolicitudReservaDeEspacio>();
+
+
+
+    // Colecciones de navegación , de comentario y like
+    public virtual ICollection<Comentario> Comentarios { get; set; } = new List<Comentario>();
+    public virtual ICollection<Like> Likes { get; set; } = new List<Like>();
+
+
 }

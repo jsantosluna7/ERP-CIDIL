@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ERP.Data;
+using ERP.Data.Modelos;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
-using ERP.Data.Modelos;
-using ERP.Data;
-using Microsoft.EntityFrameworkCore;
 using Usuarios.DTO.AnuncioDTO;
 
 namespace Usuarios.Controllers
@@ -19,26 +19,22 @@ namespace Usuarios.Controllers
             _context = context;
         }
 
+        // ==================== Dar/Quitar Like ====================
         [HttpPost]
         public async Task<IActionResult> ToggleLike([FromBody] LikeDTO dto)
         {
-            if (dto == null || dto.AnuncioId <= 0 || (dto.UsuarioId == null && string.IsNullOrEmpty(dto.Usuario)))
+            // Solo estudiantes y profesores pueden dar likes
+            if (!User.TieneRol("ESTUDIANTE", "PROFESOR"))
+                return Unauthorized("No tienes permisos para dar likes.");
+
+            if (dto == null || dto.AnuncioId <= 0 || string.IsNullOrEmpty(dto.Usuario))
                 return BadRequest(new { mensaje = "Datos inválidos para like." });
 
             try
             {
-                UsuarioPublico? usuario;
-
-                // Buscar usuario por Id o por nombre/correo
-                if (dto.UsuarioId != null)
-                {
-                    usuario = await _context.UsuarioPublicos.FindAsync(dto.UsuarioId.Value);
-                }
-                else
-                {
-                    usuario = await _context.UsuarioPublicos
-                        .FirstOrDefaultAsync(u => u.Nombre == dto.Usuario || u.Correo == dto.Usuario);
-                }
+                // Buscar usuario por correo institucional
+                var usuario = await _context.Usuarios
+                    .FirstOrDefaultAsync(u => u.CorreoInstitucional == dto.Usuario);
 
                 if (usuario == null)
                     return BadRequest(new { mensaje = "Usuario no encontrado." });
@@ -78,7 +74,7 @@ namespace Usuarios.Controllers
                     mensaje = estadoActual ? "Like añadido" : "Like quitado",
                     anuncioId = dto.AnuncioId,
                     estado = estadoActual,
-                    totalLikes = totalLikes
+                    totalLikes
                 });
             }
             catch (Exception ex)
@@ -87,6 +83,7 @@ namespace Usuarios.Controllers
             }
         }
 
+        // ==================== Contar likes de un anuncio ====================
         [HttpGet("contar/{anuncioId}")]
         public async Task<IActionResult> ContarPorAnuncio(int anuncioId)
         {
@@ -104,24 +101,25 @@ namespace Usuarios.Controllers
             }
         }
 
-        [HttpGet("existe/{anuncioId}/{usuario}")]
-        public async Task<IActionResult> ExisteLike(int anuncioId, string usuario)
+        // ==================== Verificar si un usuario ya dio like ====================
+        [HttpGet("existe/{anuncioId}/{correoInstitucional}")]
+        public async Task<IActionResult> ExisteLike(int anuncioId, string correoInstitucional)
         {
-            if (anuncioId <= 0 || string.IsNullOrEmpty(usuario))
+            if (anuncioId <= 0 || string.IsNullOrEmpty(correoInstitucional))
                 return BadRequest(new { mensaje = "Datos inválidos." });
 
             try
             {
-                var usuarioEntity = await _context.UsuarioPublicos
-                    .FirstOrDefaultAsync(u => u.Nombre == usuario || u.Correo == usuario);
+                var usuario = await _context.Usuarios
+                    .FirstOrDefaultAsync(u => u.CorreoInstitucional == correoInstitucional);
 
-                if (usuarioEntity == null)
+                if (usuario == null)
                     return BadRequest(new { mensaje = "Usuario no encontrado." });
 
                 bool existe = await _context.Likes
-                    .AnyAsync(l => l.AnuncioId == anuncioId && l.UsuarioId == usuarioEntity.Id);
+                    .AnyAsync(l => l.AnuncioId == anuncioId && l.UsuarioId == usuario.Id);
 
-                return Ok(new { anuncioId, usuario, existe });
+                return Ok(new { anuncioId, usuario = correoInstitucional, existe });
             }
             catch (Exception ex)
             {

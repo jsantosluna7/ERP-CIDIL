@@ -35,7 +35,7 @@ namespace ERP.Data.Modelos
         [Column("usuario_id")]
         public int UsuarioId { get; set; }
 
-        public UsuarioPublico? Usuario { get; set; }
+
 
         // Campo para diferenciar si el anuncio es pasantía
         [Column("es_pasantia")]

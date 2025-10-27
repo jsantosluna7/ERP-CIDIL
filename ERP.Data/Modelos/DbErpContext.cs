@@ -44,7 +44,7 @@ public partial class DbErpContext : DbContext
     public virtual DbSet<UsuariosPendiente> UsuariosPendientes { get; set; }
 
     //nuevo
-    public DbSet<UsuarioPublico> UsuarioPublicos { get; set; }//revisar esto usuariopublico
+   
     public virtual DbSet<Anuncio> Anuncios { get; set; }
     public virtual DbSet<Comentario> Comentarios { get; set; }
     public virtual DbSet<Like> Likes { get; set; }
@@ -551,7 +551,7 @@ public partial class DbErpContext : DbContext
                     .HasDefaultValueSql("CURRENT_TIMESTAMP")
                     .HasColumnName("fecha_publicacion");
 
-                // Relaciones
+                // 🔗 Relaciones con Comentarios y Likes
                 entity.HasMany(a => a.Comentarios)
                       .WithOne(c => c.Anuncio)
                       .HasForeignKey(c => c.AnuncioId)
@@ -564,6 +564,7 @@ public partial class DbErpContext : DbContext
                       .HasConstraintName("likes_anuncio_fk")
                       .OnDelete(DeleteBehavior.Cascade);
             });
+
 
             // --- Configuración de Comentario ---
             modelBuilder.Entity<Comentario>(entity =>
@@ -580,15 +581,16 @@ public partial class DbErpContext : DbContext
                     .HasDefaultValueSql("CURRENT_TIMESTAMP")
                     .HasColumnName("fecha");
 
-                // Relación con UsuarioPublico
+                // 🔗 Relación con Usuario (solo institucional)
                 entity.HasOne(c => c.Usuario)
                       .WithMany(u => u.Comentarios)
                       .HasForeignKey(c => c.UsuarioId)
                       .HasConstraintName("comentarios_usuario_fk")
                       .OnDelete(DeleteBehavior.Cascade);
 
-                // Relación con Anuncio ya configurada arriba
+                // 🔗 Relación con Anuncio ya configurada arriba
             });
+
 
             // --- Configuración de Like ---
             modelBuilder.Entity<Like>(entity =>
@@ -605,15 +607,16 @@ public partial class DbErpContext : DbContext
                     .HasColumnType("timestamp without time zone")
                     .HasColumnName("fecha");
 
-                // Relación con UsuarioPublico
+                // 🔗 Relación con Usuario (solo institucional)
                 entity.HasOne(l => l.Usuario)
                       .WithMany(u => u.Likes)
                       .HasForeignKey(l => l.UsuarioId)
                       .HasConstraintName("likes_usuario_fk")
                       .OnDelete(DeleteBehavior.Cascade);
 
-                // Relación con Anuncio ya configurada arriba
+                // 🔗 Relación con Anuncio ya configurada arriba
             });
+
 
             // --- Configuración de Curriculum ---
             modelBuilder.Entity<Curriculum>(entity =>
@@ -636,10 +639,12 @@ public partial class DbErpContext : DbContext
                 entity.Property(e => e.FechaEnvio)
                     .HasDefaultValueSql("CURRENT_TIMESTAMP")
                     .HasColumnName("fecha_envio");
+
+                // 🧾 Permite distinguir currículums externos o internos
+                entity.Property(e => e.EsExterno)
+                    .HasColumnName("es_externo")
+                    .HasDefaultValue(false);
             });
-
-
-
 
 
 

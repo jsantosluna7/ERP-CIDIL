@@ -4,39 +4,64 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ERP.Data.Modelos
 {
+    /// <summary>
+    /// Representa un comentario realizado por un usuario institucional en un anuncio.
+    /// Cada comentario pertenece a un anuncio y a un usuario institucional.
+    /// </summary>
     [Table("comentarios")]
     public class Comentario
     {
+        /// <summary>
+        /// Identificador único del comentario.
+        /// </summary>
         [Key]
         [Column("id")]
         public int Id { get; set; }
 
-        [Required]
+        /// <summary>
+        /// Texto del comentario.
+        /// </summary>
+        [Required(ErrorMessage = "El texto del comentario es obligatorio.")]
+        [MaxLength(500, ErrorMessage = "El comentario no puede superar los 500 caracteres.")]
         [Column("texto")]
-        [MaxLength(500)]
         public string Texto { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Fecha y hora en que se creó el comentario.
+        /// </summary>
         [Column("fecha")]
         public DateTime Fecha { get; set; } = DateTime.UtcNow;
 
-        // 🔑 CORRECCIÓN CRÍTICA: Se añade la propiedad para guardar el nombre de usuario
-        // Mapea al campo 'usuario' (o similar) que debe existir en la tabla 'comentarios'
-        [Column("usuario")] // Ajusta este nombre si la columna se llama diferente, ej: 'nombre_usuario'
+        /// <summary>
+        /// Nombre visible del usuario que realizó el comentario.
+        /// Mapea a la columna 'usuario' en la base de datos.
+        /// </summary>
         [MaxLength(150)]
+        [Column("usuario")]
         public string? NombreUsuario { get; set; }
 
-        // ✅ Relación con UsuarioPublico (no debe ser null si existe)
+        /// <summary>
+        /// Identificador del usuario asociado al comentario.
+        /// </summary>
         [Column("usuario_id")]
+        [ForeignKey(nameof(Usuario))]
         public int UsuarioId { get; set; }
 
-        [ForeignKey(nameof(UsuarioId))]
-        public UsuarioPublico Usuario { get; set; } = null!;
+        /// <summary>
+        /// Usuario institucional que realizó el comentario.
+        /// </summary>
+        public virtual Usuario Usuario { get; set; } = null!;
 
-        // ✅ Relación con Anuncio
+        /// <summary>
+        /// Identificador del anuncio al que pertenece el comentario.
+        /// </summary>
         [Column("anuncio_id")]
+        [ForeignKey(nameof(Anuncio))]
         public int AnuncioId { get; set; }
 
-        [ForeignKey(nameof(AnuncioId))]
-        public Anuncio Anuncio { get; set; } = null!;
+        /// <summary>
+        /// Anuncio asociado al comentario.
+        /// </summary>
+        public virtual Anuncio Anuncio { get; set; } = null!;
     }
 }

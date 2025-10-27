@@ -22,7 +22,7 @@ namespace Usuarios.Implementaciones.Servicios
             _logger = logger;
         }
 
-        // ✅ Obtener todos los currículums
+        // ✅ Obtener todos los currículos
         public async Task<List<CurriculumDetalleDTO>> ObtenerTodosAsync()
         {
             try
@@ -34,12 +34,13 @@ namespace Usuarios.Implementaciones.Servicios
                     Nombre = c.Nombre,
                     Email = c.Email,
                     ArchivoUrl = c.ArchivoUrl,
-                    FechaEnvio = c.FechaEnvio
+                    FechaEnvio = c.FechaEnvio,
+                    AnuncioTitulo = c.Anuncio != null ? c.Anuncio.Titulo : "(Sin anuncio)"
                 }).ToList();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener la lista de currículums");
+                _logger.LogError(ex, "Error al obtener los currículums");
                 return new List<CurriculumDetalleDTO>();
             }
         }
@@ -59,7 +60,8 @@ namespace Usuarios.Implementaciones.Servicios
                     Nombre = c.Nombre,
                     Email = c.Email,
                     ArchivoUrl = c.ArchivoUrl,
-                    FechaEnvio = c.FechaEnvio
+                    FechaEnvio = c.FechaEnvio,
+                    AnuncioTitulo = c.Anuncio != null ? c.Anuncio.Titulo : "(Sin anuncio)"
                 };
             }
             catch (Exception ex)
@@ -69,7 +71,7 @@ namespace Usuarios.Implementaciones.Servicios
             }
         }
 
-        // ✅ Crear nuevo currículum (solo PDF permitido)
+        // ✅ Crear currículum (solo archivo PDF)
         public async Task CrearAsync(CurriculumDTO dto)
         {
             try
@@ -77,51 +79,39 @@ namespace Usuarios.Implementaciones.Servicios
                 if (dto.Archivo == null || dto.Archivo.Length == 0)
                     throw new InvalidOperationException("Debe adjuntar un archivo PDF.");
 
-                // Validar extensión
                 var extension = Path.GetExtension(dto.Archivo.FileName)?.ToLowerInvariant();
                 if (extension != ".pdf")
                     throw new InvalidOperationException("Solo se permiten archivos en formato PDF.");
 
-                // Crear carpeta si no existe
                 var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "curriculums");
                 if (!Directory.Exists(uploadsFolder))
                     Directory.CreateDirectory(uploadsFolder);
 
-                // Generar nombre único de archivo
                 var uniqueFileName = $"{Guid.NewGuid()}{extension}";
                 var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                // Guardar archivo en servidor
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await dto.Archivo.CopyToAsync(stream);
                 }
 
-                // Generar URL pública
                 string archivoUrl = $"/uploads/curriculums/{uniqueFileName}";
 
-                // Guardar en base de datos
                 var curriculum = new Curriculum
                 {
                     Nombre = dto.Nombre,
                     Email = dto.Email,
                     ArchivoUrl = archivoUrl,
-                    FechaEnvio = DateTime.UtcNow
+                    FechaEnvio = DateTime.UtcNow,
+                    AnuncioId = dto.AnuncioId
                 };
 
                 await _repo.CrearAsync(curriculum);
                 await _repo.GuardarAsync();
             }
-            catch (InvalidOperationException ex)
-            {
-                // ⚠️ Error de validación (usuario subió archivo no permitido)
-                _logger.LogWarning(ex, "Archivo no permitido al subir currículum");
-                throw new InvalidOperationException(ex.Message);
-            }
             catch (Exception ex)
             {
-                // ⚠️ Error inesperado del servidor
-                _logger.LogError(ex, "Error al guardar el currículum");
+                _logger.LogError(ex, "Error al guardar currículum");
                 throw new InvalidOperationException("Ocurrió un error al guardar el currículum. Intente nuevamente.");
             }
         }
