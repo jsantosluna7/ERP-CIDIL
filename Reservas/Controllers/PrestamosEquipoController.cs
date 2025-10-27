@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Reservas.Abstraccion.Servicios;
 using Reservas.DTO.DTOPrestamosEquipo;
+using Reservas.Implementaciones.Servicios;
 
 namespace Reservas.Controllers
 {
@@ -58,6 +59,17 @@ namespace Reservas.Controllers
                 datos = resultado
             };
             return Ok(respuesta);
+        }
+
+        [HttpGet("mis-equipos")]
+        public async Task<IActionResult> ObtenerSolicitudEquiposUsuario([FromQuery] int usuario)
+        {
+            var resultado = await _prestamosEquipo.ObtenerEquiposUsuario(usuario);
+            if (!resultado.esExitoso)
+            {
+                return BadRequest(new { error = resultado.MensajeError });
+            }
+            return Ok(resultado.Valor);
         }
 
         [HttpPost]

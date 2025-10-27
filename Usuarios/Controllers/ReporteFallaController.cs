@@ -30,6 +30,17 @@ namespace Usuarios.Controllers
             return Ok(resultado.Valor);
         }
 
+        [HttpGet("mis-reportes")]
+        public async Task<IActionResult> ObtenerMisReportes([FromQuery] int usuario)
+        {
+            var resultado = await _servicioReporteFalla.ObtenerReporteFallaUsuario(usuario);
+            if (!resultado.esExitoso)
+            {
+                return BadRequest(new { error = resultado.MensajeError });
+            }
+            return Ok(resultado.Valor);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CrearReporte(CrearReporteFallaDTO crearReporteFallaDTO)
         {

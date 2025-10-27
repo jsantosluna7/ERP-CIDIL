@@ -12,5 +12,6 @@ namespace Reservas.Abstraccion.Repositorio
         Task<SolicitudPrestamosDeEquipo?> CrearSolicitudPEquipos(CrearSolicitudPrestamosDeEquiposDTO crearSolicitudPrestamosDeEquiposDTO);
         Task<SolicitudPrestamosDeEquipo> GetByIdSolicitudPEquipos(int id);
         Task<List<SolicitudPrestamosDeEquipo>> GetSolicitudPrestamos(int pagina, int tamanoPagina);
+        Task<Resultado<List<SolicitudPrestamosDeEquipo>>> ObtenerSolicitudEquiposUsuario(int id);
     }
 }

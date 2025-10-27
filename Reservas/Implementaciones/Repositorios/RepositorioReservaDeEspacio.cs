@@ -82,6 +82,17 @@ namespace Reservas.Implementaciones.Repositorios
             }
         }
 
+        public async Task<Resultado<List<ReservaDeEspacio>>> ObtenerEspaciosUsuario(int id)
+        {
+            var reserva = await _context.ReservaDeEspacios.Where(e => e.IdUsuario == id).ToListAsync();
+            if (reserva == null || reserva.Count == 0)
+            {
+                return Resultado<List<ReservaDeEspacio>>.Falla("No haz reservado ningún espacio.");
+            }
+
+            return Resultado<List<ReservaDeEspacio>>.Exito(reserva);
+        }
+
         //Método para que el usuario apruebe una reserva
         public async Task<Resultado<ReservaDeEspacio?>> CrearReserva(CrearReservaDeEspacioDTO crearReservaDeEspacioDTO)
         {

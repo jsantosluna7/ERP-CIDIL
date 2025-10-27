@@ -2,6 +2,7 @@
 using Reservas.Abstraccion.Repositorio;
 using Reservas.Abstraccion.Servicios;
 using Reservas.DTO.DTOPrestamosEquipo;
+using Reservas.Implementaciones.Repositorios;
 
 namespace Reservas.Implementaciones.Servicios
 {
@@ -15,6 +16,17 @@ namespace Reservas.Implementaciones.Servicios
         public ServicioPrestamosEquipo(IRepositorioPrestamosEquipo rPrestamosEquipo)
         {
             this.repositorioPrestamosEquipo = rPrestamosEquipo;
+        }
+
+        public async Task<Resultado<List<PrestamosEquipo>>> ObtenerEquiposUsuario(int id)
+        {
+            var resultado = await repositorioPrestamosEquipo.ObtenerEquiposUsuario(id);
+            if (!resultado.esExitoso)
+            {
+                return Resultado<List<PrestamosEquipo>>.Falla(resultado.MensajeError ?? "Error desconocido al obtener los equipos del usuario.");
+            }
+
+            return Resultado<List<PrestamosEquipo>>.Exito(resultado.Valor!);
         }
 
 

@@ -21,7 +21,16 @@ namespace Reservas.Implementaciones.Repositorios
         }
 
 
-        
+        public async Task<Resultado<List<PrestamosEquipo>>> ObtenerEquiposUsuario(int id)
+        {
+            var reserva = await _context.PrestamosEquipos.Where(e => e.IdUsuario == id).ToListAsync();
+            if (reserva == null || reserva.Count == 0)
+            {
+                return Resultado<List<PrestamosEquipo>>.Falla("No tienes equipos solicitados.");
+            }
+
+            return Resultado<List<PrestamosEquipo>>.Exito(reserva);
+        }
 
         public async Task<PrestamosEquipo?> Actualizar(int id, ActualizarPrestamosEquipoDTO actualizarPrestamosEquipoDTO)
         {

@@ -18,6 +18,18 @@ namespace Usuarios.Implementaciones.Repositorios
             _servicioEmail = servicioEmail;
         }
 
+        public async Task<Resultado<List<ReporteFalla>>> ObtenerReporteFallaUsuario(int id)
+        {
+            var reporte = await _context.ReporteFallas.Where(r => r.IdUsuario == id).ToListAsync();
+
+            if (reporte == null || reporte.Count == 0)
+            {
+                return Resultado<List<ReporteFalla>>.Falla("No haz realizado reportes de falla.");
+            }
+
+            return Resultado<List<ReporteFalla>>.Exito(reporte);
+        }
+
         public async Task<Resultado<ReporteFalla?>> ActualizarReporte(int id, ActualizarReporteFallaDTO actualizarReporteFallaDTO)
         {
             var reporteId = await GetByIdReporteFalla(id);

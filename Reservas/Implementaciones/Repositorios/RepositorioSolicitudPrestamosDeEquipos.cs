@@ -23,15 +23,6 @@ namespace Reservas.Implementaciones.Repositorios
         {
             return await _context.SolicitudPrestamosDeEquipos.ToListAsync();
 
-            if (pagina <= 0) pagina = 1;
-            if (tamanoPagina <= 0) tamanoPagina = 20;
-
-            return await _context.SolicitudPrestamosDeEquipos
-                .OrderBy(i => i.Id).Skip((pagina - 1) * tamanoPagina)
-                .Take(tamanoPagina)
-                .ToListAsync();
-
-
         }
 
         //Método para obtener todas las Prestamos por id
@@ -43,6 +34,17 @@ namespace Reservas.Implementaciones.Repositorios
                 return null;
             }
             return reserva;
+        }
+
+        public async Task<Resultado<List<SolicitudPrestamosDeEquipo>>> ObtenerSolicitudEquiposUsuario(int id)
+        {
+            var reserva = await _context.SolicitudPrestamosDeEquipos.Where(e => e.IdUsuario == id).ToListAsync();
+            if (reserva == null || reserva.Count == 0)
+            {
+                return Resultado<List<SolicitudPrestamosDeEquipo>>.Falla("No se encontraron solicitudes de equipos para el usuario especificado.");
+            }
+
+            return Resultado<List<SolicitudPrestamosDeEquipo>>.Exito(reserva);
         }
 
         public async Task<SolicitudPrestamosDeEquipo?> CrearSolicitudPEquipos(CrearSolicitudPrestamosDeEquiposDTO crearSolicitudPrestamosDeEquiposDTO)

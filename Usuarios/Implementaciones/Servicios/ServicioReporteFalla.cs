@@ -1,4 +1,5 @@
 ﻿using ERP.Data.Modelos;
+using Microsoft.EntityFrameworkCore;
 using Usuarios.Abstraccion.Repositorios;
 using Usuarios.Abstraccion.Servicios;
 using Usuarios.DTO.ReporteFallaDTO;
@@ -7,8 +8,6 @@ namespace Usuarios.Implementaciones.Servicios
 {
     public class ServicioReporteFalla : IServicioReporteFalla
     {
-
-
 
         private readonly IRepositorioReporteFalla repositorioReporteFalla;
 
@@ -35,6 +34,18 @@ namespace Usuarios.Implementaciones.Servicios
             };
 
             return Resultado<ReporteFallaDTO?>.Exito(reporteFallaDTO);
+        }
+
+        public async Task<Resultado<List<ReporteFalla>>> ObtenerReporteFallaUsuario(int id)
+        {
+            var resultado = await repositorioReporteFalla.ObtenerReporteFallaUsuario(id);
+
+            if (!resultado.esExitoso)
+            {
+                return Resultado<List<ReporteFalla>>.Falla("No haz realizado reportes de falla.");
+            }
+
+            return Resultado<List<ReporteFalla>>.Exito(resultado.Valor!);
         }
 
         public async Task<Resultado<ReporteFallaDTO?>> CrearReporte(CrearReporteFallaDTO crearReporteFallaDTO)

@@ -10,5 +10,6 @@ namespace Usuarios.Abstraccion.Servicios
         Task<Resultado<bool?>> Eliminar(int id);
         Task<Resultado<ReporteFalla?>> GetByIdReporteFalla(int id);
         Task<Resultado<List<ReporteFallaDTO?>>> GetReporteFalla();
+        Task<Resultado<List<ReporteFalla>>> ObtenerReporteFallaUsuario(int id);
     }
 }

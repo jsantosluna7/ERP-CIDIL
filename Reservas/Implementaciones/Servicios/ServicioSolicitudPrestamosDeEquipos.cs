@@ -1,4 +1,5 @@
-﻿using Reservas.Abstraccion.Repositorio;
+﻿using ERP.Data.Modelos;
+using Reservas.Abstraccion.Repositorio;
 using Reservas.Abstraccion.Servicios;
 using Reservas.DTO.DTOSolicitudDeEquipos;
 
@@ -64,6 +65,17 @@ namespace Reservas.Implementaciones.Servicios
                 Cantidad = prestamos.Cantidad,
             };
             return prestamoDTO;
+        }
+
+        public async Task<Resultado<List<SolicitudPrestamosDeEquipo>>> ObtenerSolicitudEquiposUsuario(int id)
+        {
+            var resultado = await _repositorioSolicitudPrestamosDeEquipos.ObtenerSolicitudEquiposUsuario(id);
+            if (!resultado.esExitoso)
+            {
+                return Resultado<List<SolicitudPrestamosDeEquipo>>.Falla(resultado.MensajeError ?? "Error desconocido al obtener las solicitudes de equipos del usuario.");
+            }
+
+            return Resultado<List<SolicitudPrestamosDeEquipo>>.Exito(resultado.Valor!);
         }
 
         public async Task<CrearSolicitudPrestamosDeEquiposDTO?> CrearSolicitudPEquipos(CrearSolicitudPrestamosDeEquiposDTO crearSolicitudPrestamosDeEquiposDTO)

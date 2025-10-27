@@ -71,6 +71,17 @@ namespace Reservas.Controllers
             return Ok(solicitud.Valor);
         }
 
+        [HttpGet("mis-solicitudes-espacios")]
+        public async Task<IActionResult> ObtenerSolicitudEspaciosUsuario([FromQuery] int usuario)
+        {
+            var resultado = await _servicioSolicitudDeReserva.ObtenerSolicitudEspaciosUsuario(usuario);
+            if (!resultado.esExitoso)
+            {
+                return BadRequest(new { error = resultado.MensajeError });
+            }
+            return Ok(resultado.Valor);
+        }
+
         // Método para crear una solicitud de reserva
         [HttpPost("crear-solicitud-reserva")]
         public async Task<IActionResult> CrearSolicitudReserva([FromBody] CrearSolicitudDeReservaDTO crearSolicitudDeReservaDTO)

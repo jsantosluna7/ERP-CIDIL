@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Reservas.Abstraccion.Servicios;
 using Reservas.DTO.DTOReservaDeEspacio;
 using Reservas.DTO.DTOSolicitudDeReserva;
+using Reservas.Implementaciones.Servicios;
 
 namespace Reservas.Controllers
 {
@@ -98,6 +99,17 @@ namespace Reservas.Controllers
                 return BadRequest(new { error = reserva.MensajeError });
             }
             return Ok(reserva.Valor);
+        }
+
+        [HttpGet("mis-espacios")]
+        public async Task<IActionResult> ObtenerSolicitudEspaciosUsuario([FromQuery] int usuario)
+        {
+            var resultado = await _servicioReservaDeEspacio.ObtenerEspaciosUsuario(usuario);
+            if (!resultado.esExitoso)
+            {
+                return BadRequest(new { error = resultado.MensajeError });
+            }
+            return Ok(resultado.Valor);
         }
 
         // Método para crear una reserva

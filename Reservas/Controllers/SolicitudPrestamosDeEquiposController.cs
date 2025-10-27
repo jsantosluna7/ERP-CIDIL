@@ -59,6 +59,17 @@ namespace Reservas.Controllers
             return Ok(prestamo);
         }
 
+        [HttpGet("mis-solicitudes-equipos")]
+        public async Task<IActionResult> ObtenerSolicitudEquiposUsuario([FromQuery] int usuario)
+        {
+            var resultado = await _servicioSolicitudPrestamosDeEquipos.ObtenerSolicitudEquiposUsuario(usuario);
+            if (!resultado.esExitoso)
+            {
+                return BadRequest(new { error = resultado.MensajeError });
+            }
+            return Ok(resultado.Valor);
+        }
+
         [HttpPost]
         public async Task <IActionResult?> CrearSolicitudPEquipo(CrearSolicitudPrestamosDeEquiposDTO crearSolicitudPrestamosDeEquiposDTO)
         {

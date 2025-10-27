@@ -162,6 +162,17 @@ namespace Reservas.Implementaciones.Servicios
             return Resultado<ReservaDeEspacioDTO?>.Exito(reservaDTO);
         }
 
+        public async Task<Resultado<List<ReservaDeEspacio>>> ObtenerEspaciosUsuario(int id)
+        {
+            var resultado = await _repositorioReservaDeEspacio.ObtenerEspaciosUsuario(id);
+            if (!resultado.esExitoso)
+            {
+                return Resultado<List<ReservaDeEspacio>>.Falla(resultado.MensajeError ?? "Error desconocido al obtener los espacios del usuario.");
+            }
+
+            return Resultado<List<ReservaDeEspacio>>.Exito(resultado.Valor!);
+        }
+
         // Método para crear una reserva
         public async Task<Resultado<CrearReservaDeEspacioDTO?>> CrearReserva(CrearReservaDeEspacioDTO crearReservaDeEspacioDTO)
         {

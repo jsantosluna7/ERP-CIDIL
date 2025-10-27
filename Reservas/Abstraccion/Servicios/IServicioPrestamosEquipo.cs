@@ -12,5 +12,6 @@ namespace Reservas.Abstraccion.Servicios
          Task<bool?> Eliminar(int  id);
         Task<bool?> DesactivarPrestamoEquipos(int id);
         Task<List<PrestamosEquipoDTO>?> GetPrestamosEquipo(int pagina, int tamanoPagina);
+        Task<Resultado<List<PrestamosEquipo>>> ObtenerEquiposUsuario(int id);
     }
 }
