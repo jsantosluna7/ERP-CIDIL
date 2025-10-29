@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Usuarios.DTO
 {
-    /// <summary>
+ 
     /// DTO utilizado para crear un nuevo anuncio con varias imágenes.
     /// Compatible con [FromForm] para subida de archivos.
-    /// </summary>
+    
     public class CrearAnuncioDTO
     {
         [Required(ErrorMessage = "El título es obligatorio.")]

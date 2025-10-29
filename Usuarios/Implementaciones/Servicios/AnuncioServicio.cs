@@ -20,24 +20,32 @@ namespace Usuarios.Implementaciones
         }
 
         // Crear un nuevo anuncio
-        public async Task CrearAsync(Anuncio anuncio)
+        public async Task<Resultado<bool>> CrearAsync(Anuncio anuncio)
         {
             if (anuncio == null)
-                throw new ArgumentNullException(nameof(anuncio));
+                return Resultado<bool>.Falla("El anuncio no puede ser nulo.");
 
-            await _repositorio.CrearAsync(anuncio);
+            var resultado = await _repositorio.CrearAsync(anuncio);
+            if (!resultado.esExitoso)
+                return Resultado<bool>.Falla(resultado.MensajeError ?? "Error desconocido");
+
             await _repositorio.GuardarAsync();
+            return Resultado<bool>.Exito(true);
         }
 
         // Obtener todos los anuncios (opcionalmente filtrados por pasantías)
-        public async Task<List<AnuncioDetalleDTO>> ObtenerTodosAsync(bool? esPasantia = null)
+        public async Task<Resultado<List<AnuncioDetalleDTO>>> ObtenerTodosAsync(bool? esPasantia = null)
         {
-            var anuncios = await _repositorio.ObtenerTodosAsync();
+            var resultado = await _repositorio.ObtenerTodosAsync();
+            if (!resultado.esExitoso)
+                return Resultado<List<AnuncioDetalleDTO>>.Falla(resultado.MensajeError ?? "Error desconocido");
+
+            var anuncios = resultado.Valor ?? new List<Anuncio>();
 
             if (esPasantia.HasValue)
                 anuncios = anuncios.Where(a => a.EsPasantia == esPasantia.Value).ToList();
 
-            return anuncios.Select(a => new AnuncioDetalleDTO
+            var dtos = anuncios.Select(a => new AnuncioDetalleDTO
             {
                 Id = a.Id,
                 Titulo = a.Titulo,
@@ -46,68 +54,79 @@ namespace Usuarios.Implementaciones
                 EsPasantia = a.EsPasantia,
                 FechaPublicacion = a.FechaPublicacion
             }).ToList();
+
+            return Resultado<List<AnuncioDetalleDTO>>.Exito(dtos);
         }
 
         // Obtener un anuncio por su ID
-        public async Task<AnuncioDetalleDTO?> ObtenerPorIdAsync(int id)
+        public async Task<Resultado<AnuncioDetalleDTO>> ObtenerPorIdAsync(int id)
         {
-            var anuncio = await _repositorio.ObtenerPorIdAsync(id);
-            if (anuncio == null)
-                return null;
+            var resultado = await _repositorio.ObtenerPorIdAsync(id);
+            if (!resultado.esExitoso)
+                return Resultado<AnuncioDetalleDTO>.Falla(resultado.MensajeError ?? "Error desconocido");
 
-            return new AnuncioDetalleDTO
+            var a = resultado.Valor!;
+            var dto = new AnuncioDetalleDTO
             {
-                Id = anuncio.Id,
-                Titulo = anuncio.Titulo,
-                Descripcion = anuncio.Descripcion,
-                ImagenUrl = anuncio.ImagenUrl,
-                EsPasantia = anuncio.EsPasantia,
-                FechaPublicacion = anuncio.FechaPublicacion
+                Id = a.Id,
+                Titulo = a.Titulo,
+                Descripcion = a.Descripcion,
+                ImagenUrl = a.ImagenUrl,
+                EsPasantia = a.EsPasantia,
+                FechaPublicacion = a.FechaPublicacion
             };
+
+            return Resultado<AnuncioDetalleDTO>.Exito(dto);
         }
 
         // Actualizar un anuncio existente
-        public async Task<bool> ActualizarAsync(int id, ActualizarAnuncioDTO dto)
+        public async Task<Resultado<bool>> ActualizarAsync(int id, ActualizarAnuncioDTO dto)
         {
-            var anuncio = await _repositorio.ObtenerPorIdAsync(id);
-            if (anuncio == null)
-                return false;
+            var resultado = await _repositorio.ObtenerPorIdAsync(id);
+            if (!resultado.esExitoso)
+                return Resultado<bool>.Falla(resultado.MensajeError ?? "Error desconocido");
 
+            var anuncio = resultado.Valor!;
             anuncio.Titulo = string.IsNullOrWhiteSpace(dto.Titulo) ? anuncio.Titulo : dto.Titulo;
             anuncio.Descripcion = string.IsNullOrWhiteSpace(dto.Descripcion) ? anuncio.Descripcion : dto.Descripcion;
             anuncio.ImagenUrl = string.IsNullOrWhiteSpace(dto.ImagenUrl) ? anuncio.ImagenUrl : dto.ImagenUrl;
             anuncio.EsPasantia = dto.EsPasantia ?? anuncio.EsPasantia;
 
-            _repositorio.Actualizar(anuncio);
+            var resActualiza = await _repositorio.ActualizarAsync(anuncio);
+            if (!resActualiza.esExitoso)
+                return Resultado<bool>.Falla(resActualiza.MensajeError ?? "Error desconocido");
+
             await _repositorio.GuardarAsync();
-            return true;
+            return Resultado<bool>.Exito(true);
         }
 
         // Eliminar un anuncio
-        public async Task<bool> EliminarAsync(int id)
+        public async Task<Resultado<bool>> EliminarAsync(int id)
         {
-            var anuncio = await _repositorio.ObtenerPorIdAsync(id);
-            if (anuncio == null)
-                return false;
+            var resultado = await _repositorio.EliminarAsync(id);
+            if (!resultado.esExitoso)
+                return Resultado<bool>.Falla(resultado.MensajeError ?? "Error desconocido");
 
-            _repositorio.Eliminar(anuncio);
-            await _repositorio.GuardarAsync();
-            return true;
+            return Resultado<bool>.Exito(true);
         }
 
         // Obtener currículums asociados a una pasantía
-        public async Task<List<string>> ObtenerCurriculumsAsync(int id)
+        public async Task<Resultado<List<string>>> ObtenerCurriculumsAsync(int id)
         {
-            var anuncio = await _repositorio.ObtenerPorIdAsync(id);
-            if (anuncio == null || !anuncio.EsPasantia)
-                return new List<string>();
+            var resultado = await _repositorio.ObtenerPorIdAsync(id);
+            if (!resultado.esExitoso)
+                return Resultado<List<string>>.Falla(resultado.MensajeError ?? "Error desconocido");
 
-            // Aquí podrías agregar lógica para devolver rutas o nombres de archivos de currículums
-            return new List<string>();
+            var anuncio = resultado.Valor!;
+            if (!anuncio.EsPasantia)
+                return Resultado<List<string>>.Exito(new List<string>());
+
+            // Aquí puedes devolver la lista real de currículums si lo implementas
+            return Resultado<List<string>>.Exito(new List<string>());
         }
 
         // Alternar "like" de un usuario usando su Id (int)
-        public async Task<bool> ToggleLikeAsync(int anuncioId, int usuarioId)
+        public async Task<Resultado<bool>> ToggleLikeAsync(int anuncioId, int usuarioId)
         {
             var resultado = await _repositorio.ToggleLikeAsync(anuncioId, usuarioId);
             return resultado;

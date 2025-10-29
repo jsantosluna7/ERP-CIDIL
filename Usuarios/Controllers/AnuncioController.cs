@@ -26,15 +26,15 @@ namespace Usuarios.Controllers
         [HttpGet]
         public async Task<IActionResult> ObtenerAnuncios([FromQuery] bool? esPasantia)
         {
-            var anuncios = await _anuncioServicio.ObtenerTodosAsync(esPasantia);
+            var resultado = await _anuncioServicio.ObtenerTodosAsync(esPasantia);
 
-            if (anuncios == null || !anuncios.Any())
-                return Ok(Array.Empty<object>());
+            if (!resultado.esExitoso || resultado.Valor == null || !resultado.Valor.Any())
+                return Ok(new List<AnuncioDetalleDTO>());
 
-            return Ok(anuncios);
+            return Ok(resultado.Valor);
         }
 
-        // ==================== Crear anuncio (Solo ADMINISTRADOR/SUPERUSUARIO) ====================
+        // ==================== Crear anuncio ====================
         [HttpPost]
         public async Task<IActionResult> CrearAnuncio([FromForm] CrearAnuncioDTO dto)
         {
@@ -78,7 +78,11 @@ namespace Usuarios.Controllers
                     FechaPublicacion = DateTime.Now
                 };
 
-                await _anuncioServicio.CrearAsync(anuncio);
+                var creado = await _anuncioServicio.CrearAsync(anuncio);
+
+                if (!creado.esExitoso)
+                    return StatusCode(500, new { error = creado.MensajeError });
+
                 return Ok(new { mensaje = "Anuncio creado correctamente.", anuncio });
             }
             catch (Exception ex)
@@ -87,7 +91,7 @@ namespace Usuarios.Controllers
             }
         }
 
-        // ==================== Actualizar anuncio (Solo ADMINISTRADOR/SUPERUSUARIO) ====================
+        // ==================== Actualizar anuncio ====================
         [HttpPut("{id}")]
         public async Task<IActionResult> ActualizarAnuncio(int id, [FromForm] ActualizarAnuncioDTO dto)
         {
@@ -97,9 +101,11 @@ namespace Usuarios.Controllers
             if (dto == null)
                 return BadRequest(new { error = "Los datos del anuncio no pueden estar vacíos." });
 
-            var anuncioExistente = await _anuncioServicio.ObtenerPorIdAsync(id);
-            if (anuncioExistente == null)
+            var resultadoExistente = await _anuncioServicio.ObtenerPorIdAsync(id);
+            if (!resultadoExistente.esExitoso || resultadoExistente.Valor == null)
                 return NotFound(new { error = $"No se encontró el anuncio con ID {id}." });
+
+            var anuncioExistente = resultadoExistente.Valor;
 
             string nuevaUrlImagen = anuncioExistente.ImagenUrl;
 
@@ -124,13 +130,13 @@ namespace Usuarios.Controllers
             dto.ImagenUrl = nuevaUrlImagen;
             var actualizado = await _anuncioServicio.ActualizarAsync(id, dto);
 
-            if (!actualizado)
-                return StatusCode(500, new { error = "No se pudo actualizar el anuncio." });
+            if (!actualizado.esExitoso)
+                return StatusCode(500, new { error = actualizado.MensajeError });
 
             return Ok(new { mensaje = "Anuncio actualizado correctamente.", anuncio = dto });
         }
 
-        // ==================== Eliminar anuncio (Solo ADMINISTRADOR/SUPERUSUARIO) ====================
+        // ==================== Eliminar anuncio ====================
         [HttpDelete("{id}")]
         public async Task<IActionResult> EliminarAnuncio(int id)
         {
@@ -138,28 +144,35 @@ namespace Usuarios.Controllers
                 return Unauthorized("No tienes permisos para eliminar anuncios.");
 
             var eliminado = await _anuncioServicio.EliminarAsync(id);
-            if (!eliminado)
-                return NotFound(new { error = $"No se encontró el anuncio con ID {id}." });
+
+            if (!eliminado.esExitoso)
+                return NotFound(new { error = eliminado.MensajeError });
 
             return Ok(new { mensaje = "Anuncio eliminado correctamente." });
         }
 
-        // ==================== Ver currículums asociados al anuncio (Solo ADMINISTRADOR/SUPERUSUARIO pueden ver todos) ====================
+        // ==================== Ver currículums ====================
         [HttpGet("{id}/curriculums")]
         public async Task<IActionResult> VerCurriculums(int id)
         {
-            var anuncio = await _anuncioServicio.ObtenerPorIdAsync(id);
-            if (anuncio == null)
+            var resultado = await _anuncioServicio.ObtenerPorIdAsync(id);
+            if (!resultado.esExitoso || resultado.Valor == null)
                 return NotFound(new { error = "Anuncio no encontrado." });
+
+            var anuncio = resultado.Valor;
 
             if (!User.TieneRol("ADMINISTRADOR", "SUPERUSUARIO") && !User.TieneRol("ESTUDIANTE", "PROFESOR"))
                 return Unauthorized("No tienes permisos para ver currículums.");
 
             if (!anuncio.EsPasantia)
-                return Ok(new { mensaje = "Este anuncio no es de pasantía.", curriculums = Array.Empty<object>() });
+                return Ok(new { mensaje = "Este anuncio no es de pasantía.", curriculums = new List<string>() });
 
             var curriculums = await _anuncioServicio.ObtenerCurriculumsAsync(id);
-            return Ok(curriculums);
+            if (!curriculums.esExitoso)
+                return StatusCode(500, new { error = curriculums.MensajeError });
+
+            // Aquí corregimos el null usando List<string> vacío
+            return Ok(curriculums.Valor ?? new List<string>());
         }
     }
 }

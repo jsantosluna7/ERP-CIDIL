@@ -1,6 +1,7 @@
 ﻿using ERP.Data;
 using ERP.Data.Modelos;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,72 +15,128 @@ namespace Usuarios.Implementaciones.Repositorios
 
         public LikeRepositorio(DbErpContext context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         /// <summary>
-        /// Obtiene todos los likes incluyendo relaciones.
+        /// Obtiene todos los likes.
         /// </summary>
-        public async Task<List<Like>> ObtenerTodosAsync()
+        public async Task<Resultado<List<Like>>> ObtenerTodosAsync()
         {
-            return await _context.Likes
-                .Include(l => l.Anuncio)
-                .Include(l => l.Usuario) // Usuario institucional
-                .ToListAsync();
+            try
+            {
+                var likes = await _context.Likes.ToListAsync();
+                if (likes == null || !likes.Any())
+                    return Resultado<List<Like>>.Falla("No hay likes registrados.");
+
+                return Resultado<List<Like>>.Exito(likes);
+            }
+            catch (Exception ex)
+            {
+                return Resultado<List<Like>>.Falla($"Error al obtener likes");
+            }
         }
 
-        /// <summary>
+
         /// Obtiene un like por su Id.
-        /// </summary>
-        public async Task<Like?> ObtenerPorIdAsync(int id)
+    
+        public async Task<Resultado<Like>> ObtenerPorIdAsync(int id)
         {
-            return await _context.Likes
-                .Include(l => l.Anuncio)
-                .Include(l => l.Usuario)
-                .FirstOrDefaultAsync(l => l.Id == id);
+            try
+            {
+                var like = await _context.Likes.FindAsync(id);
+                if (like == null)
+                    return Resultado<Like>.Falla($"No se encontró un like con el Id  ");
+
+                return Resultado<Like>.Exito(like);
+            }
+            catch (Exception ex)
+            {
+                return Resultado<Like>.Falla($"Error al obtener el like");
+            }
         }
 
         /// <summary>
         /// Busca si un usuario (por correo institucional) ya ha dado like a un anuncio.
         /// </summary>
-        public async Task<Like?> ObtenerPorAnuncioYUsuarioAsync(int anuncioId, string correoUsuario)
+        public async Task<Resultado<Like>> ObtenerPorAnuncioYUsuarioAsync(int anuncioId, string correoUsuario)
         {
-            return await _context.Likes
-                .Include(l => l.Usuario)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(l =>
-                    l.AnuncioId == anuncioId &&
-                    l.Usuario != null &&
-                    l.Usuario.CorreoInstitucional.ToLower() == correoUsuario.ToLower());
+            try
+            {
+                var like = await _context.Likes
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(l =>
+                        l.AnuncioId == anuncioId &&
+                        l.Usuario != null &&
+                        l.Usuario.CorreoInstitucional.ToLower() == correoUsuario.ToLower());
+
+                if (like == null)
+                    return Resultado<Like>.Falla("No se encontró like de este usuario en el anuncio.");
+
+                return Resultado<Like>.Exito(like);
+            }
+            catch (Exception ex)
+            {
+                return Resultado<Like>.Falla($"Error al buscar like");
+            }
         }
 
-        /// <summary>
+        
         /// Crea un nuevo like.
-        /// </summary>
-        public async Task<bool> CrearAsync(Like like)
+      
+        public async Task<Resultado<bool>> CrearAsync(Like like)
         {
-            await _context.Likes.AddAsync(like);
-            return await _context.SaveChangesAsync() > 0;
+            try
+            {
+                await _context.Likes.AddAsync(like);
+                var guardado = await _context.SaveChangesAsync() > 0;
+                if (!guardado) return Resultado<bool>.Falla("No se pudo crear el like.");
+
+                return Resultado<bool>.Exito(true);
+            }
+            catch (Exception ex)
+            {
+                return Resultado<bool>.Falla($"Error al crear like ");
+            }
         }
 
-        /// <summary>
+       
         /// Elimina un like por Id.
-        /// </summary>
-        public async Task<bool> EliminarAsync(int id)
+       
+        public async Task<Resultado<bool>> EliminarAsync(int id)
         {
-            var like = await _context.Likes.FindAsync(id);
-            if (like == null) return false;
+            try
+            {
+                var like = await _context.Likes.FindAsync(id);
+                if (like == null)
+                    return Resultado<bool>.Falla("No se encontró el like a eliminar.");
 
-            _context.Likes.Remove(like);
-            return await _context.SaveChangesAsync() > 0;
+                _context.Likes.Remove(like);
+                var guardado = await _context.SaveChangesAsync() > 0;
+                if (!guardado) return Resultado<bool>.Falla("No se pudo eliminar el like.");
+
+                return Resultado<bool>.Exito(true);
+            }
+            catch (Exception ex)
+            {
+                return Resultado<bool>.Falla($"Error al eliminar like");
+            }
         }
 
         /// <summary>
         /// Cuenta los likes de un anuncio.
         /// </summary>
-        public async Task<int> ContarPorAnuncioAsync(int anuncioId)
+        public async Task<Resultado<int>> ContarPorAnuncioAsync(int anuncioId)
         {
-            return await _context.Likes.CountAsync(l => l.AnuncioId == anuncioId);
+            try
+            {
+                var count = await _context.Likes.CountAsync(l => l.AnuncioId == anuncioId);
+                return Resultado<int>.Exito(count);
+            }
+            catch (Exception ex)
+            {
+                return Resultado<int>.Falla($"Error al contar likes");
+            }
         }
     }
 }

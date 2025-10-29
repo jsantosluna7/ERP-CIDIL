@@ -19,50 +19,63 @@ namespace Usuarios.Implementaciones.Repositorios
         }
 
         // ✅ Obtener todos los currículos
-        public async Task<List<Curriculum>> ObtenerTodosAsync()
+        public async Task<Resultado<List<Curriculum>>> ObtenerTodosAsync()
         {
-            return await _context.Curriculums
-                .Include(c => c.Anuncio)
+            var curriculums = await _context.Curriculums
                 .AsNoTracking()
                 .ToListAsync();
+
+            if (curriculums == null || curriculums.Count == 0)
+                return Resultado<List<Curriculum>>.Falla("No hay curriculums registrados.");
+
+            return Resultado<List<Curriculum>>.Exito(curriculums);
         }
 
         // ✅ Obtener un currículum por ID
-        public async Task<Curriculum?> ObtenerPorIdAsync(int id)
+        public async Task<Resultado<Curriculum>> ObtenerPorIdAsync(int id)
         {
-            return await _context.Curriculums
-                .Include(c => c.Anuncio)
+            var curriculum = await _context.Curriculums
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (curriculum == null)
+                return Resultado<Curriculum>.Falla($"No se encontró un currículum con Id = {id}.");
+
+            return Resultado<Curriculum>.Exito(curriculum);
         }
 
         // ✅ Crear nuevo currículum
-        public async Task CrearAsync(Curriculum curriculum)
+        public async Task<Resultado<bool>> CrearAsync(Curriculum curriculum)
         {
             await _context.Curriculums.AddAsync(curriculum);
+            return Resultado<bool>.Exito(true);
         }
 
         // ✅ Actualizar un currículum existente
-        public async Task ActualizarAsync(Curriculum curriculum)
+        public async Task<Resultado<bool>> ActualizarAsync(Curriculum curriculum)
         {
             _context.Curriculums.Update(curriculum);
-            await Task.CompletedTask;
+            return Resultado<bool>.Exito(true);
         }
 
         // ✅ Eliminar currículum
-        public async Task<bool> EliminarAsync(int id)
+        public async Task<Resultado<bool>> EliminarAsync(int id)
         {
             var curriculum = await _context.Curriculums.FindAsync(id);
-            if (curriculum == null) return false;
+            if (curriculum == null)
+                return Resultado<bool>.Falla($"No se encontró un currículum con Id = {id}.");
 
             _context.Curriculums.Remove(curriculum);
-            return true;
+            return Resultado<bool>.Exito(true);
         }
 
         // ✅ Guardar cambios
-        public async Task GuardarAsync()
+        public async Task<Resultado<bool>> GuardarAsync()
         {
-            await _context.SaveChangesAsync();
+            var cambios = await _context.SaveChangesAsync();
+            return cambios > 0
+                ? Resultado<bool>.Exito(true)
+                : Resultado<bool>.Falla("No se pudieron guardar los cambios.");
         }
     }
 }

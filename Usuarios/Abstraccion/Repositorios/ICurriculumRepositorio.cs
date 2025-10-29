@@ -1,42 +1,43 @@
 ﻿using ERP.Data.Modelos;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Usuarios.DTO;
 
 namespace Usuarios.Abstraccion.Repositorios
 {
-    /// <summary>
+    
     /// Interfaz para manejar la persistencia de Curriculum
-    /// </summary>
+    /// usando el patrón Resultado<T> para control de errores.
+   
     public interface ICurriculumRepositorio
     {
-        /// <summary>
         /// Obtiene todos los curriculums
-        /// </summary>
-        Task<List<Curriculum>> ObtenerTodosAsync();
+      
+        Task<Resultado<List<Curriculum>>> ObtenerTodosAsync();
 
-        /// <summary>
+        
         /// Obtiene un curriculum por Id
-        /// </summary>
-        Task<Curriculum?> ObtenerPorIdAsync(int id);
+        
+        Task<Resultado<Curriculum>> ObtenerPorIdAsync(int id);
 
-        /// <summary>
+     
         /// Crea un nuevo curriculum
-        /// </summary>
-        Task CrearAsync(Curriculum curriculum);
+  
+        Task<Resultado<bool>> CrearAsync(Curriculum curriculum);
 
-        /// <summary>
+     
         /// Actualiza un curriculum existente
-        /// </summary>
-        Task ActualizarAsync(Curriculum curriculum);
+      
+        Task<Resultado<bool>> ActualizarAsync(Curriculum curriculum);
 
-        /// <summary>
+     
         /// Elimina un curriculum por Id
-        /// </summary>
-        Task<bool> EliminarAsync(int id);
+     
+        Task<Resultado<bool>> EliminarAsync(int id);
 
-        /// <summary>
+        
         /// Guarda los cambios pendientes en la base de datos
-        /// </summary>
-        Task GuardarAsync();
+       
+        Task<Resultado<bool>> GuardarAsync();
     }
 }

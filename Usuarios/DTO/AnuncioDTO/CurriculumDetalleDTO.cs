@@ -2,10 +2,10 @@
 
 namespace Usuarios.DTO.AnuncioDTO
 {
-    /// <summary>
+   
     /// Representa la información detallada de un currículum.
     /// Incluye el anuncio asociado (si existe).
-    /// </summary>
+   
     public class CurriculumDetalleDTO
     {
         public int Id { get; set; }
@@ -18,7 +18,7 @@ namespace Usuarios.DTO.AnuncioDTO
 
         public DateTime FechaEnvio { get; set; }
 
-        // 🆕 Campo adicional para mostrar de qué anuncio proviene el currículum
+        //  Campo adicional para mostrar de qué anuncio proviene el currículum
         public string? AnuncioTitulo { get; set; } = "(Sin anuncio)";
     }
 }

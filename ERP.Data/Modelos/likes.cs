@@ -4,10 +4,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ERP.Data.Modelos
 {
-    /// <summary>
-    /// Representa un "Like" realizado por un usuario institucional en un anuncio.
-    /// Cada registro indica qué usuario dio like a qué anuncio y cuándo.
-    /// </summary>
+    
+    // Representa un "Like" realizado por un usuario institucional en un anuncio.
+    // Cada registro indica qué usuario dio like a qué anuncio y cuándo.
+   
     [Table("likes")]
     public class Like
     {

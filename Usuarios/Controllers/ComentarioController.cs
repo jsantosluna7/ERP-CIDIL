@@ -48,12 +48,12 @@ namespace Usuarios.Controllers
 
             try
             {
-                var comentarioCreado = await _comentarioServicio.CrearAsync(dto);
+                var resultado = await _comentarioServicio.CrearAsync(dto);
 
-                if (comentarioCreado == null)
-                    return StatusCode(500, new { error = "No se pudo crear el comentario." });
+                if (!resultado.esExitoso)
+                    return StatusCode(500, new { error = resultado.MensajeError });
 
-                return Ok(comentarioCreado);
+                return Ok(resultado.Valor);
             }
             catch (KeyNotFoundException ex)
             {
@@ -79,9 +79,10 @@ namespace Usuarios.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var exito = await _comentarioServicio.ActualizarAsync(id, dto);
-            if (!exito)
-                return NotFound("No se encontró el comentario o el texto es inválido.");
+            var resultado = await _comentarioServicio.ActualizarAsync(id, dto);
+
+            if (!resultado.esExitoso)
+                return NotFound(resultado.MensajeError);
 
             return Ok("Comentario actualizado correctamente.");
         }
@@ -93,9 +94,10 @@ namespace Usuarios.Controllers
             if (!User.TieneRol("ADMINISTRADOR", "SUPERUSUARIO"))
                 return Unauthorized("No tienes permisos para eliminar comentarios.");
 
-            var exito = await _comentarioServicio.EliminarAsync(id);
-            if (!exito)
-                return NotFound("Comentario no encontrado para eliminar.");
+            var resultado = await _comentarioServicio.EliminarAsync(id);
+
+            if (!resultado.esExitoso)
+                return NotFound(resultado.MensajeError);
 
             return Ok("Comentario eliminado correctamente.");
         }

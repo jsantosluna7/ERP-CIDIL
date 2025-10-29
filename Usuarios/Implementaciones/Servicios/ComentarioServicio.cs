@@ -1,5 +1,4 @@
 ﻿using ERP.Data.Modelos;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,141 +10,168 @@ using Usuarios.DTO.Comentarios;
 
 namespace Usuarios.Implementaciones.Servicios
 {
-    /// <summary>
-    /// Servicio para manejar comentarios en anuncios.
-    /// Solo usuarios institucionales (representados por Usuario) pueden comentar.
-    /// </summary>
     public class ComentarioServicio : IComentarioServicio
     {
-        private readonly IComentarioRepositorio _repo;
+        private readonly IComentarioRepositorio _comentarioRepo;
         private readonly IAnuncioRepositorio _anuncioRepo;
         private readonly IUsuarioRepositorio _usuarioRepo;
 
         public ComentarioServicio(
-            IComentarioRepositorio repo,
+            IComentarioRepositorio comentarioRepo,
             IAnuncioRepositorio anuncioRepo,
             IUsuarioRepositorio usuarioRepo)
         {
-            _repo = repo ?? throw new ArgumentNullException(nameof(repo));
+            _comentarioRepo = comentarioRepo ?? throw new ArgumentNullException(nameof(comentarioRepo));
             _anuncioRepo = anuncioRepo ?? throw new ArgumentNullException(nameof(anuncioRepo));
             _usuarioRepo = usuarioRepo ?? throw new ArgumentNullException(nameof(usuarioRepo));
         }
 
-        public async Task<List<ComentarioDetalleDTO>> ObtenerTodosAsync()
+        public async Task<Resultado<List<ComentarioDetalleDTO>>> ObtenerTodosAsync()
         {
-            var comentarios = await _repo.ObtenerTodosAsync();
-            return comentarios.Select(c => new ComentarioDetalleDTO
+            var comentariosResultado = await _comentarioRepo.ObtenerTodosAsync();
+
+            if (!comentariosResultado.esExitoso)
+                return Resultado<List<ComentarioDetalleDTO>>.Falla("No se pudieron obtener los comentarios.");
+
+            var comentarios = comentariosResultado.Valor;
+
+            if (comentarios == null || !comentarios.Any())
+                return Resultado<List<ComentarioDetalleDTO>>.Falla("No hay comentarios registrados.");
+
+            var lista = comentarios.Select(c => new ComentarioDetalleDTO
             {
                 Id = c.Id,
                 AnuncioId = c.AnuncioId,
                 UsuarioId = c.UsuarioId,
-                NombreUsuario = c.NombreUsuario ?? (c.Usuario != null ? c.Usuario.NombreUsuario : "Usuario desconocido"),
+                NombreUsuario = c.NombreUsuario ?? "Usuario desconocido",
                 Texto = c.Texto,
                 Fecha = c.Fecha,
-                TituloAnuncio = c.Anuncio?.Titulo ?? string.Empty
+                TituloAnuncio = string.Empty 
             }).ToList();
+
+            return Resultado<List<ComentarioDetalleDTO>>.Exito(lista);
         }
 
-        public async Task<ComentarioDetalleDTO?> ObtenerPorIdAsync(int id)
+        public async Task<Resultado<ComentarioDetalleDTO>> ObtenerPorIdAsync(int id)
         {
-            var comentario = await _repo.ObtenerPorIdAsync(id);
-            if (comentario == null) return null;
+            var comentarioResultado = await _comentarioRepo.ObtenerPorIdAsync(id);
 
-            return new ComentarioDetalleDTO
+            if (!comentarioResultado.esExitoso || comentarioResultado.Valor == null)
+                return Resultado<ComentarioDetalleDTO>.Falla($"No se encontró un comentario con Id = {id}.");
+
+            var c = comentarioResultado.Valor;
+
+            var dto = new ComentarioDetalleDTO
             {
-                Id = comentario.Id,
-                AnuncioId = comentario.AnuncioId,
-                UsuarioId = comentario.UsuarioId,
-                NombreUsuario = comentario.NombreUsuario ?? (comentario.Usuario != null ? comentario.Usuario.NombreUsuario : "Usuario desconocido"),
-                Texto = comentario.Texto,
-                Fecha = comentario.Fecha,
-                TituloAnuncio = comentario.Anuncio?.Titulo ?? string.Empty
+                Id = c.Id,
+                AnuncioId = c.AnuncioId,
+                UsuarioId = c.UsuarioId,
+                NombreUsuario = c.NombreUsuario ?? "Usuario desconocido",
+                Texto = c.Texto,
+                Fecha = c.Fecha,
+                TituloAnuncio = string.Empty 
             };
+
+            return Resultado<ComentarioDetalleDTO>.Exito(dto);
         }
 
-        public async Task<List<ComentarioDetalleDTO>> ObtenerPorAnuncioIdAsync(int anuncioId)
+        public async Task<Resultado<List<ComentarioDetalleDTO>>> ObtenerPorAnuncioIdAsync(int anuncioId)
         {
-            var comentarios = await _repo.ObtenerPorAnuncioAsync(anuncioId);
-            return comentarios.Select(c => new ComentarioDetalleDTO
+            var comentariosResultado = await _comentarioRepo.ObtenerPorAnuncioAsync(anuncioId);
+
+            if (!comentariosResultado.esExitoso)
+                return Resultado<List<ComentarioDetalleDTO>>.Falla("No se pudieron obtener los comentarios.");
+
+            var comentarios = comentariosResultado.Valor;
+
+            if (comentarios == null || !comentarios.Any())
+                return Resultado<List<ComentarioDetalleDTO>>.Falla("No hay comentarios para este anuncio.");
+
+            var lista = comentarios.Select(c => new ComentarioDetalleDTO
             {
                 Id = c.Id,
                 AnuncioId = c.AnuncioId,
                 UsuarioId = c.UsuarioId,
-                NombreUsuario = c.NombreUsuario ?? (c.Usuario != null ? c.Usuario.NombreUsuario : "Usuario desconocido"),
+                NombreUsuario = c.NombreUsuario ?? "Usuario desconocido",
                 Texto = c.Texto,
                 Fecha = c.Fecha,
-                TituloAnuncio = c.Anuncio?.Titulo ?? string.Empty
+                TituloAnuncio = string.Empty 
             }).ToList();
+
+            return Resultado<List<ComentarioDetalleDTO>>.Exito(lista);
         }
 
-        public async Task<ComentarioDetalleDTO> CrearAsync(CrearComentarioDTO dto)
+        public async Task<Resultado<ComentarioDetalleDTO>> CrearAsync(CrearComentarioDTO dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Texto))
-                throw new ArgumentException("El texto del comentario no puede estar vacío.");
+                return Resultado<ComentarioDetalleDTO>.Falla("El texto del comentario no puede estar vacío.");
 
-            var anuncio = await _anuncioRepo.ObtenerPorIdAsync(dto.AnuncioId);
-            if (anuncio == null)
-                throw new KeyNotFoundException($"No existe un anuncio con Id = {dto.AnuncioId}");
+            var anuncioResultado = await _anuncioRepo.ObtenerPorIdAsync(dto.AnuncioId);
+            if (!anuncioResultado.esExitoso || anuncioResultado.Valor == null)
+                return Resultado<ComentarioDetalleDTO>.Falla($"No existe un anuncio con Id = {dto.AnuncioId}.");
 
-            var usuario = await _usuarioRepo.ObtenerPorIdAsync(dto.UsuarioId);
-            if (usuario == null)
-                throw new KeyNotFoundException($"No existe un usuario con Id = {dto.UsuarioId}");
+            var usuarioResultado = await _usuarioRepo.ObtenerPorIdAsync(dto.UsuarioId);
+            if (usuarioResultado == null)
+                return Resultado<ComentarioDetalleDTO>.Falla($"No existe un usuario con Id = {dto.UsuarioId}.");
 
             var comentario = new Comentario
             {
                 AnuncioId = dto.AnuncioId,
-                UsuarioId = usuario.Id,
+                UsuarioId = usuarioResultado.Id,
                 Texto = dto.Texto.Trim(),
                 NombreUsuario = dto.NombreUsuario,
                 Fecha = DateTime.UtcNow
             };
 
-            await _repo.CrearAsync(comentario);
-            await _repo.GuardarAsync();
+            var crearResultado = await _comentarioRepo.CrearAsync(comentario);
+            if (!crearResultado.esExitoso)
+                return Resultado<ComentarioDetalleDTO>.Falla("Error al crear el comentario.");
 
-            var comentarioConRelaciones = await _repo
-                .ObtenerQueryable()
-                .Include(c => c.Usuario)
-                .Include(c => c.Anuncio)
-                .FirstOrDefaultAsync(c => c.Id == comentario.Id);
+            var nuevoComentarioResultado = await _comentarioRepo.ObtenerPorIdAsync(comentario.Id);
+            if (!nuevoComentarioResultado.esExitoso || nuevoComentarioResultado.Valor == null)
+                return Resultado<ComentarioDetalleDTO>.Falla("Error al recuperar el comentario creado.");
 
-            if (comentarioConRelaciones == null)
-                throw new Exception("Error al recuperar el comentario creado.");
-
-            return new ComentarioDetalleDTO
+            var dtoFinal = new ComentarioDetalleDTO
             {
-                Id = comentarioConRelaciones.Id,
-                AnuncioId = comentarioConRelaciones.AnuncioId,
-                UsuarioId = comentarioConRelaciones.UsuarioId,
-                NombreUsuario = comentarioConRelaciones.NombreUsuario ?? "Usuario desconocido",
-                Texto = comentarioConRelaciones.Texto,
-                Fecha = comentarioConRelaciones.Fecha,
-                TituloAnuncio = comentarioConRelaciones.Anuncio?.Titulo ?? string.Empty
+                Id = nuevoComentarioResultado.Valor.Id,
+                AnuncioId = nuevoComentarioResultado.Valor.AnuncioId,
+                UsuarioId = nuevoComentarioResultado.Valor.UsuarioId,
+                NombreUsuario = nuevoComentarioResultado.Valor.NombreUsuario ?? "Usuario desconocido",
+                Texto = nuevoComentarioResultado.Valor.Texto,
+                Fecha = nuevoComentarioResultado.Valor.Fecha,
+                TituloAnuncio = anuncioResultado.Valor.Titulo
             };
+
+            return Resultado<ComentarioDetalleDTO>.Exito(dtoFinal);
         }
 
-        public async Task<bool> ActualizarAsync(int id, ActualizarComentarioDTO dto)
+        public async Task<Resultado<bool>> ActualizarAsync(int id, ActualizarComentarioDTO dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Texto))
-                return false;
+                return Resultado<bool>.Falla("El texto no puede estar vacío.");
 
-            var comentario = await _repo.ObtenerPorIdAsync(id);
-            if (comentario == null) return false;
+            var comentarioResultado = await _comentarioRepo.ObtenerPorIdAsync(id);
+            if (!comentarioResultado.esExitoso || comentarioResultado.Valor == null)
+                return Resultado<bool>.Falla($"No se encontró un comentario con Id = {id}.");
 
+            var comentario = comentarioResultado.Valor;
             comentario.Texto = dto.Texto.Trim();
-            await _repo.ActualizarAsync(comentario);
-            await _repo.GuardarAsync();
 
-            return true;
+            var actualizarResultado = await _comentarioRepo.ActualizarAsync(comentario);
+            if (!actualizarResultado.esExitoso)
+                return Resultado<bool>.Falla("Error al actualizar el comentario.");
+
+            return Resultado<bool>.Exito(true);
         }
 
-        public async Task<bool> EliminarAsync(int id)
+        public async Task<Resultado<bool>> EliminarAsync(int id)
         {
-            var eliminado = await _repo.EliminarPorIdAsync(id);
-            if (eliminado)
-                await _repo.GuardarAsync();
+            var eliminarResultado = await _comentarioRepo.EliminarPorIdAsync(id);
+            if (!eliminarResultado.esExitoso)
+                return Resultado<bool>.Falla("No se pudo eliminar el comentario.");
 
-            return eliminado;
+            return Resultado<bool>.Exito(true);
         }
     }
 }
+

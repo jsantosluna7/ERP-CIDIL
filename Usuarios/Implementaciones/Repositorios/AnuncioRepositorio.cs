@@ -1,4 +1,4 @@
-﻿using ERP.Data.Modelos; // DbErpContext y modelos están aquí
+﻿using ERP.Data.Modelos;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,121 +8,174 @@ using Usuarios.Abstraccion.Repositorios;
 
 namespace Usuarios.Implementaciones.Repositorios
 {
-    /// <summary>
-    /// Implementación del repositorio para la gestión de anuncios y sus "likes".
-    /// </summary>
+
+    /// Implementación concreta del repositorio de anuncios.
+    /// Gestiona la persistencia de los anuncios en la base de datos.
+   
     public class AnuncioRepositorio : IAnuncioRepositorio
     {
         private readonly DbErpContext _context;
 
-        /// <summary>
-        /// Constructor que recibe el contexto de base de datos.
-        /// </summary>
-        /// <param name="context">Contexto de la base de datos</param>
         public AnuncioRepositorio(DbErpContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         /// <summary>
-        /// Obtiene todos los anuncios incluyendo comentarios y likes.
+        /// Obtiene todos los anuncios registrados.
         /// </summary>
-        public async Task<List<Anuncio>> ObtenerTodosAsync()
+        public async Task<Resultado<List<Anuncio>>> ObtenerTodosAsync()
         {
-            return await _context.Anuncios
-                .Include(a => a.Comentarios)
-                    .ThenInclude(c => c.Usuario) // Cargar UsuarioPublico de cada comentario
-                .Include(a => a.Likes)
-                    .ThenInclude(l => l.Usuario) // Cargar UsuarioPublico de cada like
-                .ToListAsync();
+            try
+            {
+                var anuncios = await _context.Anuncios.ToListAsync();
+                return Resultado<List<Anuncio>>.Exito(anuncios);
+            }
+            catch (Exception ex)
+            {
+                return Resultado<List<Anuncio>>.Falla("Error al obtener anuncios.");
+            }
         }
 
         /// <summary>
-        /// Obtiene un anuncio por su ID, incluyendo comentarios y likes.
+        /// Obtiene un anuncio por su ID.
         /// </summary>
-        public async Task<Anuncio?> ObtenerPorIdAsync(int id)
+        public async Task<Resultado<Anuncio>> ObtenerPorIdAsync(int id)
         {
-            return await _context.Anuncios
-                .Include(a => a.Comentarios)
-                    .ThenInclude(c => c.Usuario)
-                .Include(a => a.Likes)
-                    .ThenInclude(l => l.Usuario)
-                .FirstOrDefaultAsync(a => a.Id == id);
+            try
+            {
+                var anuncio = await _context.Anuncios
+                    .FirstOrDefaultAsync(a => a.Id == id);
+
+                if (anuncio == null)
+                    return Resultado<Anuncio>.Falla("El anuncio no existe.");
+
+                return Resultado<Anuncio>.Exito(anuncio);
+            }
+            catch (Exception ex)
+            {
+                return Resultado<Anuncio>.Falla("Error al obtener el anuncio.");
+            }
         }
 
         /// <summary>
         /// Crea un nuevo anuncio.
         /// </summary>
-        public async Task CrearAsync(Anuncio anuncio)
+        public async Task<Resultado<bool>> CrearAsync(Anuncio anuncio)
         {
-            if (anuncio == null)
-                throw new ArgumentNullException(nameof(anuncio));
-
-            await _context.Anuncios.AddAsync(anuncio);
+            try
+            {
+                await _context.Anuncios.AddAsync(anuncio);
+                await GuardarAsync();
+                return Resultado<bool>.Exito(true);
+            }
+            catch (Exception ex)
+            {
+                return Resultado<bool>.Falla("Error al crear el anuncio.");
+            }
         }
 
         /// <summary>
         /// Actualiza un anuncio existente.
         /// </summary>
-        public void Actualizar(Anuncio anuncio)
+        public async Task<Resultado<bool>> ActualizarAsync(Anuncio anuncio)
         {
-            if (anuncio == null)
-                throw new ArgumentNullException(nameof(anuncio));
-
-            _context.Anuncios.Update(anuncio);
+            try
+            {
+                _context.Anuncios.Update(anuncio);
+                await GuardarAsync();
+                return Resultado<bool>.Exito(true);
+            }
+            catch (Exception ex)
+            {
+                return Resultado<bool>.Falla("Error al actualizar el anuncio.");
+            }
         }
 
-        /// <summary>
-        /// Elimina un anuncio existente.
-        /// </summary>
-        public void Eliminar(Anuncio anuncio)
+       
+        /// Elimina un anuncio por su ID.
+        
+        public async Task<Resultado<bool>> EliminarAsync(int id)
         {
-            if (anuncio == null)
-                throw new ArgumentNullException(nameof(anuncio));
+            try
+            {
+                var anuncio = await _context.Anuncios.FindAsync(id);
+                if (anuncio == null)
+                    return Resultado<bool>.Falla("El anuncio no existe.");
 
-            _context.Anuncios.Remove(anuncio);
+                _context.Anuncios.Remove(anuncio);
+                await GuardarAsync();
+                return Resultado<bool>.Exito(true);
+            }
+            catch (Exception ex)
+            {
+                return Resultado<bool>.Falla("Error al eliminar el anuncio.");
+            }
         }
 
-        /// <summary>
-        /// Guarda los cambios realizados en la base de datos.
-        /// </summary>
+      
+        /// Guarda los cambios en la base de datos.
+    
         public async Task GuardarAsync()
         {
             await _context.SaveChangesAsync();
         }
 
-        /// <summary>
-        /// Alterna (añade o quita) un "like" según si el usuario ya lo dio o no.
-        /// </summary>
-        /// <param name="anuncioId">ID del anuncio</param>
-        /// <param name="usuarioId">ID del usuario público</param>
-        /// <returns>True si el like fue añadido, False si fue quitado</returns>
-        public async Task<bool> ToggleLikeAsync(int anuncioId, int usuarioId)
+      
+        /// Alterna (agrega o quita) un "like" de un usuario sobre un anuncio.
+     
+        public async Task<Resultado<bool>> ToggleLikeAsync(int anuncioId, int usuarioId)
         {
-            // Verifica si el usuario ya dio like
-            var likeExistente = await _context.Likes
-                .FirstOrDefaultAsync(l => l.AnuncioId == anuncioId && l.UsuarioId == usuarioId);
-
-            if (likeExistente != null)
+            try
             {
-                // Si existe, se elimina el like
-                _context.Likes.Remove(likeExistente);
-                await _context.SaveChangesAsync();
-                return false; // Like eliminado
+                var like = await _context.Likes
+                    .FirstOrDefaultAsync(l => l.AnuncioId == anuncioId && l.UsuarioId == usuarioId);
+
+                if (like != null)
+                {
+                    _context.Likes.Remove(like);
+                    await GuardarAsync();
+                    return Resultado<bool>.Exito(false); // Like eliminado
+                }
+
+                var nuevoLike = new Like
+                {
+                    AnuncioId = anuncioId,
+                    UsuarioId = usuarioId,
+                    Fecha = DateTime.Now
+                };
+
+                await _context.Likes.AddAsync(nuevoLike);
+                await GuardarAsync();
+                return Resultado<bool>.Exito(true); // Like agregado
             }
-
-            // Si no existe, se crea un nuevo like
-            var nuevoLike = new Like
+            catch (Exception ex)
             {
-                AnuncioId = anuncioId,
-                UsuarioId = usuarioId,
-                Fecha = DateTime.UtcNow
-            };
+                return Resultado<bool>.Falla("Error al alternar like.");
+            }
+        }
 
-            await _context.Likes.AddAsync(nuevoLike);
-            await _context.SaveChangesAsync();
-            return true; // Like agregado
+
+        /// Obtiene los comentarios y likes de un anuncio.
+      
+        public async Task<Resultado<(List<Comentario> Comentarios, List<Like> Likes)>> ObtenerComentariosYLikesAsync(int anuncioId)
+        {
+            try
+            {
+                var comentarios = await _context.Comentarios
+                    .Where(c => c.AnuncioId == anuncioId)
+                    .ToListAsync();
+
+                var likes = await _context.Likes
+                    .Where(l => l.AnuncioId == anuncioId)
+                    .ToListAsync();
+
+                return Resultado<(List<Comentario>, List<Like>)>.Exito((comentarios, likes));
+            }
+            catch (Exception ex)
+            {
+                return Resultado<(List<Comentario>, List<Like>)>.Falla("Error al obtener comentarios y likes.");
+            }
         }
     }
 }
-

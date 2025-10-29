@@ -7,15 +7,14 @@ namespace Usuarios.Abstraccion.Repositorios
 {
     public interface IComentarioRepositorio
     {
-        Task<List<Comentario>> ObtenerTodosAsync();
-        Task<Comentario?> ObtenerPorIdAsync(int id);
-        Task<List<Comentario>> ObtenerPorAnuncioAsync(int anuncioId);
-        Task CrearAsync(Comentario comentario);
-        Task ActualizarAsync(Comentario comentario);
-        Task<bool> EliminarPorIdAsync(int id);
-        Task GuardarAsync();
+        Task<Resultado<List<Comentario>>> ObtenerTodosAsync();
+        Task<Resultado<Comentario>> ObtenerPorIdAsync(int id);
+        Task<Resultado<List<Comentario>>> ObtenerPorAnuncioAsync(int anuncioId);
+        Task<Resultado<Comentario>> CrearAsync(Comentario comentario);
+        Task<Resultado<bool>> ActualizarAsync(Comentario comentario);
+        Task<Resultado<bool>> EliminarPorIdAsync(int id);
 
-        // ✅ Nuevo método para consultas personalizadas
+        //método para consultas personalizadas (sin cambio)
         IQueryable<Comentario> ObtenerQueryable();
     }
 }

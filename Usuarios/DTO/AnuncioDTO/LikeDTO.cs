@@ -2,14 +2,14 @@
 {
     public class LikeDTO
     {
-        /// <summary>
-        /// Id del anuncio al que se le da like.
-        /// </summary>
+      
+        // Id del anuncio al que se le da like.
+        
         public int AnuncioId { get; set; }
 
-        /// <summary>
-        /// Correo institucional del usuario que da like.
-        /// </summary>
+      
+        // Correo institucional del usuario que da like.
+        
         public string Usuario { get; set; } = null!;
     }
 }

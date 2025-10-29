@@ -16,77 +16,119 @@ namespace Usuarios.Implementaciones.Repositorios
             _context = context;
         }
 
-        /// <summary>
-        /// Obtiene todos los comentarios, incluyendo el anuncio y el usuario relacionados.
-        /// </summary>
-        public async Task<List<Comentario>> ObtenerTodosAsync()
+        
+        /// Obtiene todos los comentarios.
+      
+        public async Task<Resultado<List<Comentario>>> ObtenerTodosAsync()
         {
-            return await _context.Comentarios
-                .Include(c => c.Anuncio)
-                .OrderByDescending(c => c.Fecha)
-                .ToListAsync();
+            try
+            {
+                var comentarios = await _context.Comentarios
+                    .OrderByDescending(c => c.Fecha)
+                    .ToListAsync();
+
+                return Resultado<List<Comentario>>.Exito(comentarios);
+            }
+            catch (System.Exception ex)
+            {
+                return Resultado<List<Comentario>>.Falla(ex.Message);
+            }
         }
 
         /// <summary>
         /// Obtiene un comentario por su ID.
         /// </summary>
-        public async Task<Comentario?> ObtenerPorIdAsync(int id)
+        public async Task<Resultado<Comentario>> ObtenerPorIdAsync(int id)
         {
-            return await _context.Comentarios
-                .Include(c => c.Anuncio)
-                .FirstOrDefaultAsync(c => c.Id == id);
+            try
+            {
+                var comentario = await _context.Comentarios
+                    .FirstOrDefaultAsync(c => c.Id == id);
+
+                if (comentario == null)
+                    return Resultado<Comentario>.Falla("Comentario no encontrado.");
+
+                return Resultado<Comentario>.Exito(comentario);
+            }
+            catch (System.Exception ex)
+            {
+                return Resultado<Comentario>.Falla(ex.Message);
+            }
         }
 
         /// <summary>
         /// Obtiene los comentarios asociados a un anuncio específico.
         /// </summary>
-        public async Task<List<Comentario>> ObtenerPorAnuncioAsync(int anuncioId)
+        public async Task<Resultado<List<Comentario>>> ObtenerPorAnuncioAsync(int anuncioId)
         {
-            return await _context.Comentarios
-                .Where(c => c.AnuncioId == anuncioId)
-                .Include(c => c.Anuncio)
-                .OrderByDescending(c => c.Fecha)
-                .ToListAsync();
+            try
+            {
+                var comentarios = await _context.Comentarios
+                    .Where(c => c.AnuncioId == anuncioId)
+                    .OrderByDescending(c => c.Fecha)
+                    .ToListAsync();
+
+                return Resultado<List<Comentario>>.Exito(comentarios);
+            }
+            catch (System.Exception ex)
+            {
+                return Resultado<List<Comentario>>.Falla(ex.Message);
+            }
         }
 
         /// <summary>
         /// Crea un nuevo comentario en la base de datos.
         /// </summary>
-        public async Task CrearAsync(Comentario comentario)
+        public async Task<Resultado<Comentario>> CrearAsync(Comentario comentario)
         {
-            await _context.Comentarios.AddAsync(comentario);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.Comentarios.AddAsync(comentario);
+                await _context.SaveChangesAsync();
+                return Resultado<Comentario>.Exito(comentario);
+            }
+            catch (System.Exception ex)
+            {
+                return Resultado<Comentario>.Falla(ex.Message);
+            }
         }
 
         /// <summary>
         /// Actualiza la información de un comentario existente.
         /// </summary>
-        public async Task ActualizarAsync(Comentario comentario)
+        public async Task<Resultado<bool>> ActualizarAsync(Comentario comentario)
         {
-            _context.Comentarios.Update(comentario);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.Comentarios.Update(comentario);
+                await _context.SaveChangesAsync();
+                return Resultado<bool>.Exito(true);
+            }
+            catch (System.Exception ex)
+            {
+                return Resultado<bool>.Falla(ex.Message);
+            }
         }
 
         /// <summary>
         /// Elimina un comentario por su ID.
         /// </summary>
-        public async Task<bool> EliminarPorIdAsync(int id)
+        public async Task<Resultado<bool>> EliminarPorIdAsync(int id)
         {
-            var comentario = await _context.Comentarios.FindAsync(id);
-            if (comentario == null)
-                return false;
+            try
+            {
+                var comentario = await _context.Comentarios.FindAsync(id);
+                if (comentario == null)
+                    return Resultado<bool>.Falla("Comentario no encontrado.");
 
-            _context.Comentarios.Remove(comentario);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        /// <summary>
-        /// Guarda los cambios pendientes en la base de datos.
-        /// </summary>
-        public async Task GuardarAsync()
-        {
-            await _context.SaveChangesAsync();
+                _context.Comentarios.Remove(comentario);
+                await _context.SaveChangesAsync();
+                return Resultado<bool>.Exito(true);
+            }
+            catch (System.Exception ex)
+            {
+                return Resultado<bool>.Falla(ex.Message);
+            }
         }
 
         /// <summary>
@@ -94,8 +136,7 @@ namespace Usuarios.Implementaciones.Repositorios
         /// </summary>
         public IQueryable<Comentario> ObtenerQueryable()
         {
-            return _context.Comentarios
-                .Include(c => c.Anuncio);
+            return _context.Comentarios.AsQueryable();
         }
     }
 }

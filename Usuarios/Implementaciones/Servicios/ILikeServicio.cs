@@ -4,15 +4,17 @@ using Usuarios.DTO.AnuncioDTO;
 
 namespace Usuarios.Abstraccion.Servicios
 {
+    /// <summary>
+    /// Interfaz del servicio de Likes para anuncios.
+    /// Define las operaciones disponibles sobre Likes.
+    /// </summary>
     public interface ILikeServicio
     {
         Task<List<LikeDTO>> ObtenerTodosAsync();
         Task<LikeDTO?> ObtenerPorIdAsync(int id);
-        Task<(bool estadoActual, int totalLikes)> CrearAsync(LikeDTO dto); // Toggle Like
+        Task<(bool estadoActual, int totalLikes)> CrearAsync(LikeDTO dto);
         Task<bool> EliminarAsync(int id);
         Task<int> ContarPorAnuncioAsync(int anuncioId);
-
-        // ✅ Nuevo método: verifica si un usuario ya dio like
-        Task<bool> ExisteLikeAsync(int anuncioId, string usuario);
+        Task<bool> ExisteLikeAsync(int anuncioId, string usuarioCorreo);
     }
 }

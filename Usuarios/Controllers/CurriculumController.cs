@@ -19,7 +19,7 @@ namespace Usuarios.Controllers
             _curriculumServicio = curriculumServicio;
         }
 
-        // ✅ GET: Lista todos los currículos (solo SUPERUSUARIO o ADMINISTRADOR)
+        // ==================== GET: Lista todos los currículos ====================
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> ObtenerTodos()
@@ -27,11 +27,14 @@ namespace Usuarios.Controllers
             if (!User.TieneRol("1", "2"))
                 return Unauthorized(new { mensaje = "No tienes permiso para acceder a esta información" });
 
-            var lista = await _curriculumServicio.ObtenerTodosAsync();
-            return Ok(lista);
+            var resultado = await _curriculumServicio.ObtenerTodosAsync();
+            if (!resultado.esExitoso)
+                return StatusCode(500, new { mensaje = resultado.MensajeError });
+
+            return Ok(resultado.Valor);
         }
 
-        // ✅ GET: Obtiene un currículum por Id (solo SUPERUSUARIO o ADMINISTRADOR)
+        // ==================== GET: Obtiene un currículum por Id ====================
         [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> ObtenerPorId(int id)
@@ -39,38 +42,29 @@ namespace Usuarios.Controllers
             if (!User.TieneRol("1", "2"))
                 return Unauthorized(new { mensaje = "No tienes permiso para acceder a esta información" });
 
-            var item = await _curriculumServicio.ObtenerPorIdAsync(id);
-            if (item == null)
+            var resultado = await _curriculumServicio.ObtenerPorIdAsync(id);
+            if (!resultado.esExitoso || resultado.Valor == null)
                 return NotFound(new { mensaje = "Currículum no encontrado" });
 
-            return Ok(item);
+            return Ok(resultado.Valor);
         }
 
-        // ✅ POST: Cualquier usuario puede enviar su currículum
-        // (incluye estudiantes, profesores, administradores o superusuarios)
+        // ==================== POST: Crear currículum ====================
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Crear([FromForm] CurriculumDTO dto)
         {
-            try
-            {
-                if (!User.TieneRol("1", "2", "3", "4"))
-                    return Unauthorized(new { mensaje = "No tienes permiso para realizar esta acción" });
+            if (!User.TieneRol("1", "2", "3", "4"))
+                return Unauthorized(new { mensaje = "No tienes permiso para realizar esta acción" });
 
-                await _curriculumServicio.CrearAsync(dto);
-                return Ok(new { mensaje = "Currículum enviado correctamente ✅" });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { mensaje = ex.Message });
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, new { mensaje = "Ocurrió un error al subir el currículum. Intenta nuevamente." });
-            }
+            var resultado = await _curriculumServicio.CrearAsync(dto);
+            if (!resultado.esExitoso)
+                return BadRequest(new { mensaje = resultado.MensajeError });
+
+            return Ok(new { mensaje = "Currículum enviado correctamente ✅" });
         }
 
-        // ✅ DELETE: Elimina un currículum (solo SUPERUSUARIO o ADMINISTRADOR)
+        // ==================== DELETE: Eliminar currículum ====================
         [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Eliminar(int id)
@@ -78,9 +72,9 @@ namespace Usuarios.Controllers
             if (!User.TieneRol("1", "2"))
                 return Unauthorized(new { mensaje = "No tienes permiso para eliminar currículos" });
 
-            var eliminado = await _curriculumServicio.EliminarAsync(id);
-            if (!eliminado)
-                return NotFound(new { mensaje = "Currículum no encontrado para eliminar" });
+            var resultado = await _curriculumServicio.EliminarAsync(id);
+            if (!resultado.esExitoso || !resultado.Valor)
+                return NotFound(new { mensaje = resultado.MensajeError ?? "Currículum no encontrado para eliminar" });
 
             return Ok(new { mensaje = "Currículum eliminado correctamente ✅" });
         }
