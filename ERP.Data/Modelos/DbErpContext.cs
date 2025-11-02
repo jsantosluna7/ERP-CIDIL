@@ -640,7 +640,7 @@ public partial class DbErpContext : DbContext
                     .HasDefaultValueSql("CURRENT_TIMESTAMP")
                     .HasColumnName("fecha_envio");
 
-                // 🧾 Permite distinguir currículums externos o internos
+                //  Permite distinguir currículums externos o internos
                 entity.Property(e => e.EsExterno)
                     .HasColumnName("es_externo")
                     .HasDefaultValue(false);

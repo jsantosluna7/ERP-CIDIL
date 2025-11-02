@@ -10,11 +10,11 @@ using Usuarios.DTO.AnuncioDTO;
 
 namespace Usuarios.Implementaciones
 {
-    public class AnuncioServicio : IAnuncioServicio
+    public class ServicioAnuncio : IAnuncioServicio
     {
         private readonly IAnuncioRepositorio _repositorio;
 
-        public AnuncioServicio(IAnuncioRepositorio repositorio)
+        public ServicioAnuncio(IAnuncioRepositorio repositorio)
         {
             _repositorio = repositorio ?? throw new ArgumentNullException(nameof(repositorio));
         }
@@ -110,22 +110,45 @@ namespace Usuarios.Implementaciones
             return Resultado<bool>.Exito(true);
         }
 
-        // Obtener currículums asociados a una pasantía
+        // Obtener currículums asociados a un anuncio
         public async Task<Resultado<List<string>>> ObtenerCurriculumsAsync(int id)
         {
-            var resultado = await _repositorio.ObtenerPorIdAsync(id);
+            var resultado = await _repositorio.ObtenerCurriculumsAsync(id);
             if (!resultado.esExitoso)
                 return Resultado<List<string>>.Falla(resultado.MensajeError ?? "Error desconocido");
 
-            var anuncio = resultado.Valor!;
-            if (!anuncio.EsPasantia)
-                return Resultado<List<string>>.Exito(new List<string>());
+            var lista = resultado.Valor!
+                .Select(c => c.ArchivoUrl)
+                .ToList();
 
-            // Aquí puedes devolver la lista real de currículums si lo implementas
-            return Resultado<List<string>>.Exito(new List<string>());
+            return Resultado<List<string>>.Exito(lista);
         }
 
-        // Alternar "like" de un usuario usando su Id (int)
+        // Guardar currículum externo
+        public async Task<Resultado<bool>> GuardarCurriculumAsync(int anuncioId, string nombreArchivo)
+        {
+            if (string.IsNullOrWhiteSpace(nombreArchivo))
+                return Resultado<bool>.Falla("El archivo no puede estar vacío.");
+
+            var curriculum = new Curriculum
+            {
+                AnuncioId = anuncioId,
+                Nombre = "Externo",
+                Email = "",
+                ArchivoUrl = nombreArchivo,
+                FechaEnvio = DateTime.UtcNow,
+                EsExterno = true
+            };
+
+            var resultado = await _repositorio.AgregarCurriculumAsync(curriculum);
+            if (!resultado.esExitoso)
+                return Resultado<bool>.Falla(resultado.MensajeError ?? "Error al guardar currículum");
+
+            await _repositorio.GuardarAsync();
+            return Resultado<bool>.Exito(true);
+        }
+
+        // Alternar "like" de un usuario usando su Id
         public async Task<Resultado<bool>> ToggleLikeAsync(int anuncioId, int usuarioId)
         {
             var resultado = await _repositorio.ToggleLikeAsync(anuncioId, usuarioId);

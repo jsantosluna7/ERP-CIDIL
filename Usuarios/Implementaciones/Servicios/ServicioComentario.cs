@@ -10,13 +10,13 @@ using Usuarios.DTO.Comentarios;
 
 namespace Usuarios.Implementaciones.Servicios
 {
-    public class ComentarioServicio : IComentarioServicio
+    public class ServicioComentario : IComentarioServicio
     {
         private readonly IComentarioRepositorio _comentarioRepo;
         private readonly IAnuncioRepositorio _anuncioRepo;
         private readonly IUsuarioRepositorio _usuarioRepo;
 
-        public ComentarioServicio(
+        public ServicioComentario(
             IComentarioRepositorio comentarioRepo,
             IAnuncioRepositorio anuncioRepo,
             IUsuarioRepositorio usuarioRepo)

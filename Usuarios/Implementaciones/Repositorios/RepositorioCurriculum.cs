@@ -6,14 +6,14 @@ using Usuarios.Abstraccion.Repositorios;
 
 namespace Usuarios.Implementaciones.Repositorios
 {
-    /// <summary>
-    /// Implementación del repositorio de Curriculum usando Entity Framework.
-    /// </summary>
-    public class CurriculumRepositorio : ICurriculumRepositorio
+    
+    // Implementación del repositorio de Curriculum usando Entity Framework.
+    
+    public class RepositorioCurriculum : ICurriculumRepositorio
     {
         private readonly DbErpContext _context;
 
-        public CurriculumRepositorio(DbErpContext context)
+        public RepositorioCurriculum(DbErpContext context)
         {
             _context = context;
         }
@@ -39,7 +39,7 @@ namespace Usuarios.Implementaciones.Repositorios
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (curriculum == null)
-                return Resultado<Curriculum>.Falla($"No se encontró un currículum con Id = {id}.");
+                return Resultado<Curriculum>.Falla($"No se encontró un currículum con Id ");
 
             return Resultado<Curriculum>.Exito(curriculum);
         }
@@ -63,7 +63,7 @@ namespace Usuarios.Implementaciones.Repositorios
         {
             var curriculum = await _context.Curriculums.FindAsync(id);
             if (curriculum == null)
-                return Resultado<bool>.Falla($"No se encontró un currículum con Id = {id}.");
+                return Resultado<bool>.Falla($"No se encontró un currículum con Id ");
 
             _context.Curriculums.Remove(curriculum);
             return Resultado<bool>.Exito(true);

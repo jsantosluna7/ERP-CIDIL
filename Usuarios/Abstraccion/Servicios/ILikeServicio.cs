@@ -4,10 +4,10 @@ using Usuarios.DTO.AnuncioDTO;
 
 namespace Usuarios.Abstraccion.Servicios
 {
-    /// <summary>
-    /// Interfaz del servicio de Likes para anuncios.
-    /// Define las operaciones disponibles sobre Likes.
-    /// </summary>
+    
+    // Interfaz del servicio de Likes para anuncios.
+    // Define las operaciones disponibles sobre Likes.
+   
     public interface ILikeServicio
     {
         Task<List<LikeDTO>> ObtenerTodosAsync();

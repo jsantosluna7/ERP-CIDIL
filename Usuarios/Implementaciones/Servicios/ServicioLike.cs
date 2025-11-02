@@ -13,12 +13,12 @@ namespace Usuarios.Implementaciones.Servicios
     /// Servicio para manejar "Likes" en anuncios.
     /// Solo usuarios institucionales pueden dar Like.
    
-    public class LikeServicio : ILikeServicio
+    public class ServicioLike : ILikeServicio
     {
         private readonly ILikeRepositorio _repo;
         private readonly IUsuarioRepositorio _usuarioRepo;
 
-        public LikeServicio(ILikeRepositorio repo, IUsuarioRepositorio usuarioRepo)
+        public ServicioLike(ILikeRepositorio repo, IUsuarioRepositorio usuarioRepo)
         {
             _repo = repo ?? throw new ArgumentNullException(nameof(repo));
             _usuarioRepo = usuarioRepo ?? throw new ArgumentNullException(nameof(usuarioRepo));

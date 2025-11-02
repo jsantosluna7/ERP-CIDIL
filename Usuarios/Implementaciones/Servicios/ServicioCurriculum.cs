@@ -11,16 +11,16 @@ using Usuarios.DTO.AnuncioDTO;
 
 namespace Usuarios.Implementaciones.Servicios
 {
-    /// <summary>
-    /// Servicio encargado de la gestión de currículums
-    /// usando el patrón Resultado<T> para manejo de errores y respuestas.
-    /// </summary>
-    public class CurriculumServicio : ICurriculumServicio
+   
+    // Servicio encargado de la gestión de currículums
+    // usando el patrón Resultado<T> para manejo de errores y respuestas.
+    
+    public class ServicioCurriculum : ICurriculumServicio
     {
         private readonly ICurriculumRepositorio _repo;
-        private readonly ILogger<CurriculumServicio> _logger;
+        private readonly ILogger<ServicioCurriculum> _logger;
 
-        public CurriculumServicio(ICurriculumRepositorio repo, ILogger<CurriculumServicio> logger)
+        public ServicioCurriculum(ICurriculumRepositorio repo, ILogger<ServicioCurriculum> logger)
         {
             _repo = repo;
             _logger = logger;
@@ -83,8 +83,23 @@ namespace Usuarios.Implementaciones.Servicios
             }
         }
 
-        // ==================== Crear currículum ====================
+        // ==================== Crear currículum (usuarios autenticados) ====================
         public async Task<Resultado<bool>> CrearAsync(CurriculumDTO dto)
+        {
+            return await GuardarCurriculumAsync(dto);
+        }
+
+        // ==================== Crear currículum externo (usuarios sin sesión) ====================
+        public async Task<Resultado<bool>> CrearExternoAsync(CurriculumDTO dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Nombre) || string.IsNullOrWhiteSpace(dto.Email))
+                return Resultado<bool>.Falla("Nombre y correo son obligatorios para currículum externo.");
+
+            return await GuardarCurriculumAsync(dto);
+        }
+
+        // ==================== Método privado para guardar currículum ====================
+        private async Task<Resultado<bool>> GuardarCurriculumAsync(CurriculumDTO dto)
         {
             try
             {

@@ -61,16 +61,16 @@ builder.Services.AddScoped<IRepositorioReporteFalla, RepositorioReporteFalla>();
 
 //nuevo
 // Repositorios de comentarios y anuncios
-builder.Services.AddScoped<ICurriculumRepositorio, CurriculumRepositorio>();
+builder.Services.AddScoped<ICurriculumRepositorio, RepositorioCurriculum>();
 
 //nuevo
 // Servicios de Likes
-builder.Services.AddScoped<ILikeRepositorio, LikeRepositorio>();
-builder.Services.AddScoped<ILikeServicio, LikeServicio>();
+builder.Services.AddScoped<ILikeRepositorio, RepositorioLike>();
+builder.Services.AddScoped<ILikeServicio, ServicioLike>();
 
 //nuevo es
-builder.Services.AddScoped<IComentarioRepositorio, ComentarioRepositorio>();
-builder.Services.AddScoped<IAnuncioRepositorio, AnuncioRepositorio>();
+builder.Services.AddScoped<IComentarioRepositorio, RepositorioComentario>();
+builder.Services.AddScoped<IAnuncioRepositorio, RepositorioAnuncio>();
 
 
 
@@ -101,17 +101,17 @@ builder.Services.AddScoped<IServicioReporteFalla, ServicioReporteFalla>();
 //nuevo tambien
 // REPOSITORIOS
 builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
-builder.Services.AddScoped<IAnuncioRepositorio, AnuncioRepositorio>();
-builder.Services.AddScoped<IComentarioRepositorio, ComentarioRepositorio>();
-builder.Services.AddScoped<ILikeRepositorio, LikeRepositorio>();
+builder.Services.AddScoped<IAnuncioRepositorio, RepositorioAnuncio>();
+builder.Services.AddScoped<IComentarioRepositorio, RepositorioComentario>();
+builder.Services.AddScoped<ILikeRepositorio, RepositorioLike>();
 // Si manejas usuarios públicos
 // builder.Services.AddScoped<IUsuarioPublicoRepositorio, UsuarioPublicoRepositorio>();
 
 // SERVICIOS
-builder.Services.AddScoped<ILikeServicio, LikeServicio>();
-builder.Services.AddScoped<IComentarioServicio, ComentarioServicio>();
-builder.Services.AddScoped<IAnuncioServicio, AnuncioServicio>();
-builder.Services.AddScoped<ICurriculumServicio, CurriculumServicio>();
+builder.Services.AddScoped<ILikeServicio, ServicioLike>();
+builder.Services.AddScoped<IComentarioServicio, ServicioComentario>();
+builder.Services.AddScoped<IAnuncioServicio, ServicioAnuncio>();
+builder.Services.AddScoped<ICurriculumServicio, ServicioCurriculum>();
 
 
 //anuncio

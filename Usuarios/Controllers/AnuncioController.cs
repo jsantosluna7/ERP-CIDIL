@@ -28,7 +28,7 @@ namespace Usuarios.Controllers
         {
             var resultado = await _anuncioServicio.ObtenerTodosAsync(esPasantia);
 
-            if (!resultado.esExitoso || resultado.Valor == null || !resultado.Valor.Any())
+            if (!resultado.esExitoso || resultado.Valor == null)
                 return Ok(new List<AnuncioDetalleDTO>());
 
             return Ok(resultado.Valor);
@@ -36,10 +36,11 @@ namespace Usuarios.Controllers
 
         // ==================== Crear anuncio ====================
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CrearAnuncio([FromForm] CrearAnuncioDTO dto)
         {
-            if (!User.TieneRol("ADMINISTRADOR", "SUPERUSUARIO"))
-                return Unauthorized("No tienes permisos para crear anuncios.");
+            if (!User.TieneRol("1", "2")) // Solo superusuario y administrador
+                return Unauthorized(new { error = "No tienes permisos para crear anuncios." });
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -60,11 +61,14 @@ namespace Usuarios.Controllers
                     if (extension != ".jpg" && extension != ".jpeg" && extension != ".png")
                         return BadRequest(new { error = "Solo se permiten imágenes JPG, JPEG o PNG." });
 
+                    if (imagen.Length > 5 * 1024 * 1024)
+                        return BadRequest(new { error = "El tamaño máximo permitido por imagen es 5 MB." });
+
                     var nombreArchivo = $"{Guid.NewGuid()}{extension}";
                     var rutaCompleta = Path.Combine(carpeta, nombreArchivo);
 
-                    using (var stream = new FileStream(rutaCompleta, FileMode.Create))
-                        await imagen.CopyToAsync(stream);
+                    using var stream = new FileStream(rutaCompleta, FileMode.Create);
+                    await imagen.CopyToAsync(stream);
 
                     urlsImagenes.Add($"/imagenes/anuncios/{nombreArchivo}");
                 }
@@ -79,7 +83,6 @@ namespace Usuarios.Controllers
                 };
 
                 var creado = await _anuncioServicio.CrearAsync(anuncio);
-
                 if (!creado.esExitoso)
                     return StatusCode(500, new { error = creado.MensajeError });
 
@@ -93,20 +96,20 @@ namespace Usuarios.Controllers
 
         // ==================== Actualizar anuncio ====================
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> ActualizarAnuncio(int id, [FromForm] ActualizarAnuncioDTO dto)
         {
-            if (!User.TieneRol("ADMINISTRADOR", "SUPERUSUARIO"))
-                return Unauthorized("No tienes permisos para actualizar anuncios.");
+            if (!User.TieneRol("1", "2")) // Solo superusuario y administrador
+                return Unauthorized(new { error = "No tienes permisos para actualizar anuncios." });
 
             if (dto == null)
                 return BadRequest(new { error = "Los datos del anuncio no pueden estar vacíos." });
 
             var resultadoExistente = await _anuncioServicio.ObtenerPorIdAsync(id);
             if (!resultadoExistente.esExitoso || resultadoExistente.Valor == null)
-                return NotFound(new { error = $"No se encontró el anuncio con ID {id}." });
+                return NotFound(new { error = $"No se encontró el anuncio con ID {id}" });
 
             var anuncioExistente = resultadoExistente.Valor;
-
             string nuevaUrlImagen = anuncioExistente.ImagenUrl;
 
             if (dto.Imagen != null && dto.Imagen.Length > 0)
@@ -115,14 +118,17 @@ namespace Usuarios.Controllers
                 if (extension != ".jpg" && extension != ".jpeg" && extension != ".png")
                     return BadRequest(new { error = "Solo se permiten imágenes JPG, JPEG o PNG." });
 
+                if (dto.Imagen.Length > 5 * 1024 * 1024)
+                    return BadRequest(new { error = "El tamaño máximo permitido para la imagen es 5 MB." });
+
                 var carpeta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagenes", "anuncios");
                 if (!Directory.Exists(carpeta)) Directory.CreateDirectory(carpeta);
 
                 var nombreArchivo = $"{Guid.NewGuid()}{extension}";
                 var rutaCompleta = Path.Combine(carpeta, nombreArchivo);
 
-                using (var stream = new FileStream(rutaCompleta, FileMode.Create))
-                    await dto.Imagen.CopyToAsync(stream);
+                using var stream = new FileStream(rutaCompleta, FileMode.Create);
+                await dto.Imagen.CopyToAsync(stream);
 
                 nuevaUrlImagen = $"/imagenes/anuncios/{nombreArchivo}";
             }
@@ -138,13 +144,13 @@ namespace Usuarios.Controllers
 
         // ==================== Eliminar anuncio ====================
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> EliminarAnuncio(int id)
         {
-            if (!User.TieneRol("ADMINISTRADOR", "SUPERUSUARIO"))
-                return Unauthorized("No tienes permisos para eliminar anuncios.");
+            if (!User.TieneRol("1", "2")) // Solo superusuario y administrador
+                return Unauthorized(new { error = "No tienes permisos para eliminar anuncios." });
 
             var eliminado = await _anuncioServicio.EliminarAsync(id);
-
             if (!eliminado.esExitoso)
                 return NotFound(new { error = eliminado.MensajeError });
 
@@ -153,16 +159,17 @@ namespace Usuarios.Controllers
 
         // ==================== Ver currículums ====================
         [HttpGet("{id}/curriculums")]
+        [Authorize]
         public async Task<IActionResult> VerCurriculums(int id)
         {
+            if (!User.TieneRol("1", "2")) // Solo superusuario y administrador
+                return Unauthorized(new { error = "No tienes permisos para ver currículums." });
+
             var resultado = await _anuncioServicio.ObtenerPorIdAsync(id);
             if (!resultado.esExitoso || resultado.Valor == null)
                 return NotFound(new { error = "Anuncio no encontrado." });
 
             var anuncio = resultado.Valor;
-
-            if (!User.TieneRol("ADMINISTRADOR", "SUPERUSUARIO") && !User.TieneRol("ESTUDIANTE", "PROFESOR"))
-                return Unauthorized("No tienes permisos para ver currículums.");
 
             if (!anuncio.EsPasantia)
                 return Ok(new { mensaje = "Este anuncio no es de pasantía.", curriculums = new List<string>() });
@@ -171,7 +178,6 @@ namespace Usuarios.Controllers
             if (!curriculums.esExitoso)
                 return StatusCode(500, new { error = curriculums.MensajeError });
 
-            // Aquí corregimos el null usando List<string> vacío
             return Ok(curriculums.Valor ?? new List<string>());
         }
     }

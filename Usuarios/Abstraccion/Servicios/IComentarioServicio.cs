@@ -6,19 +6,19 @@ using Usuarios.DTO.Comentarios;
 
 namespace Usuarios.Abstraccion.Servicios
 {
-    
+
     /// Define los métodos de negocio para la gestión de comentarios.
 
     public interface IComentarioServicio
     {
-      
+
         /// Obtiene todos los comentarios del sistema, incluyendo el nombre del usuario y el título del anuncio.
-        
+
         /// <returns>Resultado con la lista de comentarios detallados.</returns>
         Task<Resultado<List<ComentarioDetalleDTO>>> ObtenerTodosAsync();
 
-        
-        
+
+
         Task<Resultado<ComentarioDetalleDTO>> ObtenerPorIdAsync(int id);
 
         /// <summary>
@@ -43,11 +43,12 @@ namespace Usuarios.Abstraccion.Servicios
         /// <returns>Resultado indicando si se actualizó correctamente.</returns>
         Task<Resultado<bool>> ActualizarAsync(int id, ActualizarComentarioDTO dto);
 
-        
+
         // Elimina un comentario por su ID.
-        
+
         /// <param name="id">ID del comentario.</param>
         /// <returns>Resultado indicando si se eliminó correctamente.</returns>
         Task<Resultado<bool>> EliminarAsync(int id);
     }
 }
+

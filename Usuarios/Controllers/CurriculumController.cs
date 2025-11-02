@@ -50,18 +50,43 @@ namespace Usuarios.Controllers
         }
 
         // ==================== POST: Crear currículum ====================
-        [Authorize]
+        [AllowAnonymous] // ✅ Permite que los externos suban sin iniciar sesión
         [HttpPost]
         public async Task<IActionResult> Crear([FromForm] CurriculumDTO dto)
         {
-            if (!User.TieneRol("1", "2", "3", "4"))
-                return Unauthorized(new { mensaje = "No tienes permiso para realizar esta acción" });
+            // Validar que se envíen los datos mínimos
+            if (dto == null)
+                return BadRequest(new { mensaje = "No se recibieron los datos del currículum." });
 
-            var resultado = await _curriculumServicio.CrearAsync(dto);
-            if (!resultado.esExitoso)
-                return BadRequest(new { mensaje = resultado.MensajeError });
+            try
+            {
+                // Si el usuario está autenticado, validar roles
+                if (User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                    if (!User.TieneRol("1", "2", "3", "4"))
+                        return Unauthorized(new { mensaje = "No tienes permiso para realizar esta acción" });
 
-            return Ok(new { mensaje = "Currículum enviado correctamente ✅" });
+                    // 🔹 Crear como usuario autenticado
+                    var resultado = await _curriculumServicio.CrearAsync(dto);
+                    if (!resultado.esExitoso)
+                        return BadRequest(new { mensaje = resultado.MensajeError });
+
+                    return Ok(new { mensaje = "Currículum registrado correctamente ✅" });
+                }
+                else
+                {
+                    // 🔹 Crear como usuario externo (sin login)
+                    var resultado = await _curriculumServicio.CrearExternoAsync(dto);
+                    if (!resultado.esExitoso)
+                        return BadRequest(new { mensaje = resultado.MensajeError });
+
+                    return Ok(new { mensaje = "Currículum enviado correctamente ✅" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = $"Error interno al subir el currículum: {ex.Message}" });
+            }
         }
 
         // ==================== DELETE: Eliminar currículum ====================

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -36,13 +37,11 @@ namespace Usuarios.Controllers
             return Ok(comentarios);
         }
 
-        // ==================== Crear comentario (Solo ESTUDIANTE/PROFESOR) ====================
+        // ==================== Crear comentario (Solo PROFESOR o ESTUDIANTE) ====================
         [HttpPost]
+        [Authorize(Roles = "3,4")] // Profesor(3) o Estudiante(4)
         public async Task<IActionResult> CrearComentario([FromBody] CrearComentarioDTO dto)
         {
-            if (!User.TieneRol("ESTUDIANTE", "PROFESOR"))
-                return Unauthorized("No tienes permisos para crear comentarios.");
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -53,7 +52,11 @@ namespace Usuarios.Controllers
                 if (!resultado.esExitoso)
                     return StatusCode(500, new { error = resultado.MensajeError });
 
-                return Ok(resultado.Valor);
+                return Ok(new
+                {
+                    mensaje = "Comentario creado correctamente ✅",
+                    comentario = resultado.Valor
+                });
             }
             catch (KeyNotFoundException ex)
             {
@@ -65,41 +68,41 @@ namespace Usuarios.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Ocurrió un error al crear el comentario.", detalle = ex.Message });
+                return StatusCode(500, new
+                {
+                    error = "Ocurrió un error al crear el comentario.",
+                    detalle = ex.Message
+                });
             }
         }
 
-        // ==================== Actualizar comentario (Solo ADMINISTRADOR/SUPERUSUARIO) ====================
+        // ==================== Actualizar comentario (Solo SUPERUSUARIO o ADMINISTRADOR) ====================
         [HttpPut("{id}")]
+        [Authorize(Roles = "1,2")] // Superusuario(1) o Administrador(2)
         public async Task<IActionResult> ActualizarComentario(int id, [FromBody] ActualizarComentarioDTO dto)
         {
-            if (!User.TieneRol("ADMINISTRADOR", "SUPERUSUARIO"))
-                return Unauthorized("No tienes permisos para actualizar comentarios.");
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var resultado = await _comentarioServicio.ActualizarAsync(id, dto);
 
             if (!resultado.esExitoso)
-                return NotFound(resultado.MensajeError);
+                return NotFound(new { error = resultado.MensajeError });
 
-            return Ok("Comentario actualizado correctamente.");
+            return Ok(new { mensaje = "Comentario actualizado correctamente ✅" });
         }
 
-        // ==================== Eliminar comentario (Solo ADMINISTRADOR/SUPERUSUARIO) ====================
+        // ==================== Eliminar comentario (Solo SUPERUSUARIO o ADMINISTRADOR) ====================
         [HttpDelete("{id}")]
+        [Authorize(Roles = "1,2")] // Superusuario(1) o Administrador(2)
         public async Task<IActionResult> EliminarComentario(int id)
         {
-            if (!User.TieneRol("ADMINISTRADOR", "SUPERUSUARIO"))
-                return Unauthorized("No tienes permisos para eliminar comentarios.");
-
             var resultado = await _comentarioServicio.EliminarAsync(id);
 
             if (!resultado.esExitoso)
-                return NotFound(resultado.MensajeError);
+                return NotFound(new { error = resultado.MensajeError });
 
-            return Ok("Comentario eliminado correctamente.");
+            return Ok(new { mensaje = "Comentario eliminado correctamente ✅" });
         }
     }
 }

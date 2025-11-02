@@ -9,11 +9,11 @@ using Usuarios.Abstraccion.Repositorios;
 
 namespace Usuarios.Implementaciones.Repositorios
 {
-    public class LikeRepositorio : ILikeRepositorio
+    public class RepositorioLike : ILikeRepositorio
     {
         private readonly DbErpContext _context;
 
-        public LikeRepositorio(DbErpContext context)
+        public RepositorioLike(DbErpContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }

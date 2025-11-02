@@ -7,11 +7,11 @@ using Usuarios.Abstraccion.Repositorios;
 
 namespace Usuarios.Implementaciones.Repositorios
 {
-    public class ComentarioRepositorio : IComentarioRepositorio
+    public class RepositorioComentario : IComentarioRepositorio
     {
         private readonly DbErpContext _context;
 
-        public ComentarioRepositorio(DbErpContext context)
+        public RepositorioComentario(DbErpContext context)
         {
             _context = context;
         }
@@ -35,9 +35,9 @@ namespace Usuarios.Implementaciones.Repositorios
             }
         }
 
-        /// <summary>
+   
         /// Obtiene un comentario por su ID.
-        /// </summary>
+
         public async Task<Resultado<Comentario>> ObtenerPorIdAsync(int id)
         {
             try
@@ -56,9 +56,9 @@ namespace Usuarios.Implementaciones.Repositorios
             }
         }
 
-        /// <summary>
+       
         /// Obtiene los comentarios asociados a un anuncio específico.
-        /// </summary>
+        
         public async Task<Resultado<List<Comentario>>> ObtenerPorAnuncioAsync(int anuncioId)
         {
             try
@@ -76,9 +76,9 @@ namespace Usuarios.Implementaciones.Repositorios
             }
         }
 
-        /// <summary>
+        
         /// Crea un nuevo comentario en la base de datos.
-        /// </summary>
+        
         public async Task<Resultado<Comentario>> CrearAsync(Comentario comentario)
         {
             try
@@ -93,9 +93,9 @@ namespace Usuarios.Implementaciones.Repositorios
             }
         }
 
-        /// <summary>
-        /// Actualiza la información de un comentario existente.
-        /// </summary>
+        
+        // Actualiza la información de un comentario existente.
+       
         public async Task<Resultado<bool>> ActualizarAsync(Comentario comentario)
         {
             try
@@ -110,9 +110,9 @@ namespace Usuarios.Implementaciones.Repositorios
             }
         }
 
-        /// <summary>
+       
         /// Elimina un comentario por su ID.
-        /// </summary>
+      
         public async Task<Resultado<bool>> EliminarPorIdAsync(int id)
         {
             try
@@ -131,9 +131,9 @@ namespace Usuarios.Implementaciones.Repositorios
             }
         }
 
-        /// <summary>
-        /// Devuelve un IQueryable de comentarios para consultas personalizadas.
-        /// </summary>
+        
+        // Devuelve un IQueryable de comentarios para consultas personalizadas.
+       
         public IQueryable<Comentario> ObtenerQueryable()
         {
             return _context.Comentarios.AsQueryable();

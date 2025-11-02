@@ -4,76 +4,73 @@ using System.Threading.Tasks;
 
 namespace Usuarios.Abstraccion.Repositorios
 {
-    
-    /// Interfaz que define los métodos para la gestión de anuncios.
-    /// Utiliza <see cref="Resultado{T}"/> para garantizar un manejo consistente
-    /// de errores y resultados a nivel de capa de datos.
-
+    /// <summary>
+    /// Interfaz que define los métodos para la gestión de anuncios y currículums.
+    /// Utiliza <see cref="Resultado{T}"/> para manejo consistente de errores y resultados.
+    /// </summary>
     public interface IAnuncioRepositorio
     {
-         /// Obtiene todos los anuncios registrados en la base de datos.
-        
-        
-        /// Una lista con todos los anuncios, o un mensaje de error en caso de fallo.
-       
+        /// <summary>
+        /// Obtiene todos los anuncios registrados en la base de datos.
+        /// </summary>
         Task<Resultado<List<Anuncio>>> ObtenerTodosAsync();
 
-        
+        /// <summary>
         /// Obtiene un anuncio por su identificador único.
-        
+        /// </summary>
         /// <param name="id">ID del anuncio.</param>
-        
         Task<Resultado<Anuncio>> ObtenerPorIdAsync(int id);
 
- 
+        /// <summary>
         /// Crea un nuevo anuncio en la base de datos.
-   
+        /// </summary>
         /// <param name="anuncio">Entidad del anuncio a crear.</param>
-        /// <returns>
-        /// True si la creación fue exitosa, o un mensaje de error en caso contrario.
-        /// </returns>
         Task<Resultado<bool>> CrearAsync(Anuncio anuncio);
 
-        
+        /// <summary>
         /// Actualiza la información de un anuncio existente.
-   
+        /// </summary>
         /// <param name="anuncio">Entidad del anuncio con los cambios a aplicar.</param>
-        /// <returns>
-        /// True si la actualización fue exitosa, o un mensaje de error si falla.
-        /// </returns>
         Task<Resultado<bool>> ActualizarAsync(Anuncio anuncio);
 
-   
+        /// <summary>
         /// Elimina un anuncio de la base de datos por su identificador.
-        
+        /// </summary>
         /// <param name="id">ID del anuncio a eliminar.</param>
-        /// <returns>
-        /// True si la eliminación fue exitosa, o un mensaje de error si no se puede eliminar.
-        /// </returns>
         Task<Resultado<bool>> EliminarAsync(int id);
 
-        
+        /// <summary>
         /// Guarda los cambios pendientes en el contexto de base de datos.
-      
+        /// </summary>
         Task GuardarAsync();
 
-        
+        /// <summary>
         /// Alterna (agrega o quita) un "like" de un usuario sobre un anuncio.
-       
+        /// </summary>
         /// <param name="anuncioId">ID del anuncio.</param>
         /// <param name="usuarioId">ID del usuario.</param>
-        /// <returns>
-        /// True si el like fue agregado, False si fue eliminado.
-        /// </returns>
         Task<Resultado<bool>> ToggleLikeAsync(int anuncioId, int usuarioId);
 
- 
+        /// <summary>
         /// Obtiene los comentarios y los likes asociados a un anuncio específico.
-        
+        /// </summary>
         /// <param name="anuncioId">ID del anuncio.</param>
-        /// <returns>
-        /// Una tupla que contiene la lista de comentarios y la lista de likes del anuncio.
-        /// </returns>
         Task<Resultado<(List<Comentario> Comentarios, List<Like> Likes)>> ObtenerComentariosYLikesAsync(int anuncioId);
+
+        // ===========================
+        // Métodos para manejar currículums
+        // ===========================
+
+        /// <summary>
+        /// Guarda un currículum asociado a un anuncio (o externo).
+        /// </summary>
+        /// <param name="curriculum">Entidad del currículum a guardar.</param>
+        Task<Resultado<bool>> AgregarCurriculumAsync(Curriculum curriculum);
+
+        /// <summary>
+        /// Obtiene todos los currículums asociados a un anuncio.
+        /// </summary>
+        /// <param name="anuncioId">ID del anuncio.</param>
+        Task<Resultado<List<Curriculum>>> ObtenerCurriculumsAsync(int anuncioId);
     }
 }
