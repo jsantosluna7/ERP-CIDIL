@@ -216,7 +216,7 @@ namespace Reservas.Implementaciones.Servicios
             var link = $"https://cidilipl.online/home/solicitud-equipo";
 
             // Reemplazar el marcador de posición en la plantilla con el OTP
-            string html = htmlTemplate.Replace("{{NOMBRE_EQUIPO}}", nombreEquipo).Replace("{{CANTIDAD}}", cantidad).Replace("{{FECHA_INICIO}}", fechaInicio).Replace("{{FECHA_FINAL}}", fechaFinal).Replace("{{FRONTEND_RESERVA_URL}}", link);
+            string html = htmlTemplate.Replace("{{NOMBRE_EQUIPO}}", nombreEquipo).Replace("{{CANTIDAD}}", cantidad).Replace("{{FECHA_INICIO}}", fechaInicio).Replace("{{FECHA_FINAL}}", fechaFinal).Replace("{{FRONTEND_EQUIPO_URL}}", link);
 
             // Configuración del cliente SMTP
             var mensaje = new MailMessage
