@@ -18,9 +18,9 @@ namespace Usuarios.Implementaciones.Repositorios
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        /// <summary>
-        /// Obtiene todos los likes.
-        /// </summary>
+ 
+        // Obtiene todos los likes.
+      
         public async Task<Resultado<List<Like>>> ObtenerTodosAsync()
         {
             try
@@ -38,7 +38,7 @@ namespace Usuarios.Implementaciones.Repositorios
         }
 
 
-        /// Obtiene un like por su Id.
+        // Obtiene un like por su Id.
     
         public async Task<Resultado<Like>> ObtenerPorIdAsync(int id)
         {
@@ -56,9 +56,9 @@ namespace Usuarios.Implementaciones.Repositorios
             }
         }
 
-        /// <summary>
-        /// Busca si un usuario (por correo institucional) ya ha dado like a un anuncio.
-        /// </summary>
+     
+        // Busca si un usuario (por correo institucional) ya ha dado like a un anuncio.
+     
         public async Task<Resultado<Like>> ObtenerPorAnuncioYUsuarioAsync(int anuncioId, string correoUsuario)
         {
             try
@@ -82,7 +82,7 @@ namespace Usuarios.Implementaciones.Repositorios
         }
 
         
-        /// Crea un nuevo like.
+        // Crea un nuevo like.
       
         public async Task<Resultado<bool>> CrearAsync(Like like)
         {
@@ -101,7 +101,7 @@ namespace Usuarios.Implementaciones.Repositorios
         }
 
        
-        /// Elimina un like por Id.
+        // Elimina un like por Id.
        
         public async Task<Resultado<bool>> EliminarAsync(int id)
         {
@@ -123,9 +123,9 @@ namespace Usuarios.Implementaciones.Repositorios
             }
         }
 
-        /// <summary>
-        /// Cuenta los likes de un anuncio.
-        /// </summary>
+        
+        // Cuenta los likes de un anuncio.
+        
         public async Task<Resultado<int>> ContarPorAnuncioAsync(int anuncioId)
         {
             try

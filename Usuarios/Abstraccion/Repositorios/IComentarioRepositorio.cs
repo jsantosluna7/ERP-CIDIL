@@ -14,7 +14,7 @@ namespace Usuarios.Abstraccion.Repositorios
         Task<Resultado<bool>> ActualizarAsync(Comentario comentario);
         Task<Resultado<bool>> EliminarPorIdAsync(int id);
 
-        //método para consultas personalizadas (sin cambio)
+        //método para consultas personalizadas 
         IQueryable<Comentario> ObtenerQueryable();
     }
 }

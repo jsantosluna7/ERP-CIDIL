@@ -106,31 +106,40 @@ namespace Usuarios.Implementaciones.Servicios
             if (string.IsNullOrWhiteSpace(dto.Texto))
                 return Resultado<ComentarioDetalleDTO>.Falla("El texto del comentario no puede estar vacío.");
 
+            // 🔹 Validar que el anuncio exista (ESTO SÍ DEVUELVE Resultado<T>)
             var anuncioResultado = await _anuncioRepo.ObtenerPorIdAsync(dto.AnuncioId);
             if (!anuncioResultado.esExitoso || anuncioResultado.Valor == null)
                 return Resultado<ComentarioDetalleDTO>.Falla($"No existe un anuncio con Id = {dto.AnuncioId}.");
 
-            var usuarioResultado = await _usuarioRepo.ObtenerPorIdAsync(dto.UsuarioId);
-            if (usuarioResultado == null)
+            // 🔹 Validar que el usuario exista (EL REPOSITORIO DE USUARIO DEVUELVE DIRECTAMENTE LA ENTIDAD)
+            // Se corrige la llamada: ya no se esperan las propiedades .esExitoso o .Valor.
+            var usuario = await _usuarioRepo.ObtenerPorIdAsync(dto.UsuarioId);
+
+            if (usuario == null) // Se comprueba directamente si el objeto devuelto es null
                 return Resultado<ComentarioDetalleDTO>.Falla($"No existe un usuario con Id = {dto.UsuarioId}.");
 
+            // ✅ Crear comentario con nombre y apellido del usuario
             var comentario = new Comentario
             {
                 AnuncioId = dto.AnuncioId,
-                UsuarioId = usuarioResultado.Id,
+                UsuarioId = usuario.Id, // Se accede directamente a .Id del objeto Usuario
                 Texto = dto.Texto.Trim(),
-                NombreUsuario = dto.NombreUsuario,
+                // Se construye el nombre completo a partir del objeto Usuario
+                NombreUsuario = $"{usuario.NombreUsuario} {usuario.ApellidoUsuario}",
                 Fecha = DateTime.UtcNow
             };
 
+            // 🔹 Guardar en la BD (ESTO SÍ DEVUELVE Resultado<T>)
             var crearResultado = await _comentarioRepo.CrearAsync(comentario);
             if (!crearResultado.esExitoso)
                 return Resultado<ComentarioDetalleDTO>.Falla("Error al crear el comentario.");
 
+            // 🔹 Recuperar el comentario recién creado (ESTO SÍ DEVUELVE Resultado<T>)
             var nuevoComentarioResultado = await _comentarioRepo.ObtenerPorIdAsync(comentario.Id);
             if (!nuevoComentarioResultado.esExitoso || nuevoComentarioResultado.Valor == null)
                 return Resultado<ComentarioDetalleDTO>.Falla("Error al recuperar el comentario creado.");
 
+            // 🔹 Preparar DTO de salida
             var dtoFinal = new ComentarioDetalleDTO
             {
                 Id = nuevoComentarioResultado.Valor.Id,

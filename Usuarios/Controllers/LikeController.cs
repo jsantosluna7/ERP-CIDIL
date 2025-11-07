@@ -22,20 +22,26 @@ namespace Usuarios.Controllers
 
         // ==================== Dar o Quitar Like ====================
         [HttpPost]
-        [Authorize(Roles = "3,4")] // Profesor(3) o Estudiante(4)
+        [Authorize] // ✅ Solo requiere token; los roles se validan manualmente
         public async Task<IActionResult> ToggleLike([FromBody] LikeDTO dto)
         {
+            // 🔒 Validación de rol: solo Profesor(3) o Estudiante(4)
+            if (!User.TieneRol("3", "4"))
+                return Forbid("No tienes permisos para dar o quitar like.");
+
             if (dto == null || dto.AnuncioId <= 0 || string.IsNullOrEmpty(dto.Usuario))
                 return BadRequest(new { mensaje = "Datos inválidos para like." });
 
             try
             {
+                // Buscar usuario
                 var usuario = await _context.Usuarios
                     .FirstOrDefaultAsync(u => u.CorreoInstitucional == dto.Usuario);
 
                 if (usuario == null)
                     return BadRequest(new { mensaje = "Usuario no encontrado." });
 
+                // Buscar si ya existe un like de este usuario
                 var likeExistente = await _context.Likes
                     .FirstOrDefaultAsync(l => l.AnuncioId == dto.AnuncioId && l.UsuarioId == usuario.Id);
 
@@ -43,11 +49,13 @@ namespace Usuarios.Controllers
 
                 if (likeExistente != null)
                 {
+                    // Quitar like existente
                     _context.Likes.Remove(likeExistente);
                     estadoActual = false;
                 }
                 else
                 {
+                    // Agregar nuevo like
                     var nuevoLike = new Like
                     {
                         AnuncioId = dto.AnuncioId,

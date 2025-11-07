@@ -8,10 +8,10 @@ using Usuarios.Abstraccion.Repositorios;
 
 namespace Usuarios.Implementaciones.Repositorios
 {
-    /// <summary>
-    /// Implementación concreta del repositorio de anuncios.
-    /// Gestiona la persistencia de los anuncios y currículums en la base de datos.
-    /// </summary>
+    
+    // Implementación concreta del repositorio de anuncios.
+    // Gestiona la persistencia de los anuncios y currículums en la base de datos.
+   
     public class RepositorioAnuncio : IAnuncioRepositorio
     {
         private readonly DbErpContext _context;
@@ -21,9 +21,9 @@ namespace Usuarios.Implementaciones.Repositorios
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        /// <summary>
-        /// Obtiene todos los anuncios registrados.
-        /// </summary>
+        
+        // Obtiene todos los anuncios registrados.
+     
         public async Task<Resultado<List<Anuncio>>> ObtenerTodosAsync()
         {
             try
@@ -37,9 +37,9 @@ namespace Usuarios.Implementaciones.Repositorios
             }
         }
 
-        /// <summary>
-        /// Obtiene un anuncio por su ID.
-        /// </summary>
+        
+        // Obtiene un anuncio por su ID.
+        
         public async Task<Resultado<Anuncio>> ObtenerPorIdAsync(int id)
         {
             try
@@ -55,9 +55,9 @@ namespace Usuarios.Implementaciones.Repositorios
             }
         }
 
-        /// <summary>
-        /// Crea un nuevo anuncio.
-        /// </summary>
+    
+        // Crea un nuevo anuncio.
+       
         public async Task<Resultado<bool>> CrearAsync(Anuncio anuncio)
         {
             try
@@ -72,9 +72,9 @@ namespace Usuarios.Implementaciones.Repositorios
             }
         }
 
-        /// <summary>
-        /// Actualiza un anuncio existente.
-        /// </summary>
+        
+        // Actualiza un anuncio existente.
+
         public async Task<Resultado<bool>> ActualizarAsync(Anuncio anuncio)
         {
             try
@@ -89,9 +89,9 @@ namespace Usuarios.Implementaciones.Repositorios
             }
         }
 
-        /// <summary>
-        /// Elimina un anuncio por su ID.
-        /// </summary>
+       
+        // Elimina un anuncio por su ID.
+        
         public async Task<Resultado<bool>> EliminarAsync(int id)
         {
             try
@@ -110,17 +110,17 @@ namespace Usuarios.Implementaciones.Repositorios
             }
         }
 
-        /// <summary>
-        /// Guarda los cambios en la base de datos.
-        /// </summary>
+      
+        // Guarda los cambios en la base de datos.
+   
         public async Task GuardarAsync()
         {
             await _context.SaveChangesAsync();
         }
 
-        /// <summary>
-        /// Alterna (agrega o quita) un "like" de un usuario sobre un anuncio.
-        /// </summary>
+      
+       // Alterna (agrega o quita) un "like" de un usuario sobre un anuncio.
+        
         public async Task<Resultado<bool>> ToggleLikeAsync(int anuncioId, int usuarioId)
         {
             try
@@ -175,9 +175,9 @@ namespace Usuarios.Implementaciones.Repositorios
             }
         }
 
-        /// <summary>
-        /// Obtiene los currículums asociados a un anuncio.
-        /// </summary>
+       
+        // Obtiene los currículums asociados a un anuncio.
+     
         public async Task<Resultado<List<Curriculum>>> ObtenerCurriculumsAsync(int anuncioId)
         {
             try
@@ -194,9 +194,9 @@ namespace Usuarios.Implementaciones.Repositorios
             }
         }
 
-        /// <summary>
-        /// Agrega un nuevo currículum.
-        /// </summary>
+      
+        // Agrega un nuevo currículum.
+      
         public async Task<Resultado<bool>> AgregarCurriculumAsync(Curriculum curriculum)
         {
             try

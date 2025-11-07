@@ -376,6 +376,10 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers().RequireRateLimiting("LimiteGlobal"); // Aplicar a todos los endpoints
+// ✅ Aplica RateLimit pero sin obligar autorización global
+//app.MapControllers()
+  // .RequireRateLimiting("LimiteGlobal"); // solo límite, no auth global
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

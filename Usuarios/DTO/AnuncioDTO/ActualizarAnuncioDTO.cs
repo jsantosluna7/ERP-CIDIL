@@ -2,9 +2,9 @@
 
 namespace Usuarios.DTO
 {
-    /// <summary>
-    /// DTO para actualizar un anuncio existente.
-    /// </summary>
+    
+    // DTO para actualizar un anuncio existente.
+
     public class ActualizarAnuncioDTO
     {
         public string? Titulo { get; set; }

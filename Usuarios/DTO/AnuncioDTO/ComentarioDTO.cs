@@ -1,8 +1,8 @@
 ﻿namespace Usuarios.DTO.Comentarios
 {
-    /// <summary>
-    /// DTO para crear un comentario asociado a un anuncio
-    /// </summary>
+    
+    // DTO para crear un comentario asociado a un anuncio
+  
     public class ComentarioDTO
     {
         // Id del anuncio al que pertenece el comentario

@@ -17,7 +17,7 @@ namespace Usuarios.Implementaciones.Repositorios
         }
 
         
-        /// Obtiene todos los comentarios.
+        // Obtiene todos los comentarios.
       
         public async Task<Resultado<List<Comentario>>> ObtenerTodosAsync()
         {
@@ -36,7 +36,7 @@ namespace Usuarios.Implementaciones.Repositorios
         }
 
    
-        /// Obtiene un comentario por su ID.
+        // Obtiene un comentario por su ID.
 
         public async Task<Resultado<Comentario>> ObtenerPorIdAsync(int id)
         {
@@ -57,7 +57,7 @@ namespace Usuarios.Implementaciones.Repositorios
         }
 
        
-        /// Obtiene los comentarios asociados a un anuncio específico.
+        // Obtiene los comentarios asociados a un anuncio específico.
         
         public async Task<Resultado<List<Comentario>>> ObtenerPorAnuncioAsync(int anuncioId)
         {
@@ -77,7 +77,7 @@ namespace Usuarios.Implementaciones.Repositorios
         }
 
         
-        /// Crea un nuevo comentario en la base de datos.
+        // Crea un nuevo comentario en la base de datos.
         
         public async Task<Resultado<Comentario>> CrearAsync(Comentario comentario)
         {
@@ -111,7 +111,7 @@ namespace Usuarios.Implementaciones.Repositorios
         }
 
        
-        /// Elimina un comentario por su ID.
+        // Elimina un comentario por su ID.
       
         public async Task<Resultado<bool>> EliminarPorIdAsync(int id)
         {

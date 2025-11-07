@@ -10,8 +10,8 @@ using Usuarios.DTO.AnuncioDTO;
 namespace Usuarios.Implementaciones.Servicios
 {
     
-    /// Servicio para manejar "Likes" en anuncios.
-    /// Solo usuarios institucionales pueden dar Like.
+    // Servicio para manejar "Likes" en anuncios.
+    // Solo usuarios institucionales pueden dar Like.
    
     public class ServicioLike : ILikeServicio
     {

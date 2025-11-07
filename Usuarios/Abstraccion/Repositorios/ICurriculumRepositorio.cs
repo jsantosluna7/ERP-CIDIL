@@ -6,17 +6,17 @@ using Usuarios.DTO;
 namespace Usuarios.Abstraccion.Repositorios
 {
     
-    /// Interfaz para manejar la persistencia de Curriculum
-    /// usando el patrón Resultado<T> para control de errores.
+    // Interfaz para manejar la persistencia de Curriculum
+    // usando el patrón Resultado<T> para control de errores.
    
     public interface ICurriculumRepositorio
     {
-        /// Obtiene todos los curriculums
+        // Obtiene todos los curriculums
       
         Task<Resultado<List<Curriculum>>> ObtenerTodosAsync();
 
         
-        /// Obtiene un curriculum por Id
+        // Obtiene un curriculum por Id
         
         Task<Resultado<Curriculum>> ObtenerPorIdAsync(int id);
 
@@ -31,12 +31,12 @@ namespace Usuarios.Abstraccion.Repositorios
         Task<Resultado<bool>> ActualizarAsync(Curriculum curriculum);
 
      
-        /// Elimina un curriculum por Id
+        // Elimina un curriculum por Id
      
         Task<Resultado<bool>> EliminarAsync(int id);
 
         
-        /// Guarda los cambios pendientes en la base de datos
+        // Guarda los cambios pendientes en la base de datos
        
         Task<Resultado<bool>> GuardarAsync();
     }

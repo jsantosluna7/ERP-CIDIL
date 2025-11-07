@@ -11,17 +11,17 @@ namespace ERP.Data.Modelos
     [Table("likes")]
     public class Like
     {
-        // 🔑 Clave primaria
+        //Clave primaria
         [Key]
         [Column("id")]
         public int Id { get; set; }
 
-        // 📢 Anuncio al que pertenece el Like
+        //Anuncio al que pertenece el Like
         [Required]
         [Column("anuncio_id")]
         public int AnuncioId { get; set; }
 
-        // 🔗 Usuario que dio el Like
+        //Usuario que dio el Like
         [Required]
         [Column("usuario_id")]
         public int UsuarioId { get; set; }
@@ -29,16 +29,16 @@ namespace ERP.Data.Modelos
         [ForeignKey(nameof(UsuarioId))]
         public Usuario Usuario { get; set; } = null!;
 
-        // 🌐 IP del usuario (opcional, útil para auditoría)
+        //IP del usuario (opcional, útil para auditoría)
         [Column("ip_usuario")]
         [MaxLength(50)]
         public string IpUsuario { get; set; } = string.Empty;
 
-        // 🕒 Fecha de creación del Like
+        //Fecha de creación del Like
         [Column("fecha")]
         public DateTime Fecha { get; set; } = DateTime.UtcNow;
 
-        // 🔗 Relación con el anuncio
+        //Relación con el anuncio
         [ForeignKey(nameof(AnuncioId))]
         public Anuncio Anuncio { get; set; } = null!;
     }
