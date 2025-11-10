@@ -13,10 +13,12 @@ namespace Usuarios.Implementaciones
     public class ServicioAnuncio : IAnuncioServicio
     {
         private readonly IAnuncioRepositorio _repositorio;
+        private readonly IServicioUsuarios _usuarioServicio; // 👈 1. INYECCIÓN DEL SERVICIO DE USUARIOS
 
-        public ServicioAnuncio(IAnuncioRepositorio repositorio)
+        public ServicioAnuncio(IAnuncioRepositorio repositorio, IServicioUsuarios usuarioServicio) // 👈 2. CONSTRUCTOR ACTUALIZADO
         {
             _repositorio = repositorio ?? throw new ArgumentNullException(nameof(repositorio));
+            _usuarioServicio = usuarioServicio ?? throw new ArgumentNullException(nameof(usuarioServicio));
         }
 
         // Crear un nuevo anuncio
@@ -44,16 +46,44 @@ namespace Usuarios.Implementaciones
 
             if (esPasantia.HasValue)
                 anuncios = anuncios.Where(a => a.EsPasantia == esPasantia.Value).ToList();
+ 
+            var dtos = new List<AnuncioDetalleDTO>();
 
-            var dtos = anuncios.Select(a => new AnuncioDetalleDTO
+            foreach (var a in anuncios)
             {
-                Id = a.Id,
-                Titulo = a.Titulo,
-                Descripcion = a.Descripcion,
-                ImagenUrl = a.ImagenUrl,
-                EsPasantia = a.EsPasantia,
-                FechaPublicacion = a.FechaPublicacion
-            }).ToList();
+                string nombreCompleto = "Usuario Desconocido";
+
+                // Si la relación no se cargó (a.Usuario es null) Y el ID es válido (> 0)
+                if (a.Usuario == null && a.UsuarioId > 0) // 💡 a.UsuarioId es 'int'
+                {
+                    // Buscamos el usuario manualmente usando el servicio de usuarios
+                    var usuario = await _usuarioServicio.ObtenerUsuarioPorId(a.UsuarioId);
+
+                    if (usuario != null)
+                    {
+                        // Asumimos que el objeto 'usuario' devuelto tiene las propiedades NombreUsuario y ApellidoUsuario
+                        nombreCompleto = $"{usuario.NombreUsuario} {usuario.ApellidoUsuario}".Trim();
+                    }
+                }
+                else if (a.Usuario != null)
+                {
+                    // Si el Repositorio SÍ cargó la relación, la usamos directamente
+                    nombreCompleto = $"{a.Usuario.NombreUsuario} {a.Usuario.ApellidoUsuario}".Trim();
+                }
+
+                if (string.IsNullOrWhiteSpace(nombreCompleto)) nombreCompleto = "Usuario Desconocido";
+
+                dtos.Add(new AnuncioDetalleDTO
+                {
+                    Id = a.Id,
+                    Titulo = a.Titulo,
+                    Descripcion = a.Descripcion,
+                    ImagenUrl = a.ImagenUrl,
+                    EsPasantia = a.EsPasantia,
+                    FechaPublicacion = a.FechaPublicacion,
+                    NombreUsuario = nombreCompleto 
+                });
+            }
 
             return Resultado<List<AnuncioDetalleDTO>>.Exito(dtos);
         }
@@ -66,6 +96,25 @@ namespace Usuarios.Implementaciones
                 return Resultado<AnuncioDetalleDTO>.Falla(resultado.MensajeError ?? "Error desconocido");
 
             var a = resultado.Valor!;
+            string nombreCompleto = "Usuario Desconocido";
+
+            // 🚀 CORRECCIÓN CLAVE: Buscar el usuario si no se cargó.
+            if (a.Usuario == null && a.UsuarioId > 0) // 💡 a.UsuarioId es 'int', no necesita .Value
+            {
+                var usuario = await _usuarioServicio.ObtenerUsuarioPorId(a.UsuarioId);
+
+                if (usuario != null)
+                {
+                    nombreCompleto = $"{usuario.NombreUsuario} {usuario.ApellidoUsuario}".Trim();
+                }
+            }
+            else if (a.Usuario != null)
+            {
+                nombreCompleto = $"{a.Usuario.NombreUsuario} {a.Usuario.ApellidoUsuario}".Trim();
+            }
+
+            if (string.IsNullOrWhiteSpace(nombreCompleto)) nombreCompleto = "Usuario Desconocido";
+
             var dto = new AnuncioDetalleDTO
             {
                 Id = a.Id,
@@ -73,7 +122,8 @@ namespace Usuarios.Implementaciones
                 Descripcion = a.Descripcion,
                 ImagenUrl = a.ImagenUrl,
                 EsPasantia = a.EsPasantia,
-                FechaPublicacion = a.FechaPublicacion
+                FechaPublicacion = a.FechaPublicacion,
+                NombreUsuario = nombreCompleto // 👈 Nombre ya resuelto
             };
 
             return Resultado<AnuncioDetalleDTO>.Exito(dto);

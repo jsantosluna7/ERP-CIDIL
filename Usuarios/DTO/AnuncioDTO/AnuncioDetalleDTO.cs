@@ -1,7 +1,9 @@
 ﻿using System;
 
-namespace Usuarios.DTO
+namespace Usuarios.DTO.AnuncioDTO
 {
+    // He ajustado el namespace a DTO.AnuncioDTO, asumiendo la convención. 
+    // Si tu archivo está solo en Usuarios.DTO, ajústalo.
     public class AnuncioDetalleDTO
     {
         public int Id { get; set; }
@@ -10,5 +12,11 @@ namespace Usuarios.DTO
         public string? ImagenUrl { get; set; }
         public bool EsPasantia { get; set; }
         public DateTime FechaPublicacion { get; set; }
+
+        // 👇 Clave Foránea del creador
+        public int UsuarioId { get; set; }
+
+        // ✅ CORRECCIÓN CLAVE: Propiedad para mostrar el nombre completo
+        public string NombreUsuario { get; set; } = string.Empty;
     }
 }

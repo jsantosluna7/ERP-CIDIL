@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using Usuarios.Abstraccion.Servicios;
 using Usuarios.DTO;
 using ERP.Data.Modelos;
+using System.Security.Claims;
+using Usuarios.DTO.AnuncioDTO; // Importante para List<AnuncioDetalleDTO>
 
 namespace Usuarios.Controllers
 {
@@ -39,9 +41,25 @@ namespace Usuarios.Controllers
         [Authorize]
         public async Task<IActionResult> CrearAnuncio([FromForm] CrearAnuncioDTO dto)
         {
-            if (!User.TieneRol("1", "2")) // Solo superusuario y administrador
+            // 1️⃣ OBTENER ID DEL USUARIO AUTENTICADO
+            // Busca el claim correcto: "idUsuario", "id" o el estándar NameIdentifier
+            var userIdClaim = User.FindFirst("idUsuario")?.Value
+                           ?? User.FindFirst("id")?.Value
+                           ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int usuarioId))
+            {
+                return Unauthorized(new
+                {
+                    error = "No se pudo identificar al usuario logueado. Asegúrese de que el token JWT contiene un claim con el ID del usuario."
+                });
+            }
+
+            //  VALIDAR ROL (solo superusuario y administrador)
+            if (!User.TieneRol("1", "2"))
                 return Unauthorized(new { error = "No tienes permisos para crear anuncios." });
 
+            // 3️⃣ VALIDACIONES BÁSICAS
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -50,6 +68,7 @@ namespace Usuarios.Controllers
 
             try
             {
+                //GUARDAR IMÁGENES EN DISCO
                 var carpeta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagenes", "anuncios");
                 if (!Directory.Exists(carpeta)) Directory.CreateDirectory(carpeta);
 
@@ -73,16 +92,19 @@ namespace Usuarios.Controllers
                     urlsImagenes.Add($"/imagenes/anuncios/{nombreArchivo}");
                 }
 
+                //CREAR ANUNCIO
                 var anuncio = new Anuncio
                 {
                     Titulo = dto.Titulo,
                     Descripcion = dto.Descripcion,
                     ImagenUrl = string.Join(";", urlsImagenes),
                     EsPasantia = dto.EsPasantia,
-                    FechaPublicacion = DateTime.Now
+                    FechaPublicacion = DateTime.Now,
+                    UsuarioId = usuarioId // ← Se asigna correctamente el ID del usuario autenticado
                 };
 
                 var creado = await _anuncioServicio.CrearAsync(anuncio);
+
                 if (!creado.esExitoso)
                     return StatusCode(500, new { error = creado.MensajeError });
 
@@ -99,7 +121,7 @@ namespace Usuarios.Controllers
         [Authorize]
         public async Task<IActionResult> ActualizarAnuncio(int id, [FromForm] ActualizarAnuncioDTO dto)
         {
-            if (!User.TieneRol("1", "2")) // Solo superusuario y administrador
+            if (!User.TieneRol("1", "2"))
                 return Unauthorized(new { error = "No tienes permisos para actualizar anuncios." });
 
             if (dto == null)
@@ -147,7 +169,7 @@ namespace Usuarios.Controllers
         [Authorize]
         public async Task<IActionResult> EliminarAnuncio(int id)
         {
-            if (!User.TieneRol("1", "2")) // Solo superusuario y administrador
+            if (!User.TieneRol("1", "2"))
                 return Unauthorized(new { error = "No tienes permisos para eliminar anuncios." });
 
             var eliminado = await _anuncioServicio.EliminarAsync(id);
@@ -162,7 +184,7 @@ namespace Usuarios.Controllers
         [Authorize]
         public async Task<IActionResult> VerCurriculums(int id)
         {
-            if (!User.TieneRol("1", "2")) // Solo superusuario y administrador
+            if (!User.TieneRol("1", "2"))
                 return Unauthorized(new { error = "No tienes permisos para ver currículums." });
 
             var resultado = await _anuncioServicio.ObtenerPorIdAsync(id);

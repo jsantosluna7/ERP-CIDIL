@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+// Asegúrate de que tienes el using necesario para acceder al modelo 'Usuario',
+// si no está en el mismo namespace ERP.Data.Modelos.
+
 namespace ERP.Data.Modelos
 {
     [Table("anuncios")]
@@ -30,12 +33,14 @@ namespace ERP.Data.Modelos
         [Column("fecha_publicacion")]
         public DateTime FechaPublicacion { get; set; } = DateTime.UtcNow;
 
-        // 🔗 Relación con UsuarioPublico (quien creó el anuncio)
+        // 🔗 Clave Foránea con Usuario
         [ForeignKey(nameof(Usuario))]
         [Column("usuario_id")]
         public int UsuarioId { get; set; }
 
-
+        // ✅ CORRECCIÓN CLAVE: Propiedad de navegación para cargar los datos del creador.
+        // Asumo que tu modelo Usuario no acepta valores nulos en la base de datos (por eso el 'null!').
+        public Usuario Usuario { get; set; } = null!;
 
         // Campo para diferenciar si el anuncio es pasantía
         [Column("es_pasantia")]
@@ -44,5 +49,7 @@ namespace ERP.Data.Modelos
         // Relaciones con Comentarios y Likes
         public List<Comentario> Comentarios { get; set; } = new();
         public List<Like> Likes { get; set; } = new();
+
+        // Si tienes más relaciones como Curriculums, también deberían estar aquí.
     }
 }

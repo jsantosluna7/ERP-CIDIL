@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Usuarios.DTO
 {
- 
-    /// DTO utilizado para crear un nuevo anuncio con varias imágenes.
-    /// Compatible con [FromForm] para subida de archivos.
     
+    // DTO utilizado para crear un nuevo anuncio con varias imágenes.
+    // Compatible con [FromForm] para subida de archivos.
+
     public class CrearAnuncioDTO
     {
         [Required(ErrorMessage = "El título es obligatorio.")]
@@ -19,5 +19,7 @@ namespace Usuarios.DTO
         public IFormFile[] Imagenes { get; set; } = Array.Empty<IFormFile>();
 
         public bool EsPasantia { get; set; } = false;
+
+        
     }
 }
