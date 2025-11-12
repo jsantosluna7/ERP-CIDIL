@@ -1,4 +1,4 @@
-﻿namespace Inventario.DTO.LaboratorioDTO
+﻿ namespace Inventario.DTO.LaboratorioDTO
 {
     public class LaboratorioIdDTO
     {
