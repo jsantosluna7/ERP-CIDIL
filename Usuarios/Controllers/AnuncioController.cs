@@ -59,7 +59,7 @@ namespace Usuarios.Controllers
             if (!User.TieneRol("1", "2"))
                 return Unauthorized(new { error = "No tienes permisos para crear anuncios." });
 
-            // 3️⃣ VALIDACIONES BÁSICAS
+            //  VALIDACIONES BÁSICAS
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -121,7 +121,7 @@ namespace Usuarios.Controllers
         [Authorize]
         public async Task<IActionResult> ActualizarAnuncio(int id, [FromForm] ActualizarAnuncioDTO dto)
         {
-            if (!User.TieneRol("1", "2"))
+            //if (!User.TieneRol("1", "2"))
                 return Unauthorized(new { error = "No tienes permisos para actualizar anuncios." });
 
             if (dto == null)
