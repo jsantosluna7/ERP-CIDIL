@@ -16,7 +16,8 @@ namespace Usuarios.Abstraccion.Servicios
         Task<Resultado<AnuncioDetalleDTO>> ObtenerPorIdAsync(int id);
 
         // Crea un nuevo anuncio en la base de datos.
-        Task<Resultado<bool>> CrearAsync(Anuncio anuncio);
+        // 🔥 CORRECCIÓN CLAVE: Se cambia el tipo de retorno de bool a Anuncio
+        Task<Resultado<Anuncio>> CrearAsync(Anuncio anuncio);
 
         // Actualiza un anuncio existente.
         Task<Resultado<bool>> ActualizarAsync(int id, ActualizarAnuncioDTO dto);

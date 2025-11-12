@@ -9,7 +9,7 @@ using Usuarios.Abstraccion.Servicios;
 using Usuarios.DTO;
 using ERP.Data.Modelos;
 using System.Security.Claims;
-using Usuarios.DTO.AnuncioDTO; // Importante para List<AnuncioDetalleDTO>
+using Usuarios.DTO.AnuncioDTO; // Para List<AnuncioDetalleDTO>
 
 namespace Usuarios.Controllers
 {
@@ -24,7 +24,7 @@ namespace Usuarios.Controllers
             _anuncioServicio = anuncioServicio ?? throw new ArgumentNullException(nameof(anuncioServicio));
         }
 
-        // ==================== Obtener todos los anuncios ====================
+        // ==================== OBTENER TODOS LOS ANUNCIOS ====================
         [HttpGet]
         public async Task<IActionResult> ObtenerAnuncios([FromQuery] bool? esPasantia)
         {
@@ -36,30 +36,35 @@ namespace Usuarios.Controllers
             return Ok(resultado.Valor);
         }
 
-        // ==================== Crear anuncio ====================
+        // ==================== CREAR ANUNCIO (CORREGIDO) ====================
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> CrearAnuncio([FromForm] CrearAnuncioDTO dto)
         {
-            // 1️⃣ OBTENER ID DEL USUARIO AUTENTICADO
-            // Busca el claim correcto: "idUsuario", "id" o el estándar NameIdentifier
-            var userIdClaim = User.FindFirst("idUsuario")?.Value
-                           ?? User.FindFirst("id")?.Value
-                           ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            // 1️⃣ Obtener ID del usuario autenticado desde cualquier tipo de claim posible
+            string? userIdClaim = User.FindFirst("idUsuario")?.Value
+                                 ?? User.FindFirst("IdUsuario")?.Value
+                                 ?? User.FindFirst("userId")?.Value
+                                 ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int usuarioId))
+            if (string.IsNullOrEmpty(userIdClaim))
             {
                 return Unauthorized(new
                 {
-                    error = "No se pudo identificar al usuario logueado. Asegúrese de que el token JWT contiene un claim con el ID del usuario."
+                    error = "El token no contiene el claim 'idUsuario'. Asegúrate de que el JWT lo incluya al generarse."
                 });
             }
 
-            //  VALIDAR ROL (solo superusuario y administrador)
+            if (!int.TryParse(userIdClaim, out int usuarioId))
+            {
+                return Unauthorized(new { error = "El ID del usuario no es válido o no es numérico." });
+            }
+
+            // 2️⃣ Verificar rol permitido
             if (!User.TieneRol("1", "2"))
                 return Unauthorized(new { error = "No tienes permisos para crear anuncios." });
 
-            //  VALIDACIONES BÁSICAS
+            // 3️⃣ Validaciones básicas
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -68,7 +73,7 @@ namespace Usuarios.Controllers
 
             try
             {
-                //GUARDAR IMÁGENES EN DISCO
+                // 4️⃣ Guardar imágenes
                 var carpeta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagenes", "anuncios");
                 if (!Directory.Exists(carpeta)) Directory.CreateDirectory(carpeta);
 
@@ -92,7 +97,7 @@ namespace Usuarios.Controllers
                     urlsImagenes.Add($"/imagenes/anuncios/{nombreArchivo}");
                 }
 
-                //CREAR ANUNCIO
+                // 5️⃣ Crear anuncio con el usuario autenticado
                 var anuncio = new Anuncio
                 {
                     Titulo = dto.Titulo,
@@ -100,33 +105,45 @@ namespace Usuarios.Controllers
                     ImagenUrl = string.Join(";", urlsImagenes),
                     EsPasantia = dto.EsPasantia,
                     FechaPublicacion = DateTime.Now,
-                    UsuarioId = usuarioId // ← Se asigna correctamente el ID del usuario autenticado
+                    UsuarioId = usuarioId // El ID es correcto aquí
                 };
 
+                // 💡 CAMBIO CRÍTICO: Se asume que el servicio ahora devuelve Resultado<Anuncio>
                 var creado = await _anuncioServicio.CrearAsync(anuncio);
 
                 if (!creado.esExitoso)
                     return StatusCode(500, new { error = creado.MensajeError });
 
-                return Ok(new { mensaje = "Anuncio creado correctamente.", anuncio });
+                return Ok(new
+                {
+                    mensaje = "Anuncio creado correctamente.",
+                    // 💡 CAMBIO CRÍTICO: Devolvemos el objeto 'Anuncio' de la propiedad Valor
+                    // Esto garantiza que el objeto refleje los datos de la BD, incluido el ID.
+                    anuncio = creado.Valor
+                });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Ocurrió un error al crear el anuncio.", detalle = ex.Message });
+                return StatusCode(500, new
+                {
+                    error = "Ocurrió un error al crear el anuncio.",
+                    detalle = ex.Message
+                });
             }
         }
 
-        // ==================== Actualizar anuncio ====================
+        // ==================== ACTUALIZAR ANUNCIO ====================
         [HttpPut("{id}")]
         [Authorize]
         public async Task<IActionResult> ActualizarAnuncio(int id, [FromForm] ActualizarAnuncioDTO dto)
         {
-            //if (!User.TieneRol("1", "2"))
+            if (!User.TieneRol("1", "2"))
                 return Unauthorized(new { error = "No tienes permisos para actualizar anuncios." });
 
             if (dto == null)
                 return BadRequest(new { error = "Los datos del anuncio no pueden estar vacíos." });
 
+            // Obtener el anuncio existente
             var resultadoExistente = await _anuncioServicio.ObtenerPorIdAsync(id);
             if (!resultadoExistente.esExitoso || resultadoExistente.Valor == null)
                 return NotFound(new { error = $"No se encontró el anuncio con ID {id}" });
@@ -164,7 +181,7 @@ namespace Usuarios.Controllers
             return Ok(new { mensaje = "Anuncio actualizado correctamente.", anuncio = dto });
         }
 
-        // ==================== Eliminar anuncio ====================
+        // ==================== ELIMINAR ANUNCIO ====================
         [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> EliminarAnuncio(int id)
@@ -179,7 +196,7 @@ namespace Usuarios.Controllers
             return Ok(new { mensaje = "Anuncio eliminado correctamente." });
         }
 
-        // ==================== Ver currículums ====================
+        // ==================== VER CURRÍCULUMS ====================
         [HttpGet("{id}/curriculums")]
         [Authorize]
         public async Task<IActionResult> VerCurriculums(int id)

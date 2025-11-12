@@ -13,26 +13,38 @@ namespace Usuarios.Implementaciones
     public class ServicioAnuncio : IAnuncioServicio
     {
         private readonly IAnuncioRepositorio _repositorio;
-        private readonly IServicioUsuarios _usuarioServicio; // 👈 1. INYECCIÓN DEL SERVICIO DE USUARIOS
+        private readonly IServicioUsuarios _usuarioServicio;
 
-        public ServicioAnuncio(IAnuncioRepositorio repositorio, IServicioUsuarios usuarioServicio) // 👈 2. CONSTRUCTOR ACTUALIZADO
+        public ServicioAnuncio(IAnuncioRepositorio repositorio, IServicioUsuarios usuarioServicio)
         {
             _repositorio = repositorio ?? throw new ArgumentNullException(nameof(repositorio));
             _usuarioServicio = usuarioServicio ?? throw new ArgumentNullException(nameof(usuarioServicio));
         }
 
         // Crear un nuevo anuncio
-        public async Task<Resultado<bool>> CrearAsync(Anuncio anuncio)
+        //Cambiado a retornar Resultado<Anuncio> para coincidir con la interfaz y el controlador.
+        public async Task<Resultado<Anuncio>> CrearAsync(Anuncio anuncio)
         {
             if (anuncio == null)
-                return Resultado<bool>.Falla("El anuncio no puede ser nulo.");
+                return Resultado<Anuncio>.Falla("El anuncio no puede ser nulo.");
+
+            // Asigna correctamente el UsuarioId si el Usuario está presente
+            if (anuncio.UsuarioId <= 0 && anuncio.Usuario != null)
+                anuncio.UsuarioId = anuncio.Usuario.Id;
+
+            if (anuncio.UsuarioId <= 0)
+                return Resultado<Anuncio>.Falla("No se ha especificado el usuario que publica el anuncio.");
+
+            anuncio.FechaPublicacion = DateTime.Now;
 
             var resultado = await _repositorio.CrearAsync(anuncio);
             if (!resultado.esExitoso)
-                return Resultado<bool>.Falla(resultado.MensajeError ?? "Error desconocido");
+                return Resultado<Anuncio>.Falla(resultado.MensajeError ?? "Error al crear el anuncio.");
 
             await _repositorio.GuardarAsync();
-            return Resultado<bool>.Exito(true);
+
+            // 🔥 CORRECCIÓN 1: Devuelve el objeto Anuncio que ahora tiene el ID de la BD.
+            return Resultado<Anuncio>.Exito(anuncio);
         }
 
         // Obtener todos los anuncios (opcionalmente filtrados por pasantías)
@@ -40,39 +52,18 @@ namespace Usuarios.Implementaciones
         {
             var resultado = await _repositorio.ObtenerTodosAsync();
             if (!resultado.esExitoso)
-                return Resultado<List<AnuncioDetalleDTO>>.Falla(resultado.MensajeError ?? "Error desconocido");
+                return Resultado<List<AnuncioDetalleDTO>>.Falla(resultado.MensajeError ?? "Error al obtener los anuncios.");
 
             var anuncios = resultado.Valor ?? new List<Anuncio>();
 
             if (esPasantia.HasValue)
                 anuncios = anuncios.Where(a => a.EsPasantia == esPasantia.Value).ToList();
- 
+
             var dtos = new List<AnuncioDetalleDTO>();
 
             foreach (var a in anuncios)
             {
-                string nombreCompleto = "Usuario Desconocido";
-
-                // Si la relación no se cargó (a.Usuario es null) Y el ID es válido (> 0)
-                if (a.Usuario == null && a.UsuarioId > 0) // 💡 a.UsuarioId es 'int'
-                {
-                    // Buscamos el usuario manualmente usando el servicio de usuarios
-                    var usuario = await _usuarioServicio.ObtenerUsuarioPorId(a.UsuarioId);
-
-                    if (usuario != null)
-                    {
-                        // Asumimos que el objeto 'usuario' devuelto tiene las propiedades NombreUsuario y ApellidoUsuario
-                        nombreCompleto = $"{usuario.NombreUsuario} {usuario.ApellidoUsuario}".Trim();
-                    }
-                }
-                else if (a.Usuario != null)
-                {
-                    // Si el Repositorio SÍ cargó la relación, la usamos directamente
-                    nombreCompleto = $"{a.Usuario.NombreUsuario} {a.Usuario.ApellidoUsuario}".Trim();
-                }
-
-                if (string.IsNullOrWhiteSpace(nombreCompleto)) nombreCompleto = "Usuario Desconocido";
-
+                string nombreCompleto = await ObtenerNombreUsuarioAsync(a);
                 dtos.Add(new AnuncioDetalleDTO
                 {
                     Id = a.Id,
@@ -81,7 +72,11 @@ namespace Usuarios.Implementaciones
                     ImagenUrl = a.ImagenUrl,
                     EsPasantia = a.EsPasantia,
                     FechaPublicacion = a.FechaPublicacion,
-                    NombreUsuario = nombreCompleto 
+
+                    //Mapeo del UsuarioId del modelo al DTO
+                    UsuarioId = a.UsuarioId,
+
+                    NombreUsuario = nombreCompleto
                 });
             }
 
@@ -93,37 +88,24 @@ namespace Usuarios.Implementaciones
         {
             var resultado = await _repositorio.ObtenerPorIdAsync(id);
             if (!resultado.esExitoso)
-                return Resultado<AnuncioDetalleDTO>.Falla(resultado.MensajeError ?? "Error desconocido");
+                return Resultado<AnuncioDetalleDTO>.Falla(resultado.MensajeError ?? "Error al obtener el anuncio.");
 
-            var a = resultado.Valor!;
-            string nombreCompleto = "Usuario Desconocido";
-
-            // 🚀 CORRECCIÓN CLAVE: Buscar el usuario si no se cargó.
-            if (a.Usuario == null && a.UsuarioId > 0) // 💡 a.UsuarioId es 'int', no necesita .Value
-            {
-                var usuario = await _usuarioServicio.ObtenerUsuarioPorId(a.UsuarioId);
-
-                if (usuario != null)
-                {
-                    nombreCompleto = $"{usuario.NombreUsuario} {usuario.ApellidoUsuario}".Trim();
-                }
-            }
-            else if (a.Usuario != null)
-            {
-                nombreCompleto = $"{a.Usuario.NombreUsuario} {a.Usuario.ApellidoUsuario}".Trim();
-            }
-
-            if (string.IsNullOrWhiteSpace(nombreCompleto)) nombreCompleto = "Usuario Desconocido";
+            var anuncio = resultado.Valor!;
+            string nombreCompleto = await ObtenerNombreUsuarioAsync(anuncio);
 
             var dto = new AnuncioDetalleDTO
             {
-                Id = a.Id,
-                Titulo = a.Titulo,
-                Descripcion = a.Descripcion,
-                ImagenUrl = a.ImagenUrl,
-                EsPasantia = a.EsPasantia,
-                FechaPublicacion = a.FechaPublicacion,
-                NombreUsuario = nombreCompleto // 👈 Nombre ya resuelto
+                Id = anuncio.Id,
+                Titulo = anuncio.Titulo,
+                Descripcion = anuncio.Descripcion,
+                ImagenUrl = anuncio.ImagenUrl,
+                EsPasantia = anuncio.EsPasantia,
+                FechaPublicacion = anuncio.FechaPublicacion,
+
+                // 🔥 CORRECCIÓN 3: Mapeo del UsuarioId del modelo al DTO
+                UsuarioId = anuncio.UsuarioId,
+
+                NombreUsuario = nombreCompleto
             };
 
             return Resultado<AnuncioDetalleDTO>.Exito(dto);
@@ -134,9 +116,11 @@ namespace Usuarios.Implementaciones
         {
             var resultado = await _repositorio.ObtenerPorIdAsync(id);
             if (!resultado.esExitoso)
-                return Resultado<bool>.Falla(resultado.MensajeError ?? "Error desconocido");
+                return Resultado<bool>.Falla(resultado.MensajeError ?? "El anuncio no existe o no se pudo obtener.");
 
+            // Ya no hay ObtenerPorIdModeloAsync. Asumimos que resultado.Valor es el modelo Anuncio.
             var anuncio = resultado.Valor!;
+
             anuncio.Titulo = string.IsNullOrWhiteSpace(dto.Titulo) ? anuncio.Titulo : dto.Titulo;
             anuncio.Descripcion = string.IsNullOrWhiteSpace(dto.Descripcion) ? anuncio.Descripcion : dto.Descripcion;
             anuncio.ImagenUrl = string.IsNullOrWhiteSpace(dto.ImagenUrl) ? anuncio.ImagenUrl : dto.ImagenUrl;
@@ -144,7 +128,7 @@ namespace Usuarios.Implementaciones
 
             var resActualiza = await _repositorio.ActualizarAsync(anuncio);
             if (!resActualiza.esExitoso)
-                return Resultado<bool>.Falla(resActualiza.MensajeError ?? "Error desconocido");
+                return Resultado<bool>.Falla(resActualiza.MensajeError ?? "Error al actualizar el anuncio.");
 
             await _repositorio.GuardarAsync();
             return Resultado<bool>.Exito(true);
@@ -155,8 +139,9 @@ namespace Usuarios.Implementaciones
         {
             var resultado = await _repositorio.EliminarAsync(id);
             if (!resultado.esExitoso)
-                return Resultado<bool>.Falla(resultado.MensajeError ?? "Error desconocido");
+                return Resultado<bool>.Falla(resultado.MensajeError ?? "Error al eliminar el anuncio.");
 
+            await _repositorio.GuardarAsync();
             return Resultado<bool>.Exito(true);
         }
 
@@ -165,10 +150,11 @@ namespace Usuarios.Implementaciones
         {
             var resultado = await _repositorio.ObtenerCurriculumsAsync(id);
             if (!resultado.esExitoso)
-                return Resultado<List<string>>.Falla(resultado.MensajeError ?? "Error desconocido");
+                return Resultado<List<string>>.Falla(resultado.MensajeError ?? "Error al obtener los currículums.");
 
             var lista = resultado.Valor!
                 .Select(c => c.ArchivoUrl)
+                .Where(url => !string.IsNullOrWhiteSpace(url))
                 .ToList();
 
             return Resultado<List<string>>.Exito(lista);
@@ -192,7 +178,7 @@ namespace Usuarios.Implementaciones
 
             var resultado = await _repositorio.AgregarCurriculumAsync(curriculum);
             if (!resultado.esExitoso)
-                return Resultado<bool>.Falla(resultado.MensajeError ?? "Error al guardar currículum");
+                return Resultado<bool>.Falla(resultado.MensajeError ?? "Error al guardar el currículum.");
 
             await _repositorio.GuardarAsync();
             return Resultado<bool>.Exito(true);
@@ -202,7 +188,25 @@ namespace Usuarios.Implementaciones
         public async Task<Resultado<bool>> ToggleLikeAsync(int anuncioId, int usuarioId)
         {
             var resultado = await _repositorio.ToggleLikeAsync(anuncioId, usuarioId);
-            return resultado;
+            return resultado.esExitoso
+                ? Resultado<bool>.Exito(true)
+                : Resultado<bool>.Falla(resultado.MensajeError ?? "Error al alternar el 'like'.");
+        }
+
+        // Método auxiliar privado para obtener el nombre del usuario
+        private async Task<string> ObtenerNombreUsuarioAsync(Anuncio anuncio)
+        {
+            if (anuncio.Usuario != null)
+                return $"{anuncio.Usuario.NombreUsuario} {anuncio.Usuario.ApellidoUsuario}".Trim();
+
+            if (anuncio.UsuarioId > 0)
+            {
+                var usuario = await _usuarioServicio.ObtenerUsuarioPorId(anuncio.UsuarioId);
+                if (usuario != null)
+                    return $"{usuario.NombreUsuario} {usuario.ApellidoUsuario}".Trim();
+            }
+
+            return "Usuario Desconocido";
         }
     }
 }
