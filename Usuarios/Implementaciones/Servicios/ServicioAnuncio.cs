@@ -43,7 +43,7 @@ namespace Usuarios.Implementaciones
 
             await _repositorio.GuardarAsync();
 
-            // 🔥 CORRECCIÓN 1: Devuelve el objeto Anuncio que ahora tiene el ID de la BD.
+            //Devuelve el objeto Anuncio que ahora tiene el ID de la BD.
             return Resultado<Anuncio>.Exito(anuncio);
         }
 
@@ -102,7 +102,7 @@ namespace Usuarios.Implementaciones
                 EsPasantia = anuncio.EsPasantia,
                 FechaPublicacion = anuncio.FechaPublicacion,
 
-                // 🔥 CORRECCIÓN 3: Mapeo del UsuarioId del modelo al DTO
+                //Mapeo del UsuarioId del modelo al DTO
                 UsuarioId = anuncio.UsuarioId,
 
                 NombreUsuario = nombreCompleto
@@ -118,7 +118,7 @@ namespace Usuarios.Implementaciones
             if (!resultado.esExitoso)
                 return Resultado<bool>.Falla(resultado.MensajeError ?? "El anuncio no existe o no se pudo obtener.");
 
-            // Ya no hay ObtenerPorIdModeloAsync. Asumimos que resultado.Valor es el modelo Anuncio.
+         
             var anuncio = resultado.Valor!;
 
             anuncio.Titulo = string.IsNullOrWhiteSpace(dto.Titulo) ? anuncio.Titulo : dto.Titulo;

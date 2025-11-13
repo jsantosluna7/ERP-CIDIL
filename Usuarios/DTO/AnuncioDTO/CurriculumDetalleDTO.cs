@@ -3,8 +3,8 @@
 namespace Usuarios.DTO.AnuncioDTO
 {
    
-    /// Representa la información detallada de un currículum.
-    /// Incluye el anuncio asociado (si existe).
+    // Representa la información detallada de un currículum.
+    // Incluye el anuncio asociado (si existe).
    
     public class CurriculumDetalleDTO
     {

@@ -18,7 +18,7 @@ namespace Usuarios.Implementaciones.Repositorios
             _context = context;
         }
 
-        // ✅ Obtener todos los currículos
+        //Obtener todos los currículos
         public async Task<Resultado<List<Curriculum>>> ObtenerTodosAsync()
         {
             var curriculums = await _context.Curriculums
@@ -31,7 +31,7 @@ namespace Usuarios.Implementaciones.Repositorios
             return Resultado<List<Curriculum>>.Exito(curriculums);
         }
 
-        // ✅ Obtener un currículum por ID
+        //Obtener un currículum por ID
         public async Task<Resultado<Curriculum>> ObtenerPorIdAsync(int id)
         {
             var curriculum = await _context.Curriculums
@@ -44,21 +44,21 @@ namespace Usuarios.Implementaciones.Repositorios
             return Resultado<Curriculum>.Exito(curriculum);
         }
 
-        // ✅ Crear nuevo currículum
+        // Crear nuevo currículum
         public async Task<Resultado<bool>> CrearAsync(Curriculum curriculum)
         {
             await _context.Curriculums.AddAsync(curriculum);
             return Resultado<bool>.Exito(true);
         }
 
-        // ✅ Actualizar un currículum existente
+        // Actualizar un currículum existente
         public async Task<Resultado<bool>> ActualizarAsync(Curriculum curriculum)
         {
             _context.Curriculums.Update(curriculum);
             return Resultado<bool>.Exito(true);
         }
 
-        // ✅ Eliminar currículum
+        //Eliminar currículum
         public async Task<Resultado<bool>> EliminarAsync(int id)
         {
             var curriculum = await _context.Curriculums.FindAsync(id);

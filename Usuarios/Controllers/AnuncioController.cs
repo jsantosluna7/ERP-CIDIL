@@ -9,7 +9,7 @@ using Usuarios.Abstraccion.Servicios;
 using Usuarios.DTO;
 using ERP.Data.Modelos;
 using System.Security.Claims;
-using Usuarios.DTO.AnuncioDTO; // Para List<AnuncioDetalleDTO>
+using Usuarios.DTO.AnuncioDTO; 
 
 namespace Usuarios.Controllers
 {
@@ -41,7 +41,7 @@ namespace Usuarios.Controllers
         [Authorize]
         public async Task<IActionResult> CrearAnuncio([FromForm] CrearAnuncioDTO dto)
         {
-            // 1️⃣ Obtener ID del usuario autenticado desde cualquier tipo de claim posible
+            //Obtener ID del usuario autenticado desde cualquier tipo de claim posible
             string? userIdClaim = User.FindFirst("idUsuario")?.Value
                                  ?? User.FindFirst("IdUsuario")?.Value
                                  ?? User.FindFirst("userId")?.Value
@@ -60,11 +60,11 @@ namespace Usuarios.Controllers
                 return Unauthorized(new { error = "El ID del usuario no es válido o no es numérico." });
             }
 
-            // 2️⃣ Verificar rol permitido
+            // Verificar rol permitido
             if (!User.TieneRol("1", "2"))
                 return Unauthorized(new { error = "No tienes permisos para crear anuncios." });
 
-            // 3️⃣ Validaciones básicas
+            //Validaciones básicas
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -73,7 +73,7 @@ namespace Usuarios.Controllers
 
             try
             {
-                // 4️⃣ Guardar imágenes
+                //Guardar imágenes
                 var carpeta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagenes", "anuncios");
                 if (!Directory.Exists(carpeta)) Directory.CreateDirectory(carpeta);
 
@@ -97,7 +97,7 @@ namespace Usuarios.Controllers
                     urlsImagenes.Add($"/imagenes/anuncios/{nombreArchivo}");
                 }
 
-                // 5️⃣ Crear anuncio con el usuario autenticado
+                //Crear anuncio con el usuario autenticado
                 var anuncio = new Anuncio
                 {
                     Titulo = dto.Titulo,
@@ -108,7 +108,7 @@ namespace Usuarios.Controllers
                     UsuarioId = usuarioId // El ID es correcto aquí
                 };
 
-                // 💡 CAMBIO CRÍTICO: Se asume que el servicio ahora devuelve Resultado<Anuncio>
+                //CAMBIO CRÍTICO: Se asume que el servicio ahora devuelve Resultado<Anuncio>
                 var creado = await _anuncioServicio.CrearAsync(anuncio);
 
                 if (!creado.esExitoso)
@@ -117,7 +117,7 @@ namespace Usuarios.Controllers
                 return Ok(new
                 {
                     mensaje = "Anuncio creado correctamente.",
-                    // 💡 CAMBIO CRÍTICO: Devolvemos el objeto 'Anuncio' de la propiedad Valor
+                    //Devolvemos el objeto 'Anuncio' de la propiedad Valor
                     // Esto garantiza que el objeto refleje los datos de la BD, incluido el ID.
                     anuncio = creado.Valor
                 });

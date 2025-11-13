@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ERP.Data.Modelos; // 👈 Para usar User.TieneRol()
+using ERP.Data.Modelos; 
 using System;
 using System.Threading.Tasks;
 using Usuarios.Abstraccion.Servicios;
@@ -50,7 +50,7 @@ namespace Usuarios.Controllers
         }
 
         // ==================== POST: Crear currículum ====================
-        [AllowAnonymous] // ✅ Permite que los externos suban sin iniciar sesión
+        [AllowAnonymous] //Permite que los externos suban sin iniciar sesión
         [HttpPost]
         public async Task<IActionResult> Crear([FromForm] CurriculumDTO dto)
         {
@@ -66,7 +66,7 @@ namespace Usuarios.Controllers
                     if (!User.TieneRol("1", "2", "3", "4"))
                         return Unauthorized(new { mensaje = "No tienes permiso para realizar esta acción" });
 
-                    // 🔹 Crear como usuario autenticado
+                    //  Crear como usuario autenticado
                     var resultado = await _curriculumServicio.CrearAsync(dto);
                     if (!resultado.esExitoso)
                         return BadRequest(new { mensaje = resultado.MensajeError });
@@ -75,7 +75,7 @@ namespace Usuarios.Controllers
                 }
                 else
                 {
-                    // 🔹 Crear como usuario externo (sin login)
+                    //  Crear como usuario externo (sin login)
                     var resultado = await _curriculumServicio.CrearExternoAsync(dto);
                     if (!resultado.esExitoso)
                         return BadRequest(new { mensaje = resultado.MensajeError });
