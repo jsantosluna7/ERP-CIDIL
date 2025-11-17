@@ -33,12 +33,12 @@ namespace ERP.Data.Modelos
         [Column("fecha_publicacion")]
         public DateTime FechaPublicacion { get; set; } = DateTime.UtcNow;
 
-        // 🔗 Clave Foránea con Usuario
+        //Clave Foránea con Usuario
         [ForeignKey(nameof(Usuario))]
         [Column("usuario_id")]
         public int UsuarioId { get; set; }
 
-        // ✅ CORRECCIÓN CLAVE: Propiedad de navegación para cargar los datos del creador.
+        //Propiedad de navegación para cargar los datos del creador.
         // Asumo que tu modelo Usuario no acepta valores nulos en la base de datos (por eso el 'null!').
         public Usuario Usuario { get; set; } = null!;
 
@@ -50,6 +50,6 @@ namespace ERP.Data.Modelos
         public List<Comentario> Comentarios { get; set; } = new();
         public List<Like> Likes { get; set; } = new();
 
-        // Si tienes más relaciones como Curriculums, también deberían estar aquí.
+        
     }
 }

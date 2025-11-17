@@ -5,10 +5,10 @@
   
     public class ComentarioDTO
     {
-        // Id del anuncio al que pertenece el comentario
+        //del anuncio al que pertenece el comentario
         public int AnuncioId { get; set; }
 
-        // Id del usuario que comenta
+        //del usuario que comenta
         public int UsuarioId { get; set; }
 
         // Texto del comentario

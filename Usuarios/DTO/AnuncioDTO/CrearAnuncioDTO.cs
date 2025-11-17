@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Usuarios.DTO
 {
-    
     // DTO utilizado para crear un nuevo anuncio con varias imágenes.
     // Compatible con [FromForm] para subida de archivos.
 
@@ -20,6 +19,10 @@ namespace Usuarios.DTO
 
         public bool EsPasantia { get; set; } = false;
 
-        
+        //  (4x6, 2x3, 16x9, etc.)
+        //public string? FormatoFisico { get; set; }
+
+        //  (vertical / horizontal)
+        //public string? Orientacion { get; set; }
     }
 }
