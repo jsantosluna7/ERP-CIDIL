@@ -7,7 +7,7 @@ using Usuarios.DTO.Comentarios;
 namespace Usuarios.Abstraccion.Servicios
 {
     // Define los métodos de negocio para la gestión de comentarios.
-    public interface IComentarioServicio
+    public interface IServicioComentario
     {
         // Obtiene todos los comentarios del sistema, incluyendo el nombre del usuario y el título del anuncio.
         Task<Resultado<List<ComentarioDetalleDTO>>> ObtenerTodosAsync();

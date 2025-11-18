@@ -15,9 +15,9 @@ namespace Usuarios.Controllers
     [Authorize] // 🔒 Requiere autenticación por defecto
     public class ComentarioController : ControllerBase
     {
-        private readonly IComentarioServicio _comentarioServicio;
+        private readonly IServicioComentario _comentarioServicio;
 
-        public ComentarioController(IComentarioServicio comentarioServicio)
+        public ComentarioController(IServicioComentario comentarioServicio)
         {
             _comentarioServicio = comentarioServicio;
         }

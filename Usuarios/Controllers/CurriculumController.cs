@@ -12,9 +12,9 @@ namespace Usuarios.Controllers
     [Route("api/[controller]")]
     public class CurriculumController : ControllerBase
     {
-        private readonly ICurriculumServicio _curriculumServicio;
+        private readonly IServicioCurriculum _curriculumServicio;
 
-        public CurriculumController(ICurriculumServicio curriculumServicio)
+        public CurriculumController(IServicioCurriculum curriculumServicio)
         {
             _curriculumServicio = curriculumServicio;
         }

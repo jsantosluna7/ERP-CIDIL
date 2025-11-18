@@ -6,7 +6,7 @@ using Usuarios.DTO.AnuncioDTO;
 namespace Usuarios.Abstraccion.Servicios
 {
     // Interfaz del servicio de gestión de currículums
-    public interface ICurriculumServicio
+    public interface IServicioCurriculum
     {
         // Obtiene todos los currículums registrados
         Task<Resultado<List<CurriculumDetalleDTO>>> ObtenerTodosAsync();

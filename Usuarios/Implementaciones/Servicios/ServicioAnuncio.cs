@@ -10,12 +10,12 @@ using Usuarios.DTO.AnuncioDTO;
 
 namespace Usuarios.Implementaciones
 {
-    public class ServicioAnuncio : IAnuncioServicio
+    public class ServicioAnuncio : IServicioAnuncio
     {
-        private readonly IAnuncioRepositorio _repositorio;
+        private readonly IRepositorioAnuncio _repositorio;
         private readonly IServicioUsuarios _usuarioServicio;
 
-        public ServicioAnuncio(IAnuncioRepositorio repositorio, IServicioUsuarios usuarioServicio)
+        public ServicioAnuncio(IRepositorioAnuncio repositorio, IServicioUsuarios usuarioServicio)
         {
             _repositorio = repositorio ?? throw new ArgumentNullException(nameof(repositorio));
             _usuarioServicio = usuarioServicio ?? throw new ArgumentNullException(nameof(usuarioServicio));

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Usuarios.Abstraccion.Repositorios
 {
-    public interface IComentarioRepositorio
+    public interface IRepositorioComentario
     {
         Task<Resultado<List<Comentario>>> ObtenerTodosAsync();
         Task<Resultado<Comentario>> ObtenerPorIdAsync(int id);

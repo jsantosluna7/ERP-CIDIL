@@ -15,12 +15,12 @@ namespace Usuarios.Implementaciones.Servicios
     // Servicio encargado de la gestión de currículums
     // usando el patrón Resultado<T> para manejo de errores y respuestas.
     
-    public class ServicioCurriculum : ICurriculumServicio
+    public class ServicioCurriculum : IServicioCurriculum
     {
-        private readonly ICurriculumRepositorio _repo;
+        private readonly IRepositorioCurriculum _repo;
         private readonly ILogger<ServicioCurriculum> _logger;
 
-        public ServicioCurriculum(ICurriculumRepositorio repo, ILogger<ServicioCurriculum> logger)
+        public ServicioCurriculum(IRepositorioCurriculum repo, ILogger<ServicioCurriculum> logger)
         {
             _repo = repo;
             _logger = logger;

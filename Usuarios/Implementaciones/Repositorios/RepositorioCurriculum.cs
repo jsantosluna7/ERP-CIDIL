@@ -9,7 +9,7 @@ namespace Usuarios.Implementaciones.Repositorios
     
     // Implementación del repositorio de Curriculum usando Entity Framework.
     
-    public class RepositorioCurriculum : ICurriculumRepositorio
+    public class RepositorioCurriculum : IRepositorioCurriculum
     {
         private readonly DbErpContext _context;
 

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Usuarios.Abstraccion.Repositorios
 {
     // Interfaz que define los métodos para la gestión de anuncios y currículums. Utiliza <see cref="Resultado{T}"/> para manejo consistente de errores y resultados.
-    public interface IAnuncioRepositorio
+    public interface IRepositorioAnuncio
     {
         // Obtiene todos los anuncios registrados en la base de datos.
         Task<Resultado<List<Anuncio>>> ObtenerTodosAsync();

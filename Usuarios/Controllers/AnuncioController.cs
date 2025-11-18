@@ -17,9 +17,9 @@ namespace Usuarios.Controllers
     [Route("api/[controller]")]
     public class AnuncioController : ControllerBase
     {
-        private readonly IAnuncioServicio _anuncioServicio;
+        private readonly IServicioAnuncio _anuncioServicio;
 
-        public AnuncioController(IAnuncioServicio anuncioServicio)
+        public AnuncioController(IServicioAnuncio anuncioServicio)
         {
             _anuncioServicio = anuncioServicio ?? throw new ArgumentNullException(nameof(anuncioServicio));
         }

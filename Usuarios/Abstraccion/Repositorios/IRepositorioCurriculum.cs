@@ -9,7 +9,7 @@ namespace Usuarios.Abstraccion.Repositorios
     // Interfaz para manejar la persistencia de Curriculum
     // usando el patrón Resultado<T> para control de errores.
    
-    public interface ICurriculumRepositorio
+    public interface IRepositorioCurriculum
     {
         // Obtiene todos los curriculums
       

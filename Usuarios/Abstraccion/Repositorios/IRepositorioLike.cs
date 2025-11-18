@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Usuarios.Abstraccion.Repositorios
 {
-    public interface ILikeRepositorio
+    public interface IRepositorioLike
     {
        
         /// Obtiene todos los likes.

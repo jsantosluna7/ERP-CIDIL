@@ -9,7 +9,7 @@ using Usuarios.Abstraccion.Repositorios;
 
 namespace Usuarios.Implementaciones.Repositorios
 {
-    public class RepositorioLike : ILikeRepositorio
+    public class RepositorioLike : IRepositorioLike
     {
         private readonly DbErpContext _context;
 

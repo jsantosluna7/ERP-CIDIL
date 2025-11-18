@@ -7,7 +7,7 @@ using Usuarios.DTO.AnuncioDTO;
 namespace Usuarios.Abstraccion.Servicios
 {
     // Define las operaciones disponibles para gestionar los anuncios dentro del sistema. Todos los métodos devuelven Resultado<T> para manejar errores y mensajes.
-    public interface IAnuncioServicio
+    public interface IServicioAnuncio
     {
         // Obtiene la lista de todos los anuncios, con opción de filtrar por tipo de pasantía.
         Task<Resultado<List<AnuncioDetalleDTO>>> ObtenerTodosAsync(bool? esPasantia = null);

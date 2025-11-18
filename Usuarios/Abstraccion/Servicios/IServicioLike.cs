@@ -8,7 +8,7 @@ namespace Usuarios.Abstraccion.Servicios
     // Interfaz del servicio de Likes para anuncios.
     // Define las operaciones disponibles sobre Likes.
    
-    public interface ILikeServicio
+    public interface IServicioLike
     {
         Task<List<LikeDTO>> ObtenerTodosAsync();
         Task<LikeDTO?> ObtenerPorIdAsync(int id);

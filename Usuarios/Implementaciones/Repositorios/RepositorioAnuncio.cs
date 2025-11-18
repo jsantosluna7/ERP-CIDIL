@@ -12,7 +12,7 @@ namespace Usuarios.Implementaciones.Repositorios
     // Implementación concreta del repositorio de anuncios.
     // Gestiona la persistencia de los anuncios y currículums en la base de datos.
 
-    public class RepositorioAnuncio : IAnuncioRepositorio
+    public class RepositorioAnuncio : IRepositorioAnuncio
     {
         private readonly DbErpContext _context;
 

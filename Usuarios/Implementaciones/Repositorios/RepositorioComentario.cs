@@ -7,7 +7,7 @@ using Usuarios.Abstraccion.Repositorios;
 
 namespace Usuarios.Implementaciones.Repositorios
 {
-    public class RepositorioComentario : IComentarioRepositorio
+    public class RepositorioComentario : IRepositorioComentario
     {
         private readonly DbErpContext _context;
 

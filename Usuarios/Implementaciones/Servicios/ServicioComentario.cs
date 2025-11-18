@@ -10,15 +10,15 @@ using Usuarios.DTO.Comentarios;
 
 namespace Usuarios.Implementaciones.Servicios
 {
-    public class ServicioComentario : IComentarioServicio
+    public class ServicioComentario : IServicioComentario
     {
-        private readonly IComentarioRepositorio _comentarioRepo;
-        private readonly IAnuncioRepositorio _anuncioRepo;
+        private readonly IRepositorioComentario _comentarioRepo;
+        private readonly IRepositorioAnuncio _anuncioRepo;
         private readonly IUsuarioRepositorio _usuarioRepo;
 
         public ServicioComentario(
-            IComentarioRepositorio comentarioRepo,
-            IAnuncioRepositorio anuncioRepo,
+            IRepositorioComentario comentarioRepo,
+            IRepositorioAnuncio anuncioRepo,
             IUsuarioRepositorio usuarioRepo)
         {
             _comentarioRepo = comentarioRepo ?? throw new ArgumentNullException(nameof(comentarioRepo));
