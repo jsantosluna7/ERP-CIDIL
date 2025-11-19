@@ -37,4 +37,4 @@ namespace Usuarios.Abstraccion.Repositorios
         // Obtiene todos los currículums asociados a un anuncio.
         Task<Resultado<List<Curriculum>>> ObtenerCurriculumsAsync(int anuncioId);
     }
-}
+}   

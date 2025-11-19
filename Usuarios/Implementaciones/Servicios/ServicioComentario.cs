@@ -118,7 +118,7 @@ namespace Usuarios.Implementaciones.Servicios
             if (usuario == null) // Se comprueba directamente si el objeto devuelto es null
                 return Resultado<ComentarioDetalleDTO>.Falla($"No existe un usuario con Id = {dto.UsuarioId}.");
 
-            // ✅ Crear comentario con nombre y apellido del usuario
+            //Crear comentario con nombre y apellido del usuario
             var comentario = new Comentario
             {
                 AnuncioId = dto.AnuncioId,

@@ -8,7 +8,7 @@ using Usuarios.Abstraccion.Servicios;
 using Usuarios.DTO.AnuncioDTO;
 using Usuarios.DTO.Comentarios;
 
-namespace Usuarios.Controllers
+namespace Usuarios.Controllers      
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -32,7 +32,7 @@ namespace Usuarios.Controllers
 
         // ==================== Obtener comentarios por anuncio ====================
         [HttpGet("anuncio/{anuncioId}")]
-        [AllowAnonymous] // 👈 Permite ver comentarios sin iniciar sesión
+        [AllowAnonymous] //Permite ver comentarios sin iniciar sesión
         public async Task<IActionResult> ObtenerComentariosPorAnuncio(int anuncioId)
         {
             var comentarios = await _comentarioServicio.ObtenerPorAnuncioIdAsync(anuncioId);

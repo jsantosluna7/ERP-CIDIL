@@ -13,10 +13,10 @@ namespace Usuarios.DTO.AnuncioDTO
         public bool EsPasantia { get; set; }
         public DateTime FechaPublicacion { get; set; }
 
-        // 👇 Clave Foránea del creador
+        //Clave Foránea del creador
         public int UsuarioId { get; set; }
 
-        // ✅ CORRECCIÓN CLAVE: Propiedad para mostrar el nombre completo
+        //Propiedad para mostrar el nombre completo
         public string NombreUsuario { get; set; } = string.Empty;
     }
 }
