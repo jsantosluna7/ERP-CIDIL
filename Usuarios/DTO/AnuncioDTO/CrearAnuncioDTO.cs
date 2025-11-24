@@ -19,10 +19,8 @@ namespace Usuarios.DTO
 
         public bool EsPasantia { get; set; } = false;
 
-        //  (4x6, 2x3, 16x9, etc.)
-        //public string? FormatoFisico { get; set; }
+        public bool EsCarrusel { get; set; } = false;
 
-        //  (vertical / horizontal)
-        //public string? Orientacion { get; set; }
+
     }
 }

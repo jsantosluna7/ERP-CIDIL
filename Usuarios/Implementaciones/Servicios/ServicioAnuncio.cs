@@ -22,13 +22,11 @@ namespace Usuarios.Implementaciones
         }
 
         // Crear un nuevo anuncio
-        //Cambiado a retornar Resultado<Anuncio> para coincidir con la interfaz y el controlador.
         public async Task<Resultado<Anuncio>> CrearAsync(Anuncio anuncio)
         {
             if (anuncio == null)
                 return Resultado<Anuncio>.Falla("El anuncio no puede ser nulo.");
 
-            // Asigna correctamente el UsuarioId si el Usuario está presente
             if (anuncio.UsuarioId <= 0 && anuncio.Usuario != null)
                 anuncio.UsuarioId = anuncio.Usuario.Id;
 
@@ -42,12 +40,10 @@ namespace Usuarios.Implementaciones
                 return Resultado<Anuncio>.Falla(resultado.MensajeError ?? "Error al crear el anuncio.");
 
             await _repositorio.GuardarAsync();
-
-            //Devuelve el objeto Anuncio que ahora tiene el ID de la BD.
             return Resultado<Anuncio>.Exito(anuncio);
         }
 
-        // Obtener todos los anuncios (opcionalmente filtrados por pasantías)
+        // Obtener todos los anuncios
         public async Task<Resultado<List<AnuncioDetalleDTO>>> ObtenerTodosAsync(bool? esPasantia = null)
         {
             var resultado = await _repositorio.ObtenerTodosAsync();
@@ -64,6 +60,7 @@ namespace Usuarios.Implementaciones
             foreach (var a in anuncios)
             {
                 string nombreCompleto = await ObtenerNombreUsuarioAsync(a);
+
                 dtos.Add(new AnuncioDetalleDTO
                 {
                     Id = a.Id,
@@ -71,11 +68,9 @@ namespace Usuarios.Implementaciones
                     Descripcion = a.Descripcion,
                     ImagenUrl = a.ImagenUrl,
                     EsPasantia = a.EsPasantia,
+                    EsCarrusel = a.EsCarrusel,
                     FechaPublicacion = a.FechaPublicacion,
-
-                    //Mapeo del UsuarioId del modelo al DTO
                     UsuarioId = a.UsuarioId,
-
                     NombreUsuario = nombreCompleto
                 });
             }
@@ -83,7 +78,42 @@ namespace Usuarios.Implementaciones
             return Resultado<List<AnuncioDetalleDTO>>.Exito(dtos);
         }
 
-        // Obtener un anuncio por su ID
+        // 🔥 Obtener solo los anuncios del carrusel
+        public async Task<Resultado<List<AnuncioDetalleDTO>>> ObtenerCarruselAsync()
+        {
+            var resultado = await _repositorio.ObtenerTodosAsync();
+
+            if (!resultado.esExitoso)
+                return Resultado<List<AnuncioDetalleDTO>>.Falla("Error al obtener los anuncios.");
+
+            var anuncios = resultado.Valor!
+                .Where(a => a.EsCarrusel == true)
+                .ToList();
+
+            var dtos = new List<AnuncioDetalleDTO>();
+
+            foreach (var a in anuncios)
+            {
+                string nombreCompleto = await ObtenerNombreUsuarioAsync(a);
+
+                dtos.Add(new AnuncioDetalleDTO
+                {
+                    Id = a.Id,
+                    Titulo = a.Titulo,
+                    Descripcion = a.Descripcion,
+                    ImagenUrl = a.ImagenUrl,
+                    EsPasantia = a.EsPasantia,
+                    EsCarrusel = a.EsCarrusel,
+                    FechaPublicacion = a.FechaPublicacion,
+                    UsuarioId = a.UsuarioId,
+                    NombreUsuario = nombreCompleto
+                });
+            }
+
+            return Resultado<List<AnuncioDetalleDTO>>.Exito(dtos);
+        }
+
+        // Obtener anuncio por ID
         public async Task<Resultado<AnuncioDetalleDTO>> ObtenerPorIdAsync(int id)
         {
             var resultado = await _repositorio.ObtenerPorIdAsync(id);
@@ -100,31 +130,29 @@ namespace Usuarios.Implementaciones
                 Descripcion = anuncio.Descripcion,
                 ImagenUrl = anuncio.ImagenUrl,
                 EsPasantia = anuncio.EsPasantia,
+                EsCarrusel = anuncio.EsCarrusel,
                 FechaPublicacion = anuncio.FechaPublicacion,
-
-                //Mapeo del UsuarioId del modelo al DTO
                 UsuarioId = anuncio.UsuarioId,
-
                 NombreUsuario = nombreCompleto
             };
 
             return Resultado<AnuncioDetalleDTO>.Exito(dto);
         }
 
-        // Actualizar un anuncio existente
+        // Actualizar anuncio
         public async Task<Resultado<bool>> ActualizarAsync(int id, ActualizarAnuncioDTO dto)
         {
             var resultado = await _repositorio.ObtenerPorIdAsync(id);
             if (!resultado.esExitoso)
                 return Resultado<bool>.Falla(resultado.MensajeError ?? "El anuncio no existe o no se pudo obtener.");
 
-         
             var anuncio = resultado.Valor!;
 
             anuncio.Titulo = string.IsNullOrWhiteSpace(dto.Titulo) ? anuncio.Titulo : dto.Titulo;
             anuncio.Descripcion = string.IsNullOrWhiteSpace(dto.Descripcion) ? anuncio.Descripcion : dto.Descripcion;
             anuncio.ImagenUrl = string.IsNullOrWhiteSpace(dto.ImagenUrl) ? anuncio.ImagenUrl : dto.ImagenUrl;
             anuncio.EsPasantia = dto.EsPasantia ?? anuncio.EsPasantia;
+            anuncio.EsCarrusel = dto.EsCarrusel ?? anuncio.EsCarrusel;
 
             var resActualiza = await _repositorio.ActualizarAsync(anuncio);
             if (!resActualiza.esExitoso)
@@ -134,7 +162,7 @@ namespace Usuarios.Implementaciones
             return Resultado<bool>.Exito(true);
         }
 
-        // Eliminar un anuncio
+        // Eliminar anuncio
         public async Task<Resultado<bool>> EliminarAsync(int id)
         {
             var resultado = await _repositorio.EliminarAsync(id);
@@ -145,7 +173,7 @@ namespace Usuarios.Implementaciones
             return Resultado<bool>.Exito(true);
         }
 
-        // Obtener currículums asociados a un anuncio
+        // Obtener curriculums
         public async Task<Resultado<List<string>>> ObtenerCurriculumsAsync(int id)
         {
             var resultado = await _repositorio.ObtenerCurriculumsAsync(id);
@@ -160,31 +188,7 @@ namespace Usuarios.Implementaciones
             return Resultado<List<string>>.Exito(lista);
         }
 
-        // Guardar currículum externo
-        public async Task<Resultado<bool>> GuardarCurriculumAsync(int anuncioId, string nombreArchivo)
-        {
-            if (string.IsNullOrWhiteSpace(nombreArchivo))
-                return Resultado<bool>.Falla("El archivo no puede estar vacío.");
-
-            var curriculum = new Curriculum
-            {
-                AnuncioId = anuncioId,
-                Nombre = "Externo",
-                Email = "",
-                ArchivoUrl = nombreArchivo,
-                FechaEnvio = DateTime.UtcNow,
-                EsExterno = true
-            };
-
-            var resultado = await _repositorio.AgregarCurriculumAsync(curriculum);
-            if (!resultado.esExitoso)
-                return Resultado<bool>.Falla(resultado.MensajeError ?? "Error al guardar el currículum.");
-
-            await _repositorio.GuardarAsync();
-            return Resultado<bool>.Exito(true);
-        }
-
-        // Alternar "like" de un usuario usando su Id
+        // Alternar like
         public async Task<Resultado<bool>> ToggleLikeAsync(int anuncioId, int usuarioId)
         {
             var resultado = await _repositorio.ToggleLikeAsync(anuncioId, usuarioId);
@@ -193,7 +197,7 @@ namespace Usuarios.Implementaciones
                 : Resultado<bool>.Falla(resultado.MensajeError ?? "Error al alternar el 'like'.");
         }
 
-        // Método auxiliar privado para obtener el nombre del usuario
+        // Función para obtener nombre del usuario
         private async Task<string> ObtenerNombreUsuarioAsync(Anuncio anuncio)
         {
             if (anuncio.Usuario != null)

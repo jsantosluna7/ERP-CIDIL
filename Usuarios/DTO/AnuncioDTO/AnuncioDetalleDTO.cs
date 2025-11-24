@@ -2,21 +2,25 @@
 
 namespace Usuarios.DTO.AnuncioDTO
 {
-    // He ajustado el namespace a DTO.AnuncioDTO, asumiendo la convención. 
-    // Si tu archivo está solo en Usuarios.DTO, ajústalo.
     public class AnuncioDetalleDTO
     {
         public int Id { get; set; }
         public string Titulo { get; set; } = string.Empty;
         public string Descripcion { get; set; } = string.Empty;
+
         public string? ImagenUrl { get; set; }
+
         public bool EsPasantia { get; set; }
+
+        // NUEVA propiedad para indicar si va al carrusel
+        public bool EsCarrusel { get; set; }
+
         public DateTime FechaPublicacion { get; set; }
 
-        //Clave Foránea del creador
+        // Clave foránea del usuario creador
         public int UsuarioId { get; set; }
 
-        //Propiedad para mostrar el nombre completo
+        // Nombre completo del usuario
         public string NombreUsuario { get; set; } = string.Empty;
     }
 }

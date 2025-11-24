@@ -50,6 +50,9 @@ namespace ERP.Data.Modelos
         public List<Comentario> Comentarios { get; set; } = new();
         public List<Like> Likes { get; set; } = new();
 
-        
+        public bool EsCarrusel { get; set; } = false;
+
+
+
     }
 }

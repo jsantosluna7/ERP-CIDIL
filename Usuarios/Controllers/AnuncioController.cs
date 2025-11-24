@@ -9,7 +9,7 @@ using Usuarios.Abstraccion.Servicios;
 using Usuarios.DTO;
 using ERP.Data.Modelos;
 using System.Security.Claims;
-using Usuarios.DTO.AnuncioDTO; 
+using Usuarios.DTO.AnuncioDTO;
 
 namespace Usuarios.Controllers
 {
@@ -24,7 +24,7 @@ namespace Usuarios.Controllers
             _anuncioServicio = anuncioServicio ?? throw new ArgumentNullException(nameof(anuncioServicio));
         }
 
-        // ==================== OBTENER TODOS LOS ANUNCIOS ====================
+        // ==================== OBTENER TODOS ====================
         [HttpGet]
         public async Task<IActionResult> ObtenerAnuncios([FromQuery] bool? esPasantia)
         {
@@ -36,44 +36,45 @@ namespace Usuarios.Controllers
             return Ok(resultado.Valor);
         }
 
-        // ==================== CREAR ANUNCIO (CORREGIDO) ====================
+        // ====================OBTENER SOLO EL CARRUSEL ====================
+        [HttpGet("carrusel")]
+        public async Task<IActionResult> ObtenerCarrusel()
+        {
+            var resultado = await _anuncioServicio.ObtenerCarruselAsync();
+
+            if (!resultado.esExitoso || resultado.Valor == null)
+                return Ok(new List<AnuncioDetalleDTO>());
+
+            return Ok(resultado.Valor);
+        }
+
+        // ==================== CREAR ANUNCIO ====================
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> CrearAnuncio([FromForm] CrearAnuncioDTO dto)
         {
-            //Obtener ID del usuario autenticado desde cualquier tipo de claim posible
             string? userIdClaim = User.FindFirst("idUsuario")?.Value
                                  ?? User.FindFirst("IdUsuario")?.Value
                                  ?? User.FindFirst("userId")?.Value
                                  ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userIdClaim))
-            {
-                return Unauthorized(new
-                {
-                    error = "El token no contiene el claim 'idUsuario'. Asegúrate de que el JWT lo incluya al generarse."
-                });
-            }
+                return Unauthorized(new { error = "El token no contiene el claim 'idUsuario'." });
 
             if (!int.TryParse(userIdClaim, out int usuarioId))
-            {
-                return Unauthorized(new { error = "El ID del usuario no es válido o no es numérico." });
-            }
+                return Unauthorized(new { error = "El ID del usuario no es válido." });
 
-            // Verificar rol permitido
             if (!User.TieneRol("1", "2"))
                 return Unauthorized(new { error = "No tienes permisos para crear anuncios." });
 
-            //Validaciones básicas
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             if (dto.Imagenes == null || dto.Imagenes.Length == 0)
-                return BadRequest(new { error = "Debe proporcionar al menos una imagen para el anuncio." });
+                return BadRequest(new { error = "Debe cargar al menos una imagen." });
 
             try
             {
-                //Guardar imágenes
                 var carpeta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagenes", "anuncios");
                 if (!Directory.Exists(carpeta)) Directory.CreateDirectory(carpeta);
 
@@ -86,7 +87,7 @@ namespace Usuarios.Controllers
                         return BadRequest(new { error = "Solo se permiten imágenes JPG, JPEG o PNG." });
 
                     if (imagen.Length > 5 * 1024 * 1024)
-                        return BadRequest(new { error = "El tamaño máximo permitido por imagen es 5 MB." });
+                        return BadRequest(new { error = "Cada imagen debe pesar menos de 5 MB." });
 
                     var nombreArchivo = $"{Guid.NewGuid()}{extension}";
                     var rutaCompleta = Path.Combine(carpeta, nombreArchivo);
@@ -97,18 +98,17 @@ namespace Usuarios.Controllers
                     urlsImagenes.Add($"/imagenes/anuncios/{nombreArchivo}");
                 }
 
-                //Crear anuncio con el usuario autenticado
                 var anuncio = new Anuncio
                 {
                     Titulo = dto.Titulo,
                     Descripcion = dto.Descripcion,
                     ImagenUrl = string.Join(";", urlsImagenes),
                     EsPasantia = dto.EsPasantia,
+                    EsCarrusel = dto.EsCarrusel,
                     FechaPublicacion = DateTime.Now,
-                    UsuarioId = usuarioId // El ID es correcto aquí
+                    UsuarioId = usuarioId
                 };
 
-                //CAMBIO CRÍTICO: Se asume que el servicio ahora devuelve Resultado<Anuncio>
                 var creado = await _anuncioServicio.CrearAsync(anuncio);
 
                 if (!creado.esExitoso)
@@ -117,8 +117,6 @@ namespace Usuarios.Controllers
                 return Ok(new
                 {
                     mensaje = "Anuncio creado correctamente.",
-                    //Devolvemos el objeto 'Anuncio' de la propiedad Valor
-                    // Esto garantiza que el objeto refleje los datos de la BD, incluido el ID.
                     anuncio = creado.Valor
                 });
             }
@@ -132,7 +130,7 @@ namespace Usuarios.Controllers
             }
         }
 
-        // ==================== ACTUALIZAR ANUNCIO ====================
+        // ==================== ACTUALIZAR ====================
         [HttpPut("{id}")]
         [Authorize]
         public async Task<IActionResult> ActualizarAnuncio(int id, [FromForm] ActualizarAnuncioDTO dto)
@@ -141,10 +139,10 @@ namespace Usuarios.Controllers
                 return Unauthorized(new { error = "No tienes permisos para actualizar anuncios." });
 
             if (dto == null)
-                return BadRequest(new { error = "Los datos del anuncio no pueden estar vacíos." });
+                return BadRequest(new { error = "Los datos del anuncio no pueden ser nulos." });
 
-            // Obtener el anuncio existente
             var resultadoExistente = await _anuncioServicio.ObtenerPorIdAsync(id);
+
             if (!resultadoExistente.esExitoso || resultadoExistente.Valor == null)
                 return NotFound(new { error = $"No se encontró el anuncio con ID {id}" });
 
@@ -158,7 +156,7 @@ namespace Usuarios.Controllers
                     return BadRequest(new { error = "Solo se permiten imágenes JPG, JPEG o PNG." });
 
                 if (dto.Imagen.Length > 5 * 1024 * 1024)
-                    return BadRequest(new { error = "El tamaño máximo permitido para la imagen es 5 MB." });
+                    return BadRequest(new { error = "La imagen debe pesar menos de 5 MB." });
 
                 var carpeta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagenes", "anuncios");
                 if (!Directory.Exists(carpeta)) Directory.CreateDirectory(carpeta);
@@ -173,15 +171,16 @@ namespace Usuarios.Controllers
             }
 
             dto.ImagenUrl = nuevaUrlImagen;
+
             var actualizado = await _anuncioServicio.ActualizarAsync(id, dto);
 
             if (!actualizado.esExitoso)
                 return StatusCode(500, new { error = actualizado.MensajeError });
 
-            return Ok(new { mensaje = "Anuncio actualizado correctamente.", anuncio = dto });
+            return Ok(new { mensaje = "Anuncio actualizado correctamente." });
         }
 
-        // ==================== ELIMINAR ANUNCIO ====================
+        // ==================== ELIMINAR ====================
         [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> EliminarAnuncio(int id)
@@ -190,6 +189,7 @@ namespace Usuarios.Controllers
                 return Unauthorized(new { error = "No tienes permisos para eliminar anuncios." });
 
             var eliminado = await _anuncioServicio.EliminarAsync(id);
+
             if (!eliminado.esExitoso)
                 return NotFound(new { error = eliminado.MensajeError });
 
@@ -205,15 +205,15 @@ namespace Usuarios.Controllers
                 return Unauthorized(new { error = "No tienes permisos para ver currículums." });
 
             var resultado = await _anuncioServicio.ObtenerPorIdAsync(id);
+
             if (!resultado.esExitoso || resultado.Valor == null)
                 return NotFound(new { error = "Anuncio no encontrado." });
 
-            var anuncio = resultado.Valor;
-
-            if (!anuncio.EsPasantia)
+            if (!resultado.Valor.EsPasantia)
                 return Ok(new { mensaje = "Este anuncio no es de pasantía.", curriculums = new List<string>() });
 
             var curriculums = await _anuncioServicio.ObtenerCurriculumsAsync(id);
+
             if (!curriculums.esExitoso)
                 return StatusCode(500, new { error = curriculums.MensajeError });
 

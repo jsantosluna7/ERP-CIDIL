@@ -12,5 +12,8 @@ namespace Usuarios.DTO
         public bool? EsPasantia { get; set; }
         public IFormFile? Imagen { get; set; }
         public string? ImagenUrl { get; set; }
+
+        // 🔥 NUEVO: Permite activar/desactivar carrusel en edición
+        public bool? EsCarrusel { get; set; }
     }
 }

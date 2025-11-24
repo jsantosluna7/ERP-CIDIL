@@ -30,5 +30,8 @@ namespace Usuarios.Abstraccion.Servicios
 
         // Alterna (agrega o quita) el "like" de un usuario en un anuncio.
         Task<Resultado<bool>> ToggleLikeAsync(int anuncioId, int usuarioId);
+
+
+        Task<Resultado<List<AnuncioDetalleDTO>>> ObtenerCarruselAsync();
     }
 }
