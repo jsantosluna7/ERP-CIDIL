@@ -14,6 +14,6 @@ namespace Usuarios.DTO
         public string? ImagenUrl { get; set; }
 
         // 🔥 NUEVO: Permite activar/desactivar carrusel en edición
-        public bool? EsCarrusel { get; set; }
+        //public bool? EsCarrusel { get; set; }
     }
 }

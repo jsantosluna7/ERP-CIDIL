@@ -13,7 +13,7 @@ namespace Usuarios.DTO.AnuncioDTO
         public bool EsPasantia { get; set; }
 
         // NUEVA propiedad para indicar si va al carrusel
-        public bool EsCarrusel { get; set; }
+        //public bool EsCarrusel { get; set; }
 
         public DateTime FechaPublicacion { get; set; }
 

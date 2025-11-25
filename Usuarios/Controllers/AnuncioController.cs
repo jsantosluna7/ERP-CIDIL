@@ -36,18 +36,6 @@ namespace Usuarios.Controllers
             return Ok(resultado.Valor);
         }
 
-        // ====================OBTENER SOLO EL CARRUSEL ====================
-        [HttpGet("carrusel")]
-        public async Task<IActionResult> ObtenerCarrusel()
-        {
-            var resultado = await _anuncioServicio.ObtenerCarruselAsync();
-
-            if (!resultado.esExitoso || resultado.Valor == null)
-                return Ok(new List<AnuncioDetalleDTO>());
-
-            return Ok(resultado.Valor);
-        }
-
         // ==================== CREAR ANUNCIO ====================
         [HttpPost]
         [Authorize]
@@ -104,7 +92,6 @@ namespace Usuarios.Controllers
                     Descripcion = dto.Descripcion,
                     ImagenUrl = string.Join(";", urlsImagenes),
                     EsPasantia = dto.EsPasantia,
-                    EsCarrusel = dto.EsCarrusel,
                     FechaPublicacion = DateTime.Now,
                     UsuarioId = usuarioId
                 };

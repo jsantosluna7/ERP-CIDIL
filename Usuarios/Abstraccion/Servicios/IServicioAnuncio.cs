@@ -32,6 +32,6 @@ namespace Usuarios.Abstraccion.Servicios
         Task<Resultado<bool>> ToggleLikeAsync(int anuncioId, int usuarioId);
 
 
-        Task<Resultado<List<AnuncioDetalleDTO>>> ObtenerCarruselAsync();
+        //Task<Resultado<List<AnuncioDetalleDTO>>> ObtenerCarruselAsync();
     }
 }

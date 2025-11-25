@@ -68,42 +68,6 @@ namespace Usuarios.Implementaciones
                     Descripcion = a.Descripcion,
                     ImagenUrl = a.ImagenUrl,
                     EsPasantia = a.EsPasantia,
-                    EsCarrusel = a.EsCarrusel,
-                    FechaPublicacion = a.FechaPublicacion,
-                    UsuarioId = a.UsuarioId,
-                    NombreUsuario = nombreCompleto
-                });
-            }
-
-            return Resultado<List<AnuncioDetalleDTO>>.Exito(dtos);
-        }
-
-        // 🔥 Obtener solo los anuncios del carrusel
-        public async Task<Resultado<List<AnuncioDetalleDTO>>> ObtenerCarruselAsync()
-        {
-            var resultado = await _repositorio.ObtenerTodosAsync();
-
-            if (!resultado.esExitoso)
-                return Resultado<List<AnuncioDetalleDTO>>.Falla("Error al obtener los anuncios.");
-
-            var anuncios = resultado.Valor!
-                .Where(a => a.EsCarrusel == true)
-                .ToList();
-
-            var dtos = new List<AnuncioDetalleDTO>();
-
-            foreach (var a in anuncios)
-            {
-                string nombreCompleto = await ObtenerNombreUsuarioAsync(a);
-
-                dtos.Add(new AnuncioDetalleDTO
-                {
-                    Id = a.Id,
-                    Titulo = a.Titulo,
-                    Descripcion = a.Descripcion,
-                    ImagenUrl = a.ImagenUrl,
-                    EsPasantia = a.EsPasantia,
-                    EsCarrusel = a.EsCarrusel,
                     FechaPublicacion = a.FechaPublicacion,
                     UsuarioId = a.UsuarioId,
                     NombreUsuario = nombreCompleto
@@ -130,7 +94,6 @@ namespace Usuarios.Implementaciones
                 Descripcion = anuncio.Descripcion,
                 ImagenUrl = anuncio.ImagenUrl,
                 EsPasantia = anuncio.EsPasantia,
-                EsCarrusel = anuncio.EsCarrusel,
                 FechaPublicacion = anuncio.FechaPublicacion,
                 UsuarioId = anuncio.UsuarioId,
                 NombreUsuario = nombreCompleto
@@ -152,7 +115,6 @@ namespace Usuarios.Implementaciones
             anuncio.Descripcion = string.IsNullOrWhiteSpace(dto.Descripcion) ? anuncio.Descripcion : dto.Descripcion;
             anuncio.ImagenUrl = string.IsNullOrWhiteSpace(dto.ImagenUrl) ? anuncio.ImagenUrl : dto.ImagenUrl;
             anuncio.EsPasantia = dto.EsPasantia ?? anuncio.EsPasantia;
-            anuncio.EsCarrusel = dto.EsCarrusel ?? anuncio.EsCarrusel;
 
             var resActualiza = await _repositorio.ActualizarAsync(anuncio);
             if (!resActualiza.esExitoso)
@@ -197,7 +159,7 @@ namespace Usuarios.Implementaciones
                 : Resultado<bool>.Falla(resultado.MensajeError ?? "Error al alternar el 'like'.");
         }
 
-        // Función para obtener nombre del usuario
+        // Obtener nombre del usuario
         private async Task<string> ObtenerNombreUsuarioAsync(Anuncio anuncio)
         {
             if (anuncio.Usuario != null)
