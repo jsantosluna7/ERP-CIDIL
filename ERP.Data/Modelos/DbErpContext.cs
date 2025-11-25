@@ -50,6 +50,9 @@ public partial class DbErpContext : DbContext
     public virtual DbSet<Like> Likes { get; set; }
     public virtual DbSet<Curriculum> Curriculums { get; set; }
 
+   
+
+
     //nuevo
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
