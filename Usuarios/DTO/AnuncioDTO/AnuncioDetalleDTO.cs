@@ -4,23 +4,22 @@ namespace Usuarios.DTO.AnuncioDTO
 {
     public class AnuncioDetalleDTO
     {
-        public int Id { get; set; }
-        public string Titulo { get; set; } = string.Empty;
-        public string Descripcion { get; set; } = string.Empty;
+        public int Id { get; set; } // Id del anuncio
 
-        public string? ImagenUrl { get; set; }
+        public string Titulo { get; set; } = string.Empty; // Título del anuncio
 
-        public bool EsPasantia { get; set; }
+        public string Descripcion { get; set; } = string.Empty; // Descripción del anuncio
 
-        // NUEVA propiedad para indicar si va al carrusel
-        //public bool EsCarrusel { get; set; }
+        public string? ImagenUrl { get; set; } // URL de la imagen
 
-        public DateTime FechaPublicacion { get; set; }
+        public bool EsPasantia { get; set; } // Indica si es pasantía
 
-        // Clave foránea del usuario creador
-        public int UsuarioId { get; set; }
+        public bool EsCarrusel { get; set; } // Indica si va al carrusel
 
-        // Nombre completo del usuario
-        public string NombreUsuario { get; set; } = string.Empty;
+        public DateTime FechaPublicacion { get; set; } // Fecha de publicación
+
+        public int UsuarioId { get; set; } // Id del usuario creador
+
+        public string NombreUsuario { get; set; } = string.Empty; // Nombre del usuario creador
     }
 }

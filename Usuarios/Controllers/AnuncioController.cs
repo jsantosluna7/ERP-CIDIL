@@ -26,9 +26,9 @@ namespace Usuarios.Controllers
 
         // ==================== OBTENER TODOS ====================
         [HttpGet]
-        public async Task<IActionResult> ObtenerAnuncios([FromQuery] bool? esPasantia)
+        public async Task<IActionResult> ObtenerAnuncios([FromQuery] bool? esPasantia, [FromQuery] bool? esCarrusel)
         {
-            var resultado = await _anuncioServicio.ObtenerTodosAsync(esPasantia);
+            var resultado = await _anuncioServicio.ObtenerTodosAsync(esPasantia, esCarrusel);
 
             if (!resultado.esExitoso || resultado.Valor == null)
                 return Ok(new List<AnuncioDetalleDTO>());
@@ -92,6 +92,7 @@ namespace Usuarios.Controllers
                     Descripcion = dto.Descripcion,
                     ImagenUrl = string.Join(";", urlsImagenes),
                     EsPasantia = dto.EsPasantia,
+                    EsCarrusel = dto.EsCarrusel, 
                     FechaPublicacion = DateTime.Now,
                     UsuarioId = usuarioId
                 };
@@ -136,6 +137,7 @@ namespace Usuarios.Controllers
             var anuncioExistente = resultadoExistente.Valor;
             string nuevaUrlImagen = anuncioExistente.ImagenUrl;
 
+            // Actualizar imagen si viene nueva
             if (dto.Imagen != null && dto.Imagen.Length > 0)
             {
                 var extension = Path.GetExtension(dto.Imagen.FileName).ToLower();

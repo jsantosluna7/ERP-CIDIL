@@ -13,7 +13,7 @@ namespace Usuarios.DTO
         public IFormFile? Imagen { get; set; }
         public string? ImagenUrl { get; set; }
 
-        // 🔥 NUEVO: Permite activar/desactivar carrusel en edición
-        //public bool? EsCarrusel { get; set; }
+        //Permite activar/desactivar carrusel en edición
+        public bool? EsCarrusel { get; set; }
     }
 }

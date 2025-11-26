@@ -6,17 +6,15 @@ using Usuarios.DTO.AnuncioDTO;
 
 namespace Usuarios.Abstraccion.Servicios
 {
-    // Define las operaciones disponibles para gestionar los anuncios dentro del sistema. Todos los métodos devuelven Resultado<T> para manejar errores y mensajes.
     public interface IServicioAnuncio
     {
-        // Obtiene la lista de todos los anuncios, con opción de filtrar por tipo de pasantía.
-        Task<Resultado<List<AnuncioDetalleDTO>>> ObtenerTodosAsync(bool? esPasantia = null);
+        // Obtiene todos los anuncios filtrando opcionalmente por pasantía o carrusel.
+        Task<Resultado<List<AnuncioDetalleDTO>>> ObtenerTodosAsync(bool? esPasantia = null, bool? esCarrusel = null);
 
         // Obtiene los detalles de un anuncio por su ID.
         Task<Resultado<AnuncioDetalleDTO>> ObtenerPorIdAsync(int id);
 
         // Crea un nuevo anuncio en la base de datos.
-        // Se cambia el tipo de retorno de bool a Anuncio
         Task<Resultado<Anuncio>> CrearAsync(Anuncio anuncio);
 
         // Actualiza un anuncio existente.
@@ -25,13 +23,10 @@ namespace Usuarios.Abstraccion.Servicios
         // Elimina un anuncio por su ID.
         Task<Resultado<bool>> EliminarAsync(int id);
 
-        // Obtiene la lista de currículums asociados a un anuncio de pasantía.
+        // Obtiene la lista de currículums enviados a un anuncio de pasantía.
         Task<Resultado<List<string>>> ObtenerCurriculumsAsync(int id);
 
-        // Alterna (agrega o quita) el "like" de un usuario en un anuncio.
+        // Alterna el "like" de un usuario en un anuncio.
         Task<Resultado<bool>> ToggleLikeAsync(int anuncioId, int usuarioId);
-
-
-        //Task<Resultado<List<AnuncioDetalleDTO>>> ObtenerCarruselAsync();
     }
 }

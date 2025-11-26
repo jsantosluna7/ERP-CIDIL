@@ -19,6 +19,9 @@ namespace Usuarios.DTO
 
         public bool EsPasantia { get; set; } = false;
 
+        public bool EsCarrusel { get; set; } = false;
+
+
 
 
     }
