@@ -51,4 +51,10 @@ public partial class Usuario
     public virtual ICollection<SolicitudPrestamosDeEquipo> SolicitudPrestamosDeEquipos { get; set; } = new List<SolicitudPrestamosDeEquipo>();
 
     public virtual ICollection<SolicitudReservaDeEspacio> SolicitudReservaDeEspacios { get; set; } = new List<SolicitudReservaDeEspacio>();
+
+    public virtual ICollection<Comentario> Comentarios { get; set; } = new List<Comentario>();
+
+    public virtual ICollection<OrdenTimeline> OrdenTimelines { get; set; } = new List<OrdenTimeline>();
+
+    public virtual ICollection<Ordene> Ordenes { get; set; } = new List<Ordene>();
 }
