@@ -37,6 +37,7 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\Compras\Compras.csproj" />
     <ProjectReference Include="..\ERP.Data\ERP.Data.csproj" />
     <ProjectReference Include="..\Inventario\Inventario.csproj" />
     <ProjectReference Include="..\IoT\IoT.csproj" />

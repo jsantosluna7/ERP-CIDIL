@@ -1,5 +1,3 @@
-using System.Net.Mail;
-using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using ERP.Data.Modelos;
 using Inventario.Abstraccion.Repositorio;
@@ -12,7 +10,6 @@ using IoT.Implementaciones.Repositorios;
 using IoT.Implementaciones.Servicios;
 using Microsoft.EntityFrameworkCore;
 using MimeKit;
-using MailKit.Net.Smtp;
 using MailKit.Security;
 using Reservas.Abstraccion.Repositorio;
 using Reservas.Abstraccion.Servicios;
@@ -28,6 +25,10 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Compras.Abstraccion.Repositorios;
+using Compras.Implementaciones.Repositorios;
+using Compras.Abstraccion.Servicios;
+using Compras.Implementaciones.Servicios;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,6 +55,7 @@ builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
 builder.Services.AddScoped<IRepositorioLogin, RepositorioLogin>();
 builder.Services.AddScoped<IRepositorioResetPassword, RepositorioResetPassword>();
 builder.Services.AddScoped<IRepositorioReporteFalla, RepositorioReporteFalla>();
+builder.Services.AddScoped<IRepositorioOrdenes, RepositorioOrdenes>();
 
 
 
@@ -73,6 +75,7 @@ builder.Services.AddScoped<IServicioUsuarios, ServicioUsuarios>();
 builder.Services.AddScoped<IServicioLogin, ServicioLogin>();
 builder.Services.AddScoped<IServicioResetPassword, ServicioResetPassword>();
 builder.Services.AddScoped<IServicioReporteFalla, ServicioReporteFalla>();
+builder.Services.AddScoped<IServicioOrdenes, ServicioOrdenes>();
 
 //Añadimos el servicio de OTP
 builder.Services.AddScoped<ServicioOtp>();
@@ -103,6 +106,9 @@ var connectionString = $"Host={Environment.GetEnvironmentVariable("HOST")};" +
 // Registrar el DbContext
 
 builder.Services.AddDbContext<DbErpContext>(options =>
+    options.UseNpgsql(connectionString));
+
+builder.Services.AddDbContext<CasaosContext>(options =>
     options.UseNpgsql(connectionString));
 
 // Telegram config
