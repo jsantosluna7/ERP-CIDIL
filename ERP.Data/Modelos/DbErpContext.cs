@@ -15,9 +15,19 @@ public partial class DbErpContext : DbContext
     {
     }
 
+    public virtual DbSet<Anuncio> Anuncios { get; set; }
+
+    public virtual DbSet<Comentario> Comentarios { get; set; }
+
+    public virtual DbSet<ComentariosOrden> ComentariosOrdens { get; set; }
+
+    public virtual DbSet<Curriculum> Curriculums { get; set; }
+
     public virtual DbSet<Estado> Estados { get; set; }
 
     public virtual DbSet<EstadoFisico> EstadoFisicos { get; set; }
+
+    public virtual DbSet<EstadosTimeline> EstadosTimelines { get; set; }
 
     public virtual DbSet<Horario> Horarios { get; set; }
 
@@ -26,6 +36,14 @@ public partial class DbErpContext : DbContext
     public virtual DbSet<Iot> Iots { get; set; }
 
     public virtual DbSet<Laboratorio> Laboratorios { get; set; }
+
+    public virtual DbSet<Like> Likes { get; set; }
+
+    public virtual DbSet<OrdenItem> OrdenItems { get; set; }
+
+    public virtual DbSet<OrdenTimeline> OrdenTimelines { get; set; }
+
+    public virtual DbSet<Ordene> Ordenes { get; set; }
 
     public virtual DbSet<PrestamosEquipo> PrestamosEquipos { get; set; }
 
@@ -43,8 +61,136 @@ public partial class DbErpContext : DbContext
 
     public virtual DbSet<UsuariosPendiente> UsuariosPendientes { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseNpgsql("Host=100.89.68.57:5432;Database=dbERP;Username=CIDIL-SERVER;Password=CIdil-Admin12");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Anuncio>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("anuncios_pkey");
+
+            entity.ToTable("anuncios");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Descripcion).HasColumnName("descripcion");
+            entity.Property(e => e.EsCarrusel).HasDefaultValue(false);
+            entity.Property(e => e.EsPasantia)
+                .HasDefaultValue(false)
+                .HasColumnName("es_pasantia");
+            entity.Property(e => e.FechaCreacion)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fecha_creacion");
+            entity.Property(e => e.FechaPublicacion)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fecha_publicacion");
+            entity.Property(e => e.ImagenUrl).HasColumnName("imagen_url");
+            entity.Property(e => e.Titulo)
+                .HasMaxLength(200)
+                .HasColumnName("titulo");
+            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
+        });
+
+        modelBuilder.Entity<Comentario>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("comentarios_pkey");
+
+            entity.ToTable("comentarios");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.AnuncioId).HasColumnName("anuncio_id");
+            entity.Property(e => e.Fecha)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fecha");
+            entity.Property(e => e.Texto).HasColumnName("texto");
+            entity.Property(e => e.Usuario)
+                .HasMaxLength(150)
+                .HasColumnName("usuario");
+            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
+
+            entity.HasOne(d => d.Anuncio).WithMany(p => p.Comentarios)
+                .HasForeignKey(d => d.AnuncioId)
+                .HasConstraintName("comentario_anuncio_fkey");
+        });
+
+        modelBuilder.Entity<ComentariosOrden>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("comentarios_orden_pkey");
+
+            entity.ToTable("comentarios_orden");
+
+            entity.HasIndex(e => e.ItemId, "idx_comentarios_item");
+
+            entity.HasIndex(e => e.OrdenId, "idx_comentarios_orden");
+
+            entity.HasIndex(e => e.UsuarioId, "idx_comentarios_usuario");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Comentario).HasColumnName("comentario");
+            entity.Property(e => e.CreadoEn)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("creado_en");
+            entity.Property(e => e.ItemId).HasColumnName("item_id");
+            entity.Property(e => e.OrdenId).HasColumnName("orden_id");
+            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
+
+            entity.HasOne(d => d.Item).WithMany(p => p.ComentariosOrdens)
+                .HasForeignKey(d => d.ItemId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("comentarios_orden_item_id_fkey");
+
+            entity.HasOne(d => d.Orden).WithMany(p => p.ComentariosOrdens)
+                .HasForeignKey(d => d.OrdenId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("comentarios_orden_orden_id_fkey");
+
+            entity.HasOne(d => d.Usuario).WithMany(p => p.ComentariosOrdens)
+                .HasForeignKey(d => d.UsuarioId)
+                .HasConstraintName("comentarios_orden_usuario_id_fkey");
+        });
+
+        modelBuilder.Entity<Curriculum>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("curriculums_pkey");
+
+            entity.ToTable("curriculums");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.AnuncioId).HasColumnName("anuncio_id");
+            entity.Property(e => e.ArchivoUrl).HasColumnName("archivo_url");
+            entity.Property(e => e.Email)
+                .HasMaxLength(150)
+                .HasColumnName("email");
+            entity.Property(e => e.EsExterno)
+                .HasDefaultValue(false)
+                .HasColumnName("es_externo");
+            entity.Property(e => e.Fecha)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fecha");
+            entity.Property(e => e.FechaEnvio)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fecha_envio");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .HasColumnName("nombre");
+            entity.Property(e => e.Telefono)
+                .HasMaxLength(20)
+                .HasColumnName("telefono");
+            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
+
+            entity.HasOne(d => d.Anuncio).WithMany(p => p.Curricula)
+                .HasForeignKey(d => d.AnuncioId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("curriculums_anuncio_id_fkey");
+        });
+
         modelBuilder.Entity<Estado>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("estado_pkey");
@@ -71,6 +217,32 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.EstadoFisico1)
                 .HasMaxLength(50)
                 .HasColumnName("estado_fisico");
+        });
+
+        modelBuilder.Entity<EstadosTimeline>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("estados_timeline_pkey");
+
+            entity.ToTable("estados_timeline");
+
+            entity.HasIndex(e => e.Codigo, "estados_timeline_codigo_key").IsUnique();
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
+            entity.Property(e => e.Codigo)
+                .HasMaxLength(100)
+                .HasColumnName("codigo");
+            entity.Property(e => e.Color)
+                .HasMaxLength(100)
+                .HasColumnName("color");
+            entity.Property(e => e.Icono)
+                .HasMaxLength(100)
+                .HasColumnName("icono");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .HasColumnName("nombre");
         });
 
         modelBuilder.Entity<Horario>(entity =>
@@ -224,6 +396,183 @@ public partial class DbErpContext : DbContext
                 .HasColumnName("piso");
         });
 
+        modelBuilder.Entity<Like>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("likes_pkey");
+
+            entity.ToTable("likes");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.AnuncioId).HasColumnName("anuncio_id");
+            entity.Property(e => e.Fecha)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fecha");
+            entity.Property(e => e.IpUsuario)
+                .HasMaxLength(50)
+                .HasColumnName("ip_usuario");
+            entity.Property(e => e.Usuario)
+                .HasMaxLength(150)
+                .HasColumnName("usuario");
+            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
+
+            entity.HasOne(d => d.Anuncio).WithMany(p => p.Likes)
+                .HasForeignKey(d => d.AnuncioId)
+                .HasConstraintName("like_anuncio_fkey");
+        });
+
+        modelBuilder.Entity<OrdenItem>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("orden_items_pkey");
+
+            entity.ToTable("orden_items");
+
+            entity.HasIndex(e => e.EstadoTimelineId, "idx_items_estado");
+
+            entity.HasIndex(e => e.OrdenId, "idx_items_orden");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ActualizadoEn)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("actualizado_en");
+            entity.Property(e => e.Atencion)
+                .HasMaxLength(150)
+                .HasColumnName("atencion");
+            entity.Property(e => e.Cantidad)
+                .HasDefaultValue(0)
+                .HasColumnName("cantidad");
+            entity.Property(e => e.CantidadRecibida)
+                .HasDefaultValue(0)
+                .HasColumnName("cantidad_recibida");
+            entity.Property(e => e.Comentario).HasColumnName("comentario");
+            entity.Property(e => e.DireccionEnvio).HasColumnName("direccion_envio");
+            entity.Property(e => e.EnvioVia)
+                .HasMaxLength(100)
+                .HasColumnName("envio_via");
+            entity.Property(e => e.EstadoTimelineId).HasColumnName("estado_timeline_id");
+            entity.Property(e => e.FechaEstimadaEntrega).HasColumnName("fecha_estimada_entrega");
+            entity.Property(e => e.FechaRecibido).HasColumnName("fecha_recibido");
+            entity.Property(e => e.FechaSolicitud).HasColumnName("fecha_solicitud");
+            entity.Property(e => e.FechaSubida).HasColumnName("fecha_subida");
+            entity.Property(e => e.ImporteLinea)
+                .HasPrecision(12, 2)
+                .HasColumnName("importe_linea");
+            entity.Property(e => e.LinkExterno).HasColumnName("link_externo");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(200)
+                .HasColumnName("nombre");
+            entity.Property(e => e.NumeroLista)
+                .HasMaxLength(10)
+                .HasColumnName("numero_lista");
+            entity.Property(e => e.OrdenId).HasColumnName("orden_id");
+            entity.Property(e => e.PrecioUnitario)
+                .HasPrecision(12, 2)
+                .HasColumnName("precio_unitario");
+            entity.Property(e => e.TerminosEnvio)
+                .HasMaxLength(50)
+                .HasColumnName("terminos_envio");
+            entity.Property(e => e.UnidadMedida)
+                .HasMaxLength(10)
+                .HasColumnName("unidad_medida");
+
+            entity.HasOne(d => d.EstadoTimeline).WithMany(p => p.OrdenItems)
+                .HasForeignKey(d => d.EstadoTimelineId)
+                .HasConstraintName("orden_items_estado_timeline_id_fkey");
+
+            entity.HasOne(d => d.Orden).WithMany(p => p.OrdenItems)
+                .HasForeignKey(d => d.OrdenId)
+                .HasConstraintName("orden_items_orden_id_fkey");
+        });
+
+        modelBuilder.Entity<OrdenTimeline>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("orden_timeline_pkey");
+
+            entity.ToTable("orden_timeline");
+
+            entity.HasIndex(e => e.EstadoTimelineId, "idx_timeline_estado");
+
+            entity.HasIndex(e => e.OrdenId, "idx_timeline_orden");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreadoPor).HasColumnName("creado_por");
+            entity.Property(e => e.EstadoTimelineId).HasColumnName("estado_timeline_id");
+            entity.Property(e => e.Evento)
+                .HasMaxLength(250)
+                .HasColumnName("evento");
+            entity.Property(e => e.FechaEvento)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fecha_evento");
+            entity.Property(e => e.OrdenId).HasColumnName("orden_id");
+
+            entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.OrdenTimelines)
+                .HasForeignKey(d => d.CreadoPor)
+                .HasConstraintName("orden_timeline_creado_por_fkey");
+
+            entity.HasOne(d => d.EstadoTimeline).WithMany(p => p.OrdenTimelines)
+                .HasForeignKey(d => d.EstadoTimelineId)
+                .HasConstraintName("orden_timeline_estado_timeline_id_fkey");
+
+            entity.HasOne(d => d.Orden).WithMany(p => p.OrdenTimelines)
+                .HasForeignKey(d => d.OrdenId)
+                .HasConstraintName("orden_timeline_orden_id_fkey");
+        });
+
+        modelBuilder.Entity<Ordene>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("ordenes_pkey");
+
+            entity.ToTable("ordenes");
+
+            entity.HasIndex(e => e.CreadoPor, "idx_ordenes_creado_por");
+
+            entity.HasIndex(e => e.EstadoTimelineId, "idx_ordenes_estado");
+
+            entity.HasIndex(e => e.Codigo, "ordenes_codigo_key").IsUnique();
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ActualizadoEn)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("actualizado_en");
+            entity.Property(e => e.Codigo)
+                .HasMaxLength(50)
+                .HasColumnName("codigo");
+            entity.Property(e => e.Comentario).HasColumnName("comentario");
+            entity.Property(e => e.CreadoPor).HasColumnName("creado_por");
+            entity.Property(e => e.Departamento)
+                .HasMaxLength(150)
+                .HasColumnName("departamento");
+            entity.Property(e => e.EstadoTimelineId).HasColumnName("estado_timeline_id");
+            entity.Property(e => e.FechaSolicitud).HasColumnName("fecha_solicitud");
+            entity.Property(e => e.FechaSubida).HasColumnName("fecha_subida");
+            entity.Property(e => e.ImporteTotal)
+                .HasPrecision(12, 2)
+                .HasColumnName("importe_total");
+            entity.Property(e => e.Moneda)
+                .HasMaxLength(10)
+                .HasColumnName("moneda");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(200)
+                .HasColumnName("nombre");
+            entity.Property(e => e.SolicitadoPor)
+                .HasMaxLength(150)
+                .HasColumnName("solicitado_por");
+            entity.Property(e => e.UnidadNegocio)
+                .HasMaxLength(50)
+                .HasColumnName("unidad_negocio");
+
+            entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.Ordenes)
+                .HasForeignKey(d => d.CreadoPor)
+                .HasConstraintName("ordenes_creado_por_fkey");
+
+            entity.HasOne(d => d.EstadoTimeline).WithMany(p => p.Ordenes)
+                .HasForeignKey(d => d.EstadoTimelineId)
+                .HasConstraintName("ordenes_estado_timeline_id_fkey");
+        });
+
         modelBuilder.Entity<PrestamosEquipo>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("prestamos_equipos_pkey");
@@ -280,12 +629,13 @@ public partial class DbErpContext : DbContext
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("fecha_creacion");
             entity.Property(e => e.FechaUltimaActualizacion)
+                .HasDefaultValueSql("now()")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("fecha_ultima_actualizacion");
             entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
             entity.Property(e => e.Lugar).HasColumnName("lugar");
 
-            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.ReporteFallaIdUsuarioNavigations)
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.ReporteFallas)
                 .HasForeignKey(d => d.IdUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("reporte_falla_id_usuario_fkey");
@@ -319,6 +669,9 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
             entity.Property(e => e.IdUsuarioAprobador).HasColumnName("id_usuario_aprobador");
             entity.Property(e => e.Motivo).HasColumnName("motivo");
+            entity.Property(e => e.PersonasCantidad)
+                .HasDefaultValue(1)
+                .HasColumnName("personas_cantidad");
 
             entity.HasOne(d => d.IdEstadoNavigation).WithMany(p => p.ReservaDeEspacios)
                 .HasForeignKey(d => d.IdEstado)
@@ -338,9 +691,6 @@ public partial class DbErpContext : DbContext
             entity.HasOne(d => d.IdUsuarioAprobadorNavigation).WithMany(p => p.ReservaDeEspacioIdUsuarioAprobadorNavigations)
                 .HasForeignKey(d => d.IdUsuarioAprobador)
                 .HasConstraintName("prestamos_espacios_id_usuario_aprobador_fkey");
-            entity.Property(e => e.PersonasCantidad)
-                .HasDefaultValue(1)
-                .HasColumnName("personas_cantidad");
         });
 
         modelBuilder.Entity<Role>(entity =>
@@ -414,6 +764,9 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.IdLaboratorio).HasColumnName("id_laboratorio");
             entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
             entity.Property(e => e.Motivo).HasColumnName("motivo");
+            entity.Property(e => e.PersonasCantidad)
+                .HasDefaultValue(1)
+                .HasColumnName("personas_cantidad");
 
             entity.HasOne(d => d.IdEstadoNavigation).WithMany(p => p.SolicitudReservaDeEspacios)
                 .HasForeignKey(d => d.IdEstado)
@@ -428,9 +781,6 @@ public partial class DbErpContext : DbContext
                 .HasForeignKey(d => d.IdUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("solicitud_reserva_de_espacios_id_usuario_fkey");
-            entity.Property(e => e.PersonasCantidad)
-                .HasDefaultValue(1)
-                .HasColumnName("personas_cantidad");
         });
 
         modelBuilder.Entity<Usuario>(entity =>
@@ -487,10 +837,6 @@ public partial class DbErpContext : DbContext
             entity.HasKey(e => e.Id).HasName("usuarios_pendientes_pkey");
 
             entity.ToTable("usuarios_pendientes");
-
-            entity.HasIndex(e => e.CorreoInstitucional, "usuarios_pendientes_correo_key").IsUnique();
-
-            entity.HasIndex(e => e.IdMatricula, "usuarios_pendientes_id_matricula_key").IsUnique();
 
             entity.Property(e => e.Id)
                 .HasDefaultValueSql("gen_random_uuid()")

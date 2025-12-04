@@ -47,7 +47,7 @@ public partial class OrdenItem
 
     public DateTime? ActualizadoEn { get; set; }
 
-    public virtual ICollection<Comentario> Comentarios { get; set; } = new List<Comentario>();
+    public virtual ICollection<ComentariosOrden> ComentariosOrdens { get; set; } = new List<ComentariosOrden>();
 
     public virtual EstadosTimeline? EstadoTimeline { get; set; }
 

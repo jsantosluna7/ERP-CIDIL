@@ -108,9 +108,6 @@ var connectionString = $"Host={Environment.GetEnvironmentVariable("HOST")};" +
 builder.Services.AddDbContext<DbErpContext>(options =>
     options.UseNpgsql(connectionString));
 
-builder.Services.AddDbContext<CasaosContext>(options =>
-    options.UseNpgsql(connectionString));
-
 // Telegram config
 var config = builder.Configuration.GetSection("Telegram");
 var telegramBotToken = Environment.GetEnvironmentVariable("TELEGRAM_BOT_TOKEN")!;

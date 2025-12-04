@@ -7,9 +7,9 @@ namespace Compras.Implementaciones.Repositorios
 {
     public class RepositorioOrdenes : IRepositorioOrdenes
     {
-        private readonly CasaosContext _context;
+        private readonly DbErpContext _context;
 
-        public RepositorioOrdenes(CasaosContext context)
+        public RepositorioOrdenes(DbErpContext context)
         {
             _context = context;
         }

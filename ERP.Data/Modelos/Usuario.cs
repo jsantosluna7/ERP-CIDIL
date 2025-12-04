@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace ERP.Data.Modelos;
 
@@ -35,14 +34,20 @@ public partial class Usuario
     public bool? Activado { get; set; }
 
     public DateTime? UltimaSesion { get; set; }
-    [JsonIgnore]
+
+    public virtual ICollection<ComentariosOrden> ComentariosOrdens { get; set; } = new List<ComentariosOrden>();
+
     public virtual Role? IdRolNavigation { get; set; }
+
+    public virtual ICollection<OrdenTimeline> OrdenTimelines { get; set; } = new List<OrdenTimeline>();
+
+    public virtual ICollection<Ordene> Ordenes { get; set; } = new List<Ordene>();
 
     public virtual ICollection<PrestamosEquipo> PrestamosEquipoIdUsuarioAprobadorNavigations { get; set; } = new List<PrestamosEquipo>();
 
     public virtual ICollection<PrestamosEquipo> PrestamosEquipoIdUsuarioNavigations { get; set; } = new List<PrestamosEquipo>();
 
-    public virtual ICollection<ReporteFalla> ReporteFallaIdUsuarioNavigations { get; set; } = new List<ReporteFalla>();
+    public virtual ICollection<ReporteFalla> ReporteFallas { get; set; } = new List<ReporteFalla>();
 
     public virtual ICollection<ReservaDeEspacio> ReservaDeEspacioIdUsuarioAprobadorNavigations { get; set; } = new List<ReservaDeEspacio>();
 
@@ -51,10 +56,4 @@ public partial class Usuario
     public virtual ICollection<SolicitudPrestamosDeEquipo> SolicitudPrestamosDeEquipos { get; set; } = new List<SolicitudPrestamosDeEquipo>();
 
     public virtual ICollection<SolicitudReservaDeEspacio> SolicitudReservaDeEspacios { get; set; } = new List<SolicitudReservaDeEspacio>();
-
-    public virtual ICollection<Comentario> Comentarios { get; set; } = new List<Comentario>();
-
-    public virtual ICollection<OrdenTimeline> OrdenTimelines { get; set; } = new List<OrdenTimeline>();
-
-    public virtual ICollection<Ordene> Ordenes { get; set; } = new List<Ordene>();
 }
