@@ -56,10 +56,16 @@ builder.Services.AddScoped<IRepositorioLogin, RepositorioLogin>();
 builder.Services.AddScoped<IRepositorioResetPassword, RepositorioResetPassword>();
 builder.Services.AddScoped<IRepositorioReporteFalla, RepositorioReporteFalla>();
 builder.Services.AddScoped<IRepositorioOrdenes, RepositorioOrdenes>();
+builder.Services.AddScoped<IRepositorioEstadosTimeline, RepositorioEstadosTimeline>();
+builder.Services.AddScoped<IRepositorioComentariosOrden, RepositorioComentariosOrden>();
+builder.Services.AddScoped<IRepositorioOrdenItem, RepositorioOrdenItem>();
+builder.Services.AddScoped<IRepositorioOrdenTimeline, RepositorioOrdenTimeline>();
+
 
 
 
 //A�adir los Servicios
+builder.Services.AddScoped<IServicioEstadosTimeline, ServicioEstadosTimeline>();
 builder.Services.AddScoped<IServicioInventarioEquipo, ServicioInventarioEquipo>();
 builder.Services.AddScoped<IServicioLaboratorio, ServicioLaboratorio>();
 builder.Services.AddScoped<IServicioEstadoFisico, ServicioEstadoFisico>();
@@ -76,6 +82,11 @@ builder.Services.AddScoped<IServicioLogin, ServicioLogin>();
 builder.Services.AddScoped<IServicioResetPassword, ServicioResetPassword>();
 builder.Services.AddScoped<IServicioReporteFalla, ServicioReporteFalla>();
 builder.Services.AddScoped<IServicioOrdenes, ServicioOrdenes>();
+builder.Services.AddScoped<IServicioEstadosTimeline, ServicioEstadosTimeline>();
+builder.Services.AddScoped<IServicioComentariosOrden, ServicioComentariosOrden>();
+builder.Services.AddScoped<IServicioOrdenItem, ServicioOrdenItem>();
+builder.Services.AddScoped<IServicioOrdenTimeline, ServicioOrdenTimeline>();
+
 
 //Añadimos el servicio de OTP
 builder.Services.AddScoped<ServicioOtp>();

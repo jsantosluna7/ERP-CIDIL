@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace ERP.Data.Modelos;
 
@@ -16,10 +17,10 @@ public partial class ComentariosOrden
     public string Comentario { get; set; } = null!;
 
     public DateTime? CreadoEn { get; set; }
-
+    [JsonIgnore]
     public virtual OrdenItem? Item { get; set; }
-
+    [JsonIgnore]
     public virtual Ordene? Orden { get; set; }
-
+    [JsonIgnore]
     public virtual Usuario? Usuario { get; set; }
 }

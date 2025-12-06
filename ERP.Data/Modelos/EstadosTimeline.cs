@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace ERP.Data.Modelos;
 
@@ -16,10 +17,10 @@ public partial class EstadosTimeline
     public string? Icono { get; set; }
 
     public bool? Activo { get; set; }
-
+    [JsonIgnore]
     public virtual ICollection<OrdenItem> OrdenItems { get; set; } = new List<OrdenItem>();
-
+    [JsonIgnore]
     public virtual ICollection<OrdenTimeline> OrdenTimelines { get; set; } = new List<OrdenTimeline>();
-
+    [JsonIgnore]
     public virtual ICollection<Ordene> Ordenes { get; set; } = new List<Ordene>();
 }
