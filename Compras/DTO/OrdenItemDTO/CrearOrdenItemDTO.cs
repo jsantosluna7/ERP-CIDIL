@@ -9,8 +9,6 @@
 
         public string Nombre { get; set; } = null!;
 
-        public int? EstadoTimelineId { get; set; }
-
         public int Cantidad { get; set; }
 
         public int? CantidadRecibida { get; set; }

@@ -37,7 +37,7 @@ namespace Compras.Implementaciones.Repositorios
             return Resultado<Ordene>.Exito(ordenes);
         }
 
-        public async Task<Resultado<Ordene>> CrearOrdenes(OrdenesDTO ordene)
+        public async Task<Resultado<Ordene>> CrearOrdenes(CrearOrdenesDTO ordene)
         {
             if (ordene == null)
             {
@@ -57,14 +57,10 @@ namespace Compras.Implementaciones.Repositorios
                 Departamento = ordene.Departamento,
                 UnidadNegocio = ordene.UnidadNegocio,
                 SolicitadoPor = ordene.SolicitadoPor,
-                FechaSolicitud = ordene.FechaSolicitud,
-                FechaSubida = ordene.FechaSubida,
                 Moneda = ordene.Moneda,
                 ImporteTotal = ordene.ImporteTotal,
                 Comentario = ordene.Comentario,
-                EstadoTimelineId = ordene.EstadoTimelineId,
-                CreadoPor = ordene.CreadoPor,
-                ActualizadoEn = ordene.ActualizadoEn
+                CreadoPor = ordene.CreadoPor
             };
 
             _context.Ordenes.Add(ordenes);
@@ -72,7 +68,7 @@ namespace Compras.Implementaciones.Repositorios
             return Resultado<Ordene>.Exito(ordenes);
         }
 
-        public async Task<Resultado<Ordene>> ActualizarOrdenes(int id, OrdenesDTO ordenesDTO)
+        public async Task<Resultado<Ordene>> ActualizarOrdenes(int id, CrearOrdenesDTO ordenesDTO)
         {
             var existeOrden = await ObtenerPorId(id);
             var orden = existeOrden.Valor;
@@ -89,14 +85,10 @@ namespace Compras.Implementaciones.Repositorios
                 Departamento = ordenesDTO.Departamento,
                 UnidadNegocio = ordenesDTO.UnidadNegocio,
                 SolicitadoPor = ordenesDTO.SolicitadoPor,
-                FechaSolicitud = ordenesDTO.FechaSolicitud,
-                FechaSubida = ordenesDTO.FechaSubida,
                 Moneda = ordenesDTO.Moneda,
                 ImporteTotal = ordenesDTO.ImporteTotal,
                 Comentario = ordenesDTO.Comentario,
-                EstadoTimelineId = ordenesDTO.EstadoTimelineId,
-                CreadoPor = ordenesDTO.CreadoPor,
-                ActualizadoEn = ordenesDTO.ActualizadoEn
+                CreadoPor = ordenesDTO.CreadoPor
             };
 
             _context.Update(ordenes);

@@ -541,7 +541,7 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.Departamento)
                 .HasMaxLength(150)
                 .HasColumnName("departamento");
-            entity.Property(e => e.EstadoTimelineId).HasColumnName("estado_timeline_id");
+            entity.Property(e => e.EstadoTimelineId).HasDefaultValue(1).HasColumnName("estado_timeline_id");
             entity.Property(e => e.FechaSolicitud).HasColumnName("fecha_solicitud");
             entity.Property(e => e.FechaSubida).HasColumnName("fecha_subida");
             entity.Property(e => e.ImporteTotal)

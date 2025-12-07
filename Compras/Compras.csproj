@@ -21,4 +21,8 @@
     <ProjectReference Include="..\ERP.Data\ERP.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTO\EspecializadosDTO\" />
+  </ItemGroup>
+
 </Project>

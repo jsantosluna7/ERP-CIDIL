@@ -1,7 +1,5 @@
 ﻿using Compras.Abstraccion.Servicios;
 using Compras.DTO.OrdenesDTO;
-using Compras.Implementaciones.Servicios;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Compras.Controllers
@@ -39,7 +37,7 @@ namespace Compras.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CrearOrden([FromBody] OrdenesDTO ordenesDTO)
+        public async Task<IActionResult> CrearOrden([FromBody] CrearOrdenesDTO ordenesDTO)
         {
             var resultado = await _servicioOrdenes.CrearOrdenes(ordenesDTO);
             if (!resultado.esExitoso)
@@ -50,7 +48,7 @@ namespace Compras.Controllers
         }
 
         [HttpPatch]
-        public async Task<IActionResult> ActualizarOrdenes([FromQuery] int id,[FromBody] OrdenesDTO ordenesDTO)
+        public async Task<IActionResult> ActualizarOrdenes([FromQuery] int id,[FromBody] CrearOrdenesDTO ordenesDTO)
         {
             var resultado = await _servicioOrdenes.ActualizarOrdenes(id, ordenesDTO);
             if (!resultado.esExitoso)

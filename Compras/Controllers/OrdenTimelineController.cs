@@ -50,38 +50,5 @@ namespace Compras.Controllers
             }
             return Ok(resultado.Valor);
         }
-
-        [HttpPost]
-        public async Task<IActionResult> CrearOrdenTimeline([FromBody] CrearOrdenTimelineDTO ordenTimelineDTO)
-        {
-            var resultado = await _servicioOrdenTimeline.CrearOrdenTimeline(ordenTimelineDTO);
-            if (!resultado.esExitoso)
-            {
-                return BadRequest(new { error = resultado.MensajeError });
-            }
-            return Ok(resultado.Valor);
-        }
-
-        [HttpPatch]
-        public async Task<IActionResult> ActualizarOrdenTimeline([FromQuery] int id, [FromBody] CrearOrdenTimelineDTO ordenTimelineDTO)
-        {
-            var resultado = await _servicioOrdenTimeline.ActualizarOrdenTimeline(id, ordenTimelineDTO);
-            if (!resultado.esExitoso)
-            {
-                return BadRequest(new { error = resultado.MensajeError });
-            }
-            return Ok(resultado.Valor);
-        }
-
-        [HttpDelete]
-        public async Task<IActionResult> Eliminar([FromQuery] int id)
-        {
-            var resultado = await _servicioOrdenTimeline.Eliminar(id);
-            if (!resultado.esExitoso)
-            {
-                return BadRequest(new { error = resultado.MensajeError });
-            }
-            return Ok(resultado.Valor);
-        }
     }
 }

@@ -79,7 +79,7 @@ namespace Compras.Implementaciones.Servicios
             return Resultado<OrdenesDTO>.Exito(ordenDTO);
         }
 
-        public async Task<Resultado<OrdenesDTO>> CrearOrdenes(OrdenesDTO ordene)
+        public async Task<Resultado<OrdenesDTO>> CrearOrdenes(CrearOrdenesDTO ordene)
         {
             var resultado = await _repositorioOrdenes.CrearOrdenes(ordene);
             var orden = resultado.Valor!;
@@ -109,7 +109,7 @@ namespace Compras.Implementaciones.Servicios
             return Resultado<OrdenesDTO>.Exito(ordenDTO);
         }
 
-        public async Task<Resultado<OrdenesDTO>> ActualizarOrdenes(int id, OrdenesDTO ordenesDTO)
+        public async Task<Resultado<OrdenesDTO>> ActualizarOrdenes(int id, CrearOrdenesDTO ordenesDTO)
         {
             var resultado = await _repositorioOrdenes.ActualizarOrdenes(id, ordenesDTO);
             var orden = resultado.Valor!;
