@@ -22,7 +22,7 @@ namespace Compras.Controllers
             var resultado = await _servicioComentariosOrden.ComentariosOrden();
             if (!resultado.esExitoso)
             {
-                return BadRequest(new { error = resultado.MensajeError });
+                return BadRequest(resultado.MensajeError);
             }
             return Ok(resultado.Valor);
         }
@@ -33,7 +33,7 @@ namespace Compras.Controllers
             var resultado = await _servicioComentariosOrden.ComentariosOrdenId(id);
             if (!resultado.esExitoso)
             {
-                return BadRequest(new { error = resultado.MensajeError });
+                return BadRequest(resultado.MensajeError);
             }
             return Ok(resultado.Valor);
         }
@@ -44,7 +44,7 @@ namespace Compras.Controllers
             var resultado = await _servicioComentariosOrden.ComentariosOrdenPorOrdenId(ordenId);
             if (!resultado.esExitoso)
             {
-                return BadRequest(new { error = resultado.MensajeError });
+                return BadRequest(resultado.MensajeError);
             }
             return Ok(resultado.Valor);
         }
@@ -55,7 +55,7 @@ namespace Compras.Controllers
             var resultado = await _servicioComentariosOrden.ComentariosOrdenPorItemId(itemId);
             if (!resultado.esExitoso)
             {
-                return BadRequest(new { error = resultado.MensajeError });
+                return BadRequest(resultado.MensajeError);
             }
             return Ok(resultado.Valor);
         }
@@ -66,7 +66,7 @@ namespace Compras.Controllers
             var resultado = await _servicioComentariosOrden.ComentariosOrdenPorUsuarioId(usuarioId);
             if (!resultado.esExitoso)
             {
-                return BadRequest(new { error = resultado.MensajeError });
+                return BadRequest(resultado.MensajeError);
             }
             return Ok(resultado.Valor);
         }
@@ -77,7 +77,7 @@ namespace Compras.Controllers
             var resultado = await _servicioComentariosOrden.CrearComentariosOrden(comentarioDTO);
             if (!resultado.esExitoso)
             {
-                return BadRequest(new { error = resultado.MensajeError });
+                return BadRequest(resultado.MensajeError);
             }
             return Ok(resultado.Valor);
         }
@@ -88,7 +88,7 @@ namespace Compras.Controllers
             var resultado = await _servicioComentariosOrden.ActualizarComentariosOrden(id, comentarioDTO);
             if (!resultado.esExitoso)
             {
-                return BadRequest(new { error = resultado.MensajeError });
+                return BadRequest(resultado.MensajeError);
             }
             return Ok(resultado.Valor);
         }
@@ -99,7 +99,7 @@ namespace Compras.Controllers
             var resultado = await _servicioComentariosOrden.Eliminar(id);
             if (!resultado.esExitoso)
             {
-                return BadRequest(new { error = resultado.MensajeError });
+                return BadRequest(resultado.MensajeError);
             }
             return Ok(resultado.Valor);
         }

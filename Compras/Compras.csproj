@@ -14,15 +14,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="PdfPig" Version="0.1.12" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.1" />
+    <PackageReference Include="Tabula" Version="0.1.5" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ERP.Data\ERP.Data.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="DTO\EspecializadosDTO\" />
   </ItemGroup>
 
 </Project>

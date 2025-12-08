@@ -60,6 +60,7 @@ builder.Services.AddScoped<IRepositorioEstadosTimeline, RepositorioEstadosTimeli
 builder.Services.AddScoped<IRepositorioComentariosOrden, RepositorioComentariosOrden>();
 builder.Services.AddScoped<IRepositorioOrdenItem, RepositorioOrdenItem>();
 builder.Services.AddScoped<IRepositorioOrdenTimeline, RepositorioOrdenTimeline>();
+builder.Services.AddScoped<IRepositorioEspecializado, RepositorioEspecializado>();
 
 
 
@@ -86,6 +87,7 @@ builder.Services.AddScoped<IServicioEstadosTimeline, ServicioEstadosTimeline>();
 builder.Services.AddScoped<IServicioComentariosOrden, ServicioComentariosOrden>();
 builder.Services.AddScoped<IServicioOrdenItem, ServicioOrdenItem>();
 builder.Services.AddScoped<IServicioOrdenTimeline, ServicioOrdenTimeline>();
+builder.Services.AddScoped<IServicioEspecializado, ServicioEspecializado>();
 
 
 //Añadimos el servicio de OTP
