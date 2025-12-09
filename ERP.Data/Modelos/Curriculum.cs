@@ -45,5 +45,10 @@ namespace ERP.Data.Modelos
 
         [ForeignKey(nameof(AnuncioId))]
         public Anuncio? Anuncio { get; set; }
+
+        // 🚀 CORRECCIÓN CLAVE: Añadir la columna para guardar el título
+        [MaxLength(255)] // Definir una longitud adecuada para el título
+        [Column("anuncio_titulo")]
+        public string? AnuncioTitulo { get; set; }
     }
 }

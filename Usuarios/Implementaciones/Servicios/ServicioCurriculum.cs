@@ -11,18 +11,19 @@ using Usuarios.DTO.AnuncioDTO;
 
 namespace Usuarios.Implementaciones.Servicios
 {
-   
-    // Servicio encargado de la gestión de currículums
-    // usando el patrón Resultado<T> para manejo de errores y respuestas.
-    
     public class ServicioCurriculum : IServicioCurriculum
     {
         private readonly IRepositorioCurriculum _repo;
+        private readonly IRepositorioAnuncio _repoAnuncio;
         private readonly ILogger<ServicioCurriculum> _logger;
 
-        public ServicioCurriculum(IRepositorioCurriculum repo, ILogger<ServicioCurriculum> logger)
+        public ServicioCurriculum(
+            IRepositorioCurriculum repo,
+            IRepositorioAnuncio repoAnuncio,
+            ILogger<ServicioCurriculum> logger)
         {
             _repo = repo;
+            _repoAnuncio = repoAnuncio;
             _logger = logger;
         }
 
@@ -32,38 +33,70 @@ namespace Usuarios.Implementaciones.Servicios
             try
             {
                 var resultado = await _repo.ObtenerTodosAsync();
-                if (!resultado.esExitoso || resultado.Valor == null || resultado.Valor.Count == 0)
+                if (!resultado.esExitoso || resultado.Valor == null)
                     return Resultado<List<CurriculumDetalleDTO>>.Falla("No hay currículums registrados.");
 
-                var lista = resultado.Valor.Select(c => new CurriculumDetalleDTO
+                var curriculums = resultado.Valor;
+
+                // ⭐ SE CARGAN TODOS LOS ANUNCIOS UNA SOLA VEZ
+                var anuncios = await _repoAnuncio.ObtenerTodosAsync();
+                var listaAnuncios = anuncios.Valor ?? new List<Anuncio>();
+
+                // ⭐ JOIN MANUAL (sin include)
+                var lista = curriculums.Select(c =>
                 {
-                    Id = c.Id,
-                    Nombre = c.Nombre,
-                    Email = c.Email,
-                    ArchivoUrl = c.ArchivoUrl,
-                    FechaEnvio = c.FechaEnvio,
-                    AnuncioTitulo = c.Anuncio != null ? c.Anuncio.Titulo : "(Sin anuncio)"
+                    // Intentamos obtener el título del campo AnuncioTitulo (guardado en la DB)
+                    string tituloDB = c.AnuncioTitulo ?? "(Sin anuncio)";
+
+                    // Si el título de la DB es el valor por defecto, buscamos el título original por ID (para backwards compatibility)
+                    // Este bloque ya no debería ser necesario para nuevos registros, pero asegura compatibilidad.
+                    if (tituloDB == "(Sin anuncio)" && c.AnuncioId.HasValue)
+                    {
+                        var anuncio = listaAnuncios.FirstOrDefault(a => a.Id == c.AnuncioId);
+                        tituloDB = anuncio?.Titulo ?? "(Sin anuncio)";
+                    }
+
+                    return new CurriculumDetalleDTO
+                    {
+                        Id = c.Id,
+                        Nombre = c.Nombre,
+                        Email = c.Email,
+                        ArchivoUrl = c.ArchivoUrl,
+                        FechaEnvio = c.FechaEnvio,
+                        AnuncioTitulo = tituloDB // Usamos el valor directamente del modelo si existe
+                    };
                 }).ToList();
 
                 return Resultado<List<CurriculumDetalleDTO>>.Exito(lista);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener los currículums");
-                return Resultado<List<CurriculumDetalleDTO>>.Falla("Ocurrió un error al obtener los currículums.");
+                _logger.LogError(ex, "Error al obtener currículums");
+                return Resultado<List<CurriculumDetalleDTO>>.Falla("Error interno.");
             }
         }
 
-        // ==================== Obtener currículum por ID ====================
+        // ==================== Obtener por ID ====================
         public async Task<Resultado<CurriculumDetalleDTO?>> ObtenerPorIdAsync(int id)
         {
             try
             {
                 var resultado = await _repo.ObtenerPorIdAsync(id);
                 if (!resultado.esExitoso || resultado.Valor == null)
-                    return Resultado<CurriculumDetalleDTO?>.Falla($"No se encontró el currículum con ID {id}.");
+                    return Resultado<CurriculumDetalleDTO?>.Falla("Currículum no encontrado.");
 
                 var c = resultado.Valor;
+
+                // Intentamos obtener el título del campo AnuncioTitulo (guardado en la DB)
+                string tituloDB = c.AnuncioTitulo ?? "(Sin anuncio)";
+
+                // Si no tiene título guardado, intentamos buscarlo por ID del anuncio (para backwards compatibility)
+                if (tituloDB == "(Sin anuncio)" && c.AnuncioId.HasValue)
+                {
+                    var anuncio = (await _repoAnuncio.ObtenerPorIdAsync(c.AnuncioId.Value)).Valor;
+                    tituloDB = anuncio?.Titulo ?? "(Sin anuncio)";
+                }
+
                 var dto = new CurriculumDetalleDTO
                 {
                     Id = c.Id,
@@ -71,34 +104,32 @@ namespace Usuarios.Implementaciones.Servicios
                     Email = c.Email,
                     ArchivoUrl = c.ArchivoUrl,
                     FechaEnvio = c.FechaEnvio,
-                    AnuncioTitulo = c.Anuncio != null ? c.Anuncio.Titulo : "(Sin anuncio)"
+                    AnuncioTitulo = tituloDB
                 };
 
                 return Resultado<CurriculumDetalleDTO?>.Exito(dto);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener currículum con ID {id}");
-                return Resultado<CurriculumDetalleDTO?>.Falla("Ocurrió un error al obtener el currículum.");
+                _logger.LogError(ex, "Error al obtener currículum");
+                return Resultado<CurriculumDetalleDTO?>.Falla("Error interno.");
             }
         }
 
-        // ==================== Crear currículum (usuarios autenticados) ====================
+        // ==================== Crear ====================
         public async Task<Resultado<bool>> CrearAsync(CurriculumDTO dto)
         {
             return await GuardarCurriculumAsync(dto);
         }
 
-        // ==================== Crear currículum externo (usuarios sin sesión) ====================
         public async Task<Resultado<bool>> CrearExternoAsync(CurriculumDTO dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Nombre) || string.IsNullOrWhiteSpace(dto.Email))
-                return Resultado<bool>.Falla("Nombre y correo son obligatorios para currículum externo.");
+                return Resultado<bool>.Falla("Nombre y correo son obligatorios.");
 
             return await GuardarCurriculumAsync(dto);
         }
 
-        // ==================== Método privado para guardar currículum ====================
         private async Task<Resultado<bool>> GuardarCurriculumAsync(CurriculumDTO dto)
         {
             try
@@ -108,7 +139,7 @@ namespace Usuarios.Implementaciones.Servicios
 
                 var extension = Path.GetExtension(dto.Archivo.FileName)?.ToLowerInvariant();
                 if (extension != ".pdf")
-                    return Resultado<bool>.Falla("Solo se permiten archivos en formato PDF.");
+                    return Resultado<bool>.Falla("Solo PDFs permitidos.");
 
                 var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "curriculums");
                 if (!Directory.Exists(uploadsFolder))
@@ -122,15 +153,17 @@ namespace Usuarios.Implementaciones.Servicios
                     await dto.Archivo.CopyToAsync(stream);
                 }
 
-                string archivoUrl = $"/uploads/curriculums/{uniqueFileName}";
-
                 var curriculum = new Curriculum
                 {
                     Nombre = dto.Nombre,
                     Email = dto.Email,
-                    ArchivoUrl = archivoUrl,
+                    ArchivoUrl = $"/uploads/curriculums/{uniqueFileName}",
                     FechaEnvio = DateTime.UtcNow,
-                    AnuncioId = dto.AnuncioId
+                    AnuncioId = dto.AnuncioId,
+
+                    // 🚀 CORRECCIÓN CLAVE: Mapear el título del anuncio
+                    // El valor recibido en el DTO (TituloAnuncio) se asigna al modelo de DB (AnuncioTitulo)
+                    AnuncioTitulo = dto.TituloAnuncio
                 };
 
                 var creado = await _repo.CrearAsync(curriculum);
@@ -146,29 +179,28 @@ namespace Usuarios.Implementaciones.Servicios
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al guardar currículum");
-                return Resultado<bool>.Falla("Ocurrió un error al guardar el currículum. Intente nuevamente.");
+                return Resultado<bool>.Falla("Error interno.");
             }
         }
 
-        // ==================== Eliminar currículum ====================
         public async Task<Resultado<bool>> EliminarAsync(int id)
         {
             try
             {
                 var eliminado = await _repo.EliminarAsync(id);
-                if (!eliminado.esExitoso || !eliminado.Valor)
-                    return Resultado<bool>.Falla("No se pudo eliminar el currículum.");
+                if (!eliminado.esExitoso)
+                    return Resultado<bool>.Falla("No se pudo eliminar.");
 
                 var guardado = await _repo.GuardarAsync();
                 if (!guardado.esExitoso)
-                    return Resultado<bool>.Falla("Error al guardar cambios en la base de datos.");
+                    return Resultado<bool>.Falla("Error al guardar cambios.");
 
                 return Resultado<bool>.Exito(true);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al eliminar currículum con ID {id}");
-                return Resultado<bool>.Falla("Ocurrió un error al eliminar el currículum.");
+                _logger.LogError(ex, "Error al eliminar currículum");
+                return Resultado<bool>.Falla("Error interno.");
             }
         }
     }
