@@ -9,6 +9,7 @@ namespace Compras.Abstraccion.Servicios
         Task<Resultado<object>> ActualizarItemRecepcion(int itemId, ActualizarItemRecepcionDTO actualizarItemRecepcionDTO);
         Task<Resultado<List<OrdenItem>>> ObtenerItems(int ordenId);
         Task<Resultado<List<TimelineDTO>>> ObtenerTimeline(int ordenId);
+        Task<Resultado<object>> PdfExtraction(IFormFile file, int usuarioId);
         Task<Resultado<object>> RecalcularEstadoOrden(int ordenId, int usuarioId);
     }
 }

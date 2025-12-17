@@ -61,5 +61,16 @@ namespace Compras.Controllers
             }
             return Ok(resultado.Valor);
         }
+
+        [HttpPost("extract-pdf")]
+        public async Task<IActionResult> ExtractPdfData(IFormFile file, [FromForm] int usuarioId)
+        {
+            var resultado = await _servicioEspecializado.PdfExtraction(file, usuarioId);
+            if (!resultado.esExitoso)
+            {
+                return BadRequest(resultado.MensajeError);
+            }
+            return Ok(resultado.Valor);
+        }
     }
 }

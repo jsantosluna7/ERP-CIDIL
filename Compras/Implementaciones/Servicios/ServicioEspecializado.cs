@@ -1,16 +1,21 @@
 ﻿using Compras.Abstraccion.Repositorios;
 using Compras.Abstraccion.Servicios;
 using Compras.DTO.EspecializadosDTO;
+using Compras.DTO.PdfExtractionDTO;
 using ERP.Data.Modelos;
+using System.Globalization;
+using System.Text.Json;
 
 namespace Compras.Implementaciones.Servicios
 {
     public class ServicioEspecializado : IServicioEspecializado
     {
         private readonly IRepositorioEspecializado _repositorioEspecializado;
-        public ServicioEspecializado(IRepositorioEspecializado repositorioEspecializado)
+        private readonly DbErpContext _context;
+        public ServicioEspecializado(IRepositorioEspecializado repositorioEspecializado, DbErpContext context)
         {
             _repositorioEspecializado = repositorioEspecializado;
+            _context = context;
         }
 
         public async Task<Resultado<object>> ActualizarEstadoOrden(int ordenId, ActualizarEstadoOrdenDTO actualizarEstadoOrdenDTO)
@@ -144,6 +149,110 @@ namespace Compras.Implementaciones.Servicios
         {
             var items = await _repositorioEspecializado.ObtenerItemsPorOrden(ordenId);
             return Resultado<List<OrdenItem>>.Exito(items);
+        }
+
+        public async Task<Resultado<object>> PdfExtraction(IFormFile file, int usuarioId)
+        {
+            if(file == null || file.Length == 0)
+            {
+                return Resultado<object>.Falla("Debe adjuntar un PDF");
+            }
+
+            //Enviar PDF al API de Python
+            using var client = new HttpClient();
+            using var form = new MultipartFormDataContent();
+
+            var stream = file.OpenReadStream();
+            form.Add(new StreamContent(stream), "file", file.FileName);
+
+            var response = await client.PostAsync(
+                "http://127.0.0.1:8000/extract-requisition",
+                form);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return Resultado<object>.Falla("Error al procesar el PDF");
+                throw new Exception("Error al procesar el PDF");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var data = JsonSerializer.Deserialize<RequisicionDTO>(
+                json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+
+            string[] formatos = {
+                "M/d/yy",
+                "MM/dd/yy",
+                "M/d/yyyy",
+                "MM/dd/yyyy",
+                "dd/MM/yyyy",
+                "d/M/yy"
+            };
+            
+            if (!DateOnly.TryParseExact(data.entered_date.Trim(), formatos, CultureInfo.InvariantCulture, DateTimeStyles.None, out var fechaSolicitud))
+            {
+                throw new Exception($"Formato de fecha inválido: {data.entered_date}");
+            }
+
+
+            //Crear la orden
+            var orden = new Ordene
+            {
+                Codigo = data.requisition_id,
+                Nombre = data.requisition_name,
+                UnidadNegocio = data.business_unit,
+                SolicitadoPor = data.requested_by,
+                Comentario = data.header_comments,
+                FechaSolicitud = fechaSolicitud,
+                ImporteTotal = data.requisition_total,
+                EstadoTimelineId = 1, // Registrado
+                CreadoPor = usuarioId,
+                FechaSubida = DateOnly.FromDateTime(DateTime.Now)
+            };
+
+            _context.Ordenes.Add(orden);
+            await _context.SaveChangesAsync();
+
+            //Crear los items
+            foreach (var linea in data.lines)
+            {
+                var item = new OrdenItem
+                {
+                    Nombre = linea.item_description,
+                    OrdenId = orden.Id,
+                    NumeroLista = linea.line_number.ToString(),
+                    Cantidad = ((int)linea.quantity),
+                    CantidadRecibida = 0,
+                    UnidadMedida = linea.unit_of_measure,
+                    Comentario = linea.line_comments,
+                    EstadoTimelineId = 1, // Registrado
+                };
+
+                _context.OrdenItems.Add(item);
+            }
+
+            await _context.SaveChangesAsync();
+
+            //Timeline inicial
+            _context.OrdenTimelines.Add(new OrdenTimeline
+            {
+                OrdenId = orden.Id,
+                EstadoTimelineId = 1,
+                Evento = "Orden creada desde extracción de PDF",
+                FechaEvento = DateTime.Now,
+                CreadoPor = usuarioId
+            });
+
+            await _context.SaveChangesAsync();
+
+            //Respuesta al frontend
+            return Resultado<object>.Exito(new
+            {
+                ordenId = orden.Id,
+                ordenCodigo = orden.Codigo,
+                items = data.lines.Count
+            });
         }
     }
 }
