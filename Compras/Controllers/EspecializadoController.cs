@@ -62,6 +62,17 @@ namespace Compras.Controllers
             return Ok(resultado.Valor);
         }
 
+        [HttpGet("cantidad-ordenes")]
+        public async Task<IActionResult> CantidadDeOrdenes()
+        {
+            var resultado = await _servicioEspecializado.CantidadDeOrdenes();
+            if (!resultado.esExitoso)
+            {
+                return BadRequest(resultado.MensajeError);
+            }
+            return Ok(resultado.Valor);
+        }
+
         [HttpPost("extract-pdf")]
         public async Task<IActionResult> ExtractPdfData(IFormFile file, [FromForm] int usuarioId)
         {

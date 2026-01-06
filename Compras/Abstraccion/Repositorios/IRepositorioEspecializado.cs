@@ -4,6 +4,7 @@ namespace Compras.Abstraccion.Repositorios
 {
     public interface IRepositorioEspecializado
     {
+        Task<int> CantidadDeOrdenes();
         Task GuardarCambios();
         void InsertarTimeline(OrdenTimeline timeline);
         Task<OrdenItem?> ObtenerItemPorId(int itemId);

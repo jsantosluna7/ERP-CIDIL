@@ -1,6 +1,7 @@
 ﻿using Compras.Abstraccion.Repositorios;
 using ERP.Data.Modelos;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 
 namespace Compras.Implementaciones.Repositorios
 {
@@ -46,6 +47,11 @@ namespace Compras.Implementaciones.Repositorios
         public async Task GuardarCambios()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> CantidadDeOrdenes()
+        {
+            return await _context.Ordenes.CountAsync();
         }
     }
 }

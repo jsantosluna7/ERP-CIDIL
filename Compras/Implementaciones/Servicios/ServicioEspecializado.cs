@@ -254,5 +254,16 @@ namespace Compras.Implementaciones.Servicios
                 items = data.lines.Count
             });
         }
+
+        public async Task<Resultado<int>> CantidadDeOrdenes()
+        {
+            var resultado = await _repositorioEspecializado.CantidadDeOrdenes();
+            if (resultado <= 0)
+            {
+                return Resultado<int>.Falla("No se pudo obtener la cantidad de órdenes.");
+            }
+
+            return Resultado<int>.Exito(resultado);
+        }
     }
 }
