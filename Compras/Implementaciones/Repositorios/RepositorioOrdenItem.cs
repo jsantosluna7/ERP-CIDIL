@@ -69,16 +69,6 @@ namespace Compras.Implementaciones.Repositorios
                 Nombre = orden.Nombre,
                 NumeroLista = orden.NumeroLista,
                 Cantidad = orden.Cantidad,
-                CantidadRecibida = orden.CantidadRecibida,
-                UnidadMedida = orden.UnidadMedida,
-                PrecioUnitario = orden.PrecioUnitario,
-                ImporteLinea = orden.ImporteLinea,
-                LinkExterno = orden.LinkExterno,
-                Comentario = orden.Comentario,
-                DireccionEnvio = orden.DireccionEnvio,
-                Atencion = orden.Atencion,
-                EnvioVia = orden.EnvioVia,
-                TerminosEnvio = orden.TerminosEnvio
             };
 
             _context.OrdenItems.Add(ordenes);
@@ -103,15 +93,7 @@ namespace Compras.Implementaciones.Repositorios
                 NumeroLista = ordenDTO.NumeroLista,
                 Cantidad = ordenDTO.Cantidad,
                 CantidadRecibida = ordenDTO.CantidadRecibida,
-                UnidadMedida = ordenDTO.UnidadMedida,
-                PrecioUnitario = ordenDTO.PrecioUnitario,
-                ImporteLinea = ordenDTO.ImporteLinea,
-                LinkExterno = ordenDTO.LinkExterno,
                 Comentario = ordenDTO.Comentario,
-                DireccionEnvio = ordenDTO.DireccionEnvio,
-                Atencion = ordenDTO.Atencion,
-                EnvioVia = ordenDTO.EnvioVia,
-                TerminosEnvio = ordenDTO.TerminosEnvio
             };
 
             _context.Update(ordenesItem);

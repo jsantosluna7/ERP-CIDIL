@@ -176,9 +176,6 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.Nombre)
                 .HasMaxLength(100)
                 .HasColumnName("nombre");
-            entity.Property(e => e.Telefono)
-                .HasMaxLength(20)
-                .HasColumnName("telefono");
             entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
 
             entity.HasOne(d => d.Anuncio).WithMany(p => p.Curricula)
@@ -432,9 +429,6 @@ public partial class DbErpContext : DbContext
                 .HasDefaultValueSql("now()")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("actualizado_en");
-            entity.Property(e => e.Atencion)
-                .HasMaxLength(150)
-                .HasColumnName("atencion");
             entity.Property(e => e.Cantidad)
                 .HasDefaultValue(0)
                 .HasColumnName("cantidad");
@@ -442,19 +436,7 @@ public partial class DbErpContext : DbContext
                 .HasDefaultValue(0)
                 .HasColumnName("cantidad_recibida");
             entity.Property(e => e.Comentario).HasColumnName("comentario");
-            entity.Property(e => e.DireccionEnvio).HasColumnName("direccion_envio");
-            entity.Property(e => e.EnvioVia)
-                .HasMaxLength(100)
-                .HasColumnName("envio_via");
             entity.Property(e => e.EstadoTimelineId).HasColumnName("estado_timeline_id");
-            entity.Property(e => e.FechaEstimadaEntrega).HasColumnName("fecha_estimada_entrega");
-            entity.Property(e => e.FechaRecibido).HasColumnName("fecha_recibido");
-            entity.Property(e => e.FechaSolicitud).HasColumnName("fecha_solicitud");
-            entity.Property(e => e.FechaSubida).HasColumnName("fecha_subida");
-            entity.Property(e => e.ImporteLinea)
-                .HasPrecision(12, 2)
-                .HasColumnName("importe_linea");
-            entity.Property(e => e.LinkExterno).HasColumnName("link_externo");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(200)
                 .HasColumnName("nombre");
@@ -462,15 +444,6 @@ public partial class DbErpContext : DbContext
                 .HasMaxLength(10)
                 .HasColumnName("numero_lista");
             entity.Property(e => e.OrdenId).HasColumnName("orden_id");
-            entity.Property(e => e.PrecioUnitario)
-                .HasPrecision(12, 2)
-                .HasColumnName("precio_unitario");
-            entity.Property(e => e.TerminosEnvio)
-                .HasMaxLength(50)
-                .HasColumnName("terminos_envio");
-            entity.Property(e => e.UnidadMedida)
-                .HasMaxLength(10)
-                .HasColumnName("unidad_medida");
 
             entity.HasOne(d => d.EstadoTimeline).WithMany(p => p.OrdenItems)
                 .HasForeignKey(d => d.EstadoTimelineId)
@@ -541,15 +514,14 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.Departamento)
                 .HasMaxLength(150)
                 .HasColumnName("departamento");
-            entity.Property(e => e.EstadoTimelineId).HasDefaultValue(1).HasColumnName("estado_timeline_id");
+            entity.Property(e => e.EstadoTimelineId)
+                .HasDefaultValue(1)
+                .HasColumnName("estado_timeline_id");
             entity.Property(e => e.FechaSolicitud).HasColumnName("fecha_solicitud");
             entity.Property(e => e.FechaSubida).HasColumnName("fecha_subida");
-            entity.Property(e => e.ImporteTotal)
+            entity.Property(e => e.ItemsCount)
                 .HasPrecision(12, 2)
-                .HasColumnName("importe_total");
-            entity.Property(e => e.Moneda)
-                .HasMaxLength(10)
-                .HasColumnName("moneda");
+                .HasColumnName("items_count");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(200)
                 .HasColumnName("nombre");

@@ -14,22 +14,23 @@ namespace Compras.Implementaciones.Servicios
             _repositorioOrdenes = repositorioOrdenes;
         }
 
-        public async Task<Resultado<List<OrdenesDTO>>> OrdenesAll()
+        public async Task<Resultado<List<Ordene>>> OrdenesAll()
         {
             var ordenesTodos = await _repositorioOrdenes.OrdenesAll();
             var ordenes = ordenesTodos.Valor;
 
             if (ordenes == null || ordenes.Count == 0)
             {
-                return Resultado<List<OrdenesDTO>>.Falla(ordenesTodos.MensajeError);
+                return Resultado<List<Ordene>>.Falla(ordenesTodos.MensajeError);
             }
 
-            var ordenesDTO = new List<OrdenesDTO>();
+            var ordenesDTO = new List<Ordene>();
 
             foreach (Ordene ordene in ordenes)
             {
-                var ordeneDTO = new OrdenesDTO
+                var ordeneDTO = new Ordene
                 {
+                    Id = ordene.Id,
                     Codigo = ordene.Codigo,
                     Nombre = ordene.Nombre,
                     Departamento = ordene.Departamento,
@@ -37,8 +38,7 @@ namespace Compras.Implementaciones.Servicios
                     SolicitadoPor = ordene.SolicitadoPor,
                     FechaSolicitud = ordene?.FechaSolicitud,
                     FechaSubida = ordene?.FechaSubida,
-                    Moneda = ordene?.Moneda,
-                    ImporteTotal = ordene?.ImporteTotal,
+                    ItemsCount = ordene?.ItemsCount,
                     Comentario = ordene?.Comentario,
                     EstadoTimelineId = ordene?.EstadoTimelineId,
                     CreadoPor = ordene?.CreadoPor,
@@ -46,7 +46,7 @@ namespace Compras.Implementaciones.Servicios
                 };
                 ordenesDTO.Add(ordeneDTO);
             }
-            return Resultado<List<OrdenesDTO>>.Exito(ordenesDTO);
+            return Resultado<List<Ordene>>.Exito(ordenesDTO);
         }
 
         public async Task<Resultado<OrdenesDTO>> ObtenerPorId(int id)
@@ -68,8 +68,7 @@ namespace Compras.Implementaciones.Servicios
                 SolicitadoPor = orden.SolicitadoPor,
                 FechaSolicitud = orden.FechaSolicitud,
                 FechaSubida = orden.FechaSubida,
-                Moneda = orden.Moneda,
-                ImporteTotal = orden.ImporteTotal,
+                ItemsCount = orden.ItemsCount,
                 Comentario = orden.Comentario,
                 EstadoTimelineId = orden.EstadoTimelineId,
                 CreadoPor = orden.CreadoPor,
@@ -98,8 +97,7 @@ namespace Compras.Implementaciones.Servicios
                 SolicitadoPor = orden.SolicitadoPor,
                 FechaSolicitud = orden.FechaSolicitud,
                 FechaSubida = orden.FechaSubida,
-                Moneda = orden.Moneda,
-                ImporteTotal = orden.ImporteTotal,
+                ItemsCount = orden.ItemsCount,
                 Comentario = orden.Comentario,
                 EstadoTimelineId = orden.EstadoTimelineId,
                 CreadoPor = orden.CreadoPor,
@@ -128,8 +126,7 @@ namespace Compras.Implementaciones.Servicios
                 SolicitadoPor = orden.SolicitadoPor,
                 FechaSolicitud = orden.FechaSolicitud,
                 FechaSubida = orden.FechaSubida,
-                Moneda = orden.Moneda,
-                ImporteTotal = orden.ImporteTotal,
+                ItemsCount = orden.ItemsCount,
                 Comentario = orden.Comentario,
                 EstadoTimelineId = orden.EstadoTimelineId,
                 CreadoPor = orden.CreadoPor,

@@ -2,7 +2,6 @@
 {
     public class OrdenesDTO
     {
-
         public string Codigo { get; set; } = null!;
 
         public string Nombre { get; set; } = null!;
@@ -17,9 +16,7 @@
 
         public DateOnly? FechaSubida { get; set; }
 
-        public string? Moneda { get; set; }
-
-        public decimal? ImporteTotal { get; set; }
+        public decimal? ItemsCount { get; set; }
 
         public string? Comentario { get; set; }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace ERP.Data.Modelos;
 
@@ -13,43 +14,19 @@ public partial class OrdenItem
 
     public string Nombre { get; set; } = null!;
 
-    public DateOnly? FechaSolicitud { get; set; }
-
-    public DateOnly? FechaSubida { get; set; }
-
-    public DateOnly? FechaRecibido { get; set; }
-
-    public DateOnly? FechaEstimadaEntrega { get; set; }
-
     public int? EstadoTimelineId { get; set; }
 
     public int Cantidad { get; set; }
 
     public int? CantidadRecibida { get; set; }
 
-    public string? UnidadMedida { get; set; }
-
-    public decimal? PrecioUnitario { get; set; }
-
-    public decimal? ImporteLinea { get; set; }
-
-    public string? LinkExterno { get; set; }
-
     public string? Comentario { get; set; }
 
-    public string? DireccionEnvio { get; set; }
-
-    public string? Atencion { get; set; }
-
-    public string? EnvioVia { get; set; }
-
-    public string? TerminosEnvio { get; set; }
-
     public DateTime? ActualizadoEn { get; set; }
-
+    [JsonIgnore]
     public virtual ICollection<ComentariosOrden> ComentariosOrdens { get; set; } = new List<ComentariosOrden>();
-
+    [JsonIgnore]
     public virtual EstadosTimeline? EstadoTimeline { get; set; }
-
+    [JsonIgnore]
     public virtual Ordene Orden { get; set; } = null!;
 }

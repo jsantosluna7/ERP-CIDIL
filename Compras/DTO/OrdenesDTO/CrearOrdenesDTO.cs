@@ -12,9 +12,7 @@
 
         public string? SolicitadoPor { get; set; }
 
-        public string? Moneda { get; set; }
-
-        public decimal? ImporteTotal { get; set; }
+        public int? ItemsCount { get; set; }
 
         public string? Comentario { get; set; }
 

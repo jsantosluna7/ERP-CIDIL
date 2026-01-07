@@ -6,6 +6,7 @@
         public string currency { get; set; }
         public string entered_date { get; set; }
         public string header_comments { get; set; }
+        public int items_count { get; set; }
         public List<RequisicionLineaDTO> lines { get; set; }
         public string requested_by { get; set; }
         public string requester_id { get; set; }

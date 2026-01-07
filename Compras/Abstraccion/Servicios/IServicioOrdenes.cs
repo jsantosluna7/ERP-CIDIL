@@ -9,6 +9,6 @@ namespace Compras.Abstraccion.Servicios
         Task<Resultado<OrdenesDTO>> CrearOrdenes(CrearOrdenesDTO ordene);
         Task<Resultado<bool?>> Eliminar(int id);
         Task<Resultado<OrdenesDTO>> ObtenerPorId(int id);
-        Task<Resultado<List<OrdenesDTO>>> OrdenesAll();
+        Task<Resultado<List<Ordene>>> OrdenesAll();
     }
 }

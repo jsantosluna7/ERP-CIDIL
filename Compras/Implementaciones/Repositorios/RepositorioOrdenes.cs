@@ -57,8 +57,7 @@ namespace Compras.Implementaciones.Repositorios
                 Departamento = ordene.Departamento,
                 UnidadNegocio = ordene.UnidadNegocio,
                 SolicitadoPor = ordene.SolicitadoPor,
-                Moneda = ordene.Moneda,
-                ImporteTotal = ordene.ImporteTotal,
+                ItemsCount = ordene.ItemsCount,
                 Comentario = ordene.Comentario,
                 CreadoPor = ordene.CreadoPor
             };
@@ -85,8 +84,7 @@ namespace Compras.Implementaciones.Repositorios
                 Departamento = ordenesDTO.Departamento,
                 UnidadNegocio = ordenesDTO.UnidadNegocio,
                 SolicitadoPor = ordenesDTO.SolicitadoPor,
-                Moneda = ordenesDTO.Moneda,
-                ImporteTotal = ordenesDTO.ImporteTotal,
+                ItemsCount = ordenesDTO.ItemsCount,
                 Comentario = ordenesDTO.Comentario,
                 CreadoPor = ordenesDTO.CreadoPor
             };

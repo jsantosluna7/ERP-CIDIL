@@ -203,12 +203,13 @@ namespace Compras.Implementaciones.Servicios
                 Nombre = data.requisition_name,
                 UnidadNegocio = data.business_unit,
                 SolicitadoPor = data.requested_by,
+                ItemsCount = data.items_count,
                 Comentario = data.header_comments,
                 FechaSolicitud = fechaSolicitud,
-                ImporteTotal = data.requisition_total,
                 EstadoTimelineId = 1, // Registrado
                 CreadoPor = usuarioId,
-                FechaSubida = DateOnly.FromDateTime(DateTime.Now)
+                FechaSubida = DateOnly.FromDateTime(DateTime.Now),
+                Departamento = "Compras"
             };
 
             _context.Ordenes.Add(orden);
@@ -224,7 +225,6 @@ namespace Compras.Implementaciones.Servicios
                     NumeroLista = linea.line_number.ToString(),
                     Cantidad = ((int)linea.quantity),
                     CantidadRecibida = 0,
-                    UnidadMedida = linea.unit_of_measure,
                     Comentario = linea.line_comments,
                     EstadoTimelineId = 1, // Registrado
                 };
