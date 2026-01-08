@@ -166,7 +166,7 @@ namespace Compras.Implementaciones.Servicios
             form.Add(new StreamContent(stream), "file", file.FileName);
 
             var response = await client.PostAsync(
-                "http://127.0.0.1:8000/extract-requisition",
+                "https://pdf.cidilipl.online/extract-requisition",
                 form);
 
             if (!response.IsSuccessStatusCode)
