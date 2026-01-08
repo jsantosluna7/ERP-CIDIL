@@ -4,6 +4,7 @@ WORKDIR /src
 
 # Copiar solo los archivos necesarios
 COPY ApiPrincipal/ApiPrincipal.csproj ApiPrincipal/
+COPY Compras/Compras.csproj Compras/
 COPY ERP.Data/ERP.Data.csproj ERP.Data/
 COPY Inventario/Inventario.csproj Inventario/
 COPY IoT/IoT.csproj IoT/
