@@ -23,6 +23,7 @@ namespace Compras.Implementaciones.Repositorios
         {
             return await _context.OrdenItems
                     .Where(item => item.OrdenId == ordenId)
+                    .OrderBy(item => item.Id)
                     .ToListAsync();
         }
 

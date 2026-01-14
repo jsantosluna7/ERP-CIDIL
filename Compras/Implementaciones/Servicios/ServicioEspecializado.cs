@@ -54,7 +54,14 @@ namespace Compras.Implementaciones.Servicios
                 return Resultado<object>.Falla("Item no encontrado.");
             }
 
+            if(actualizarItemRecepcionDTO.CantidadRecibida > item.Cantidad)
+            {
+                return Resultado<object>.Falla("La cantidad recibida es mayor a la cantidad del item.");
+            }
+
             item.CantidadRecibida = actualizarItemRecepcionDTO.CantidadRecibida;
+            item.ActualizadoEn = DateTime.UtcNow;
+            item.Comentario = actualizarItemRecepcionDTO.Comentario ?? item.Comentario;
 
             if (actualizarItemRecepcionDTO.CantidadRecibida == 0)
             {
