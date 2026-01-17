@@ -520,7 +520,6 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.FechaSolicitud).HasColumnName("fecha_solicitud");
             entity.Property(e => e.FechaSubida).HasColumnName("fecha_subida");
             entity.Property(e => e.ItemsCount)
-                .HasPrecision(12, 2)
                 .HasColumnName("items_count");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(200)

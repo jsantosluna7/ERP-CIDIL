@@ -16,7 +16,7 @@ namespace Compras.Implementaciones.Repositorios
 
         public async Task<Resultado<List<Ordene>>> OrdenesAll()
         {
-            var resultado = await _context.Ordenes.ToListAsync();
+            var resultado = await _context.Ordenes.OrderBy(o => o.Id).ToListAsync();
 
             if(resultado == null || resultado.Count == 0)
             {

@@ -4,6 +4,7 @@ namespace Compras.Abstraccion.Repositorios
 {
     public interface IRepositorioEspecializado
     {
+        Task<Resultado<List<Ordene>>> BuscarOrdenes(string termino, string filtro);
         Task<int> CantidadDeOrdenes();
         Task GuardarCambios();
         void InsertarTimeline(OrdenTimeline timeline);

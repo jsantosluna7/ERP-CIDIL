@@ -2,6 +2,7 @@
 using Compras.DTO.EspecializadosDTO;
 using Compras.DTO.OrdenesDTO;
 using Compras.Implementaciones.Servicios;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -81,6 +82,19 @@ namespace Compras.Controllers
             {
                 return BadRequest(resultado.MensajeError);
             }
+            return Ok(resultado.Valor);
+        }
+
+        [HttpGet("buscar")]
+        public async Task<IActionResult> BuscarOrdenes([FromQuery] string termino, [FromQuery] string filtro)
+        {
+            var resultado = await _servicioEspecializado.BuscarOrdenes(termino, filtro);
+
+            if (!resultado.esExitoso)
+            {
+                return BadRequest(new { error = resultado.MensajeError });
+            }
+
             return Ok(resultado.Valor);
         }
     }

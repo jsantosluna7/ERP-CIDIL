@@ -210,7 +210,7 @@ namespace Compras.Implementaciones.Servicios
                 Nombre = data.requisition_name,
                 UnidadNegocio = data.business_unit,
                 SolicitadoPor = data.requested_by,
-                ItemsCount = data.items_count,
+                ItemsCount = data.lines?.Count ?? 0,
                 Comentario = data.header_comments,
                 FechaSolicitud = fechaSolicitud,
                 EstadoTimelineId = 1, // Registrado
@@ -271,6 +271,20 @@ namespace Compras.Implementaciones.Servicios
             }
 
             return Resultado<int>.Exito(resultado);
+        }
+
+        public async Task<Resultado<List<Ordene>>> BuscarOrdenes(string termino, string filtro)
+        {
+            var resultado = await _repositorioEspecializado.BuscarOrdenes(termino, filtro);
+
+            if (!resultado.esExitoso)
+            {
+                return Resultado<List<Ordene>>.Falla(resultado.MensajeError ?? "Error en la búsqueda de ordenes.");
+            }
+
+            var ordenes = resultado.Valor!;
+
+            return Resultado<List<Ordene>>.Exito(ordenes);
         }
     }
 }

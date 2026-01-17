@@ -12,7 +12,6 @@
         public string requester_id { get; set; }
         public string requisition_id { get; set; }
         public string requisition_name { get; set; }
-        public decimal requisition_total { get; set; }
         public string status { get; set; }
     }
 }
