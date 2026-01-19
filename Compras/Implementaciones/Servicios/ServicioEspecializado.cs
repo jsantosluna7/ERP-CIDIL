@@ -49,6 +49,8 @@ namespace Compras.Implementaciones.Servicios
         public async Task<Resultado<object>> ActualizarItemRecepcion(int itemId, ActualizarItemRecepcionDTO actualizarItemRecepcionDTO)
         {
             var item = await _repositorioEspecializado.ObtenerItemPorId(itemId);
+            var estadoAnterior = item.EstadoTimelineId;
+
             if (item == null)
             {
                 return Resultado<object>.Falla("Item no encontrado.");
@@ -74,6 +76,33 @@ namespace Compras.Implementaciones.Servicios
             else
             {
                 item.EstadoTimelineId = 7; // Recibido 
+            }
+
+            var orden = await _repositorioEspecializado.ObtenerOrdenPorId(item.OrdenId);
+            if (orden == null)
+            {
+                return Resultado<object>.Falla("Orden no encontrada.");
+            }
+
+            if(estadoAnterior != 7 && item.EstadoTimelineId == 7)
+            {
+                if(orden.ItemsRecibidos < orden.ItemsCount)
+                {
+                    orden.ItemsRecibidos++;
+                }
+            }
+
+            if(estadoAnterior == 7 && item.EstadoTimelineId != 7)
+            {
+                if(orden.ItemsRecibidos > 0)
+                {
+                    orden.ItemsRecibidos--;
+                }
+            }
+
+            if(orden.ItemsRecibidos > orden.ItemsCount)
+            {
+                orden.ItemsRecibidos = orden.ItemsCount;
             }
 
             await _repositorioEspecializado.GuardarCambios();

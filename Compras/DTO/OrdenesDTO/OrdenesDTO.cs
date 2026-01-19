@@ -18,6 +18,8 @@
 
         public decimal? ItemsCount { get; set; }
 
+        public int? ItemsRecibidos { get; set; }
+
         public string? Comentario { get; set; }
 
         public int? EstadoTimelineId { get; set; }

@@ -24,6 +24,8 @@ public partial class Ordene
 
     public int? ItemsCount { get; set; }
 
+    public int? ItemsRecibidos { get; set; }
+
     public string? Comentario { get; set; }
 
     public int? EstadoTimelineId { get; set; }
