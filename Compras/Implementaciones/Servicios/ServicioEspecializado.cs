@@ -3,6 +3,7 @@ using Compras.Abstraccion.Servicios;
 using Compras.DTO.EspecializadosDTO;
 using Compras.DTO.PdfExtractionDTO;
 using ERP.Data.Modelos;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Text.Json;
 
@@ -123,25 +124,22 @@ namespace Compras.Implementaciones.Servicios
 
         public async Task<Resultado<object>> RecalcularEstadoOrden(int ordenId, int usuarioId)
         {
-            var items = await _repositorioEspecializado.ObtenerItemsPorOrden(ordenId);
             var orden = await _repositorioEspecializado.ObtenerOrdenPorId(ordenId);
 
             if (orden == null)
-            {
                 return Resultado<object>.Falla("Orden no encontrada.");
-            }
 
-            int total = items.Count;
-            int recibidos = items.Count(items => items.EstadoTimelineId == 7);
-            int parciales = items.Count(items => items.EstadoTimelineId == 6);
+            // SOLO PARA SABER SI EXISTE ALGÚN PARCIAL
+            bool existeParcial = await _context.OrdenItems
+                .AnyAsync(i => i.OrdenId == ordenId && i.EstadoTimelineId == 6);
 
             int nuevoEstadoId;
 
-            if (recibidos == total)
+            if (orden.ItemsRecibidos == orden.ItemsCount && orden.ItemsCount > 0)
             {
                 nuevoEstadoId = 8; // Completamente Recibido
             }
-            else if (parciales > 0)
+            else if (orden.ItemsRecibidos > 0 || existeParcial)
             {
                 nuevoEstadoId = 6; // Parcialmente Recibido
             }
@@ -152,12 +150,19 @@ namespace Compras.Implementaciones.Servicios
 
             if (orden.EstadoTimelineId != nuevoEstadoId)
             {
-                await ActualizarEstadoOrden(ordenId, new ActualizarEstadoOrdenDTO
+                orden.EstadoTimelineId = nuevoEstadoId;
+                orden.ActualizadoEn = DateTime.Now;
+
+                _repositorioEspecializado.InsertarTimeline(new OrdenTimeline
                 {
+                    OrdenId = ordenId,
                     EstadoTimelineId = nuevoEstadoId,
-                    Evento = "Actualización automática por ítems",
-                    UsuarioId = usuarioId
+                    Evento = "Actualización automática por recepción de ítems",
+                    FechaEvento = DateTime.Now,
+                    CreadoPor = usuarioId
                 });
+
+                await _repositorioEspecializado.GuardarCambios();
             }
 
             return Resultado<object>.Exito(new
@@ -165,6 +170,7 @@ namespace Compras.Implementaciones.Servicios
                 estadoActual = nuevoEstadoId
             });
         }
+
 
         public async Task<Resultado<List<TimelineDTO>>> ObtenerTimeline(int ordenId)
         {
