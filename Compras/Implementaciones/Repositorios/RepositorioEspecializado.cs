@@ -23,6 +23,7 @@ namespace Compras.Implementaciones.Repositorios
         {
             return await _context.OrdenItems
                     .Where(item => item.OrdenId == ordenId)
+                    .OrderBy(item => item.Id)
                     .ToListAsync();
         }
 
@@ -52,6 +53,38 @@ namespace Compras.Implementaciones.Repositorios
         public async Task<int> CantidadDeOrdenes()
         {
             return await _context.Ordenes.CountAsync();
+        }
+
+        public async Task<Resultado<List<Ordene>>> BuscarOrdenes(string termino, string filtro)
+        {
+            if (string.IsNullOrEmpty(termino))
+            {
+                return Resultado<List<Ordene>>.Falla("El campo de búsqueda no debe estar vacío.");
+            }
+
+            if (string.IsNullOrEmpty(filtro))
+            {
+                return Resultado<List<Ordene>>.Falla("Debe dar un tipo de filtro, no debe estar vacío.");
+            }
+
+            IQueryable<Ordene> query = _context.Ordenes;
+
+            switch (filtro.ToLower())
+            {
+                case "codigo":
+                    query = query.Where(e => e.Codigo != null && EF.Functions.ILike(e.Codigo, $"%{termino}%"));
+                    break;
+                case "nombre":
+                    query = query.Where(e => e.Nombre != null && EF.Functions.ILike(e.Nombre, $"%{termino}%"));
+                    break;
+            }
+
+            var resultado = await query.ToListAsync();
+            if (resultado == null || resultado.Count == 0)
+            {
+                return Resultado<List<Ordene>>.Falla("No se encontraron ordenes con el termino y/o filtro seleccionado.");
+            }
+            return Resultado<List<Ordene>>.Exito(resultado);
         }
     }
 }

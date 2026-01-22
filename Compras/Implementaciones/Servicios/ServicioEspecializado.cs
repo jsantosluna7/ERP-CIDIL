@@ -3,6 +3,7 @@ using Compras.Abstraccion.Servicios;
 using Compras.DTO.EspecializadosDTO;
 using Compras.DTO.PdfExtractionDTO;
 using ERP.Data.Modelos;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Text.Json;
 
@@ -49,12 +50,21 @@ namespace Compras.Implementaciones.Servicios
         public async Task<Resultado<object>> ActualizarItemRecepcion(int itemId, ActualizarItemRecepcionDTO actualizarItemRecepcionDTO)
         {
             var item = await _repositorioEspecializado.ObtenerItemPorId(itemId);
+            var estadoAnterior = item.EstadoTimelineId;
+
             if (item == null)
             {
                 return Resultado<object>.Falla("Item no encontrado.");
             }
 
+            if(actualizarItemRecepcionDTO.CantidadRecibida > item.Cantidad)
+            {
+                return Resultado<object>.Falla("La cantidad recibida es mayor a la cantidad del item.");
+            }
+
             item.CantidadRecibida = actualizarItemRecepcionDTO.CantidadRecibida;
+            item.ActualizadoEn = DateTime.UtcNow;
+            item.Comentario = actualizarItemRecepcionDTO.Comentario ?? item.Comentario;
 
             if (actualizarItemRecepcionDTO.CantidadRecibida == 0)
             {
@@ -67,6 +77,33 @@ namespace Compras.Implementaciones.Servicios
             else
             {
                 item.EstadoTimelineId = 7; // Recibido 
+            }
+
+            var orden = await _repositorioEspecializado.ObtenerOrdenPorId(item.OrdenId);
+            if (orden == null)
+            {
+                return Resultado<object>.Falla("Orden no encontrada.");
+            }
+
+            if(estadoAnterior != 7 && item.EstadoTimelineId == 7)
+            {
+                if(orden.ItemsRecibidos < orden.ItemsCount)
+                {
+                    orden.ItemsRecibidos++;
+                }
+            }
+
+            if(estadoAnterior == 7 && item.EstadoTimelineId != 7)
+            {
+                if(orden.ItemsRecibidos > 0)
+                {
+                    orden.ItemsRecibidos--;
+                }
+            }
+
+            if(orden.ItemsRecibidos > orden.ItemsCount)
+            {
+                orden.ItemsRecibidos = orden.ItemsCount;
             }
 
             await _repositorioEspecializado.GuardarCambios();
@@ -87,25 +124,22 @@ namespace Compras.Implementaciones.Servicios
 
         public async Task<Resultado<object>> RecalcularEstadoOrden(int ordenId, int usuarioId)
         {
-            var items = await _repositorioEspecializado.ObtenerItemsPorOrden(ordenId);
             var orden = await _repositorioEspecializado.ObtenerOrdenPorId(ordenId);
 
             if (orden == null)
-            {
                 return Resultado<object>.Falla("Orden no encontrada.");
-            }
 
-            int total = items.Count;
-            int recibidos = items.Count(items => items.EstadoTimelineId == 7);
-            int parciales = items.Count(items => items.EstadoTimelineId == 6);
+            // SOLO PARA SABER SI EXISTE ALGÚN PARCIAL
+            bool existeParcial = await _context.OrdenItems
+                .AnyAsync(i => i.OrdenId == ordenId && i.EstadoTimelineId == 6);
 
             int nuevoEstadoId;
 
-            if (recibidos == total)
+            if (orden.ItemsRecibidos == orden.ItemsCount && orden.ItemsCount > 0)
             {
                 nuevoEstadoId = 8; // Completamente Recibido
             }
-            else if (parciales > 0)
+            else if (orden.ItemsRecibidos > 0 || existeParcial)
             {
                 nuevoEstadoId = 6; // Parcialmente Recibido
             }
@@ -116,12 +150,19 @@ namespace Compras.Implementaciones.Servicios
 
             if (orden.EstadoTimelineId != nuevoEstadoId)
             {
-                await ActualizarEstadoOrden(ordenId, new ActualizarEstadoOrdenDTO
+                orden.EstadoTimelineId = nuevoEstadoId;
+                orden.ActualizadoEn = DateTime.Now;
+
+                _repositorioEspecializado.InsertarTimeline(new OrdenTimeline
                 {
+                    OrdenId = ordenId,
                     EstadoTimelineId = nuevoEstadoId,
-                    Evento = "Actualización automática por ítems",
-                    UsuarioId = usuarioId
+                    Evento = "Actualización automática por recepción de ítems",
+                    FechaEvento = DateTime.Now,
+                    CreadoPor = usuarioId
                 });
+
+                await _repositorioEspecializado.GuardarCambios();
             }
 
             return Resultado<object>.Exito(new
@@ -129,6 +170,7 @@ namespace Compras.Implementaciones.Servicios
                 estadoActual = nuevoEstadoId
             });
         }
+
 
         public async Task<Resultado<List<TimelineDTO>>> ObtenerTimeline(int ordenId)
         {
@@ -203,7 +245,7 @@ namespace Compras.Implementaciones.Servicios
                 Nombre = data.requisition_name,
                 UnidadNegocio = data.business_unit,
                 SolicitadoPor = data.requested_by,
-                ItemsCount = data.items_count,
+                ItemsCount = data.lines?.Count ?? 0,
                 Comentario = data.header_comments,
                 FechaSolicitud = fechaSolicitud,
                 EstadoTimelineId = 1, // Registrado
@@ -264,6 +306,20 @@ namespace Compras.Implementaciones.Servicios
             }
 
             return Resultado<int>.Exito(resultado);
+        }
+
+        public async Task<Resultado<List<Ordene>>> BuscarOrdenes(string termino, string filtro)
+        {
+            var resultado = await _repositorioEspecializado.BuscarOrdenes(termino, filtro);
+
+            if (!resultado.esExitoso)
+            {
+                return Resultado<List<Ordene>>.Falla(resultado.MensajeError ?? "Error en la búsqueda de ordenes.");
+            }
+
+            var ordenes = resultado.Valor!;
+
+            return Resultado<List<Ordene>>.Exito(ordenes);
         }
     }
 }
