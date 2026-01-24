@@ -29,6 +29,7 @@ namespace Compras.Implementaciones.Servicios
 
             orden.EstadoTimelineId = actualizarEstadoOrdenDTO.EstadoTimelineId;
             orden.ActualizadoEn = DateTime.Now;
+            orden.Departamento = actualizarEstadoOrdenDTO.Departamento ?? orden.Departamento;
 
             _repositorioEspecializado.InsertarTimeline(new OrdenTimeline
             {
@@ -137,7 +138,7 @@ namespace Compras.Implementaciones.Servicios
 
             if (orden.ItemsRecibidos == orden.ItemsCount && orden.ItemsCount > 0)
             {
-                nuevoEstadoId = 8; // Completamente Recibido
+                nuevoEstadoId = 7; // Completamente Recibido
             }
             else if (orden.ItemsRecibidos > 0 || existeParcial)
             {
