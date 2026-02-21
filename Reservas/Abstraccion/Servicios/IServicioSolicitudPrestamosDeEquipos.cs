@@ -5,11 +5,11 @@ namespace Reservas.Abstraccion.Servicios
 {
     public interface IServicioSolicitudPrestamosDeEquipos
     {
-        Task<ActualizarSolicitudPrestamosDeEquiposDTO?> ActualizarSolicitudPEquipos(int id, ActualizarSolicitudPrestamosDeEquiposDTO actualizarSolicitudPrestamosDeEquiposDTO);
-        Task<bool?> CancelarSolicitudReserva(int id);
-        Task<CrearSolicitudPrestamosDeEquiposDTO?> CrearSolicitudPEquipos(CrearSolicitudPrestamosDeEquiposDTO crearSolicitudPrestamosDeEquiposDTO);
-        Task<SolicitudPrestamosDeEquiposDTO?> GetByIdSolicitudPEquipos(int id);
-        Task<List<SolicitudPrestamosDeEquiposDTO>?> GetSolicitudPrestamos(int pagina, int tamanoPagina);
-        Task<Resultado<List<SolicitudPrestamosDeEquipo>>> ObtenerSolicitudEquiposUsuario(int id);
+        Task<Resultado<SolicitudPrestamosDeEquiposDTO>> Actualizar(int id, ActualizarSolicitudPrestamosDeEquiposDTO dto);
+        Task<ResultadoCrearMultiplesDTO> CrearMultiples(CrearSolicitudPrestamosDeEquiposDTO dto);
+        Task<Resultado<bool>> Eliminar(int id);
+        Task<Resultado<SolicitudPrestamosDeEquiposDTO>> ObtenerPorId(int id);
+        Task<Resultado<List<SolicitudPrestamosDeEquiposDTO>>> ObtenerPorUsuario(int idUsuario);
+        Task<Resultado<List<SolicitudPrestamosDeEquiposDTO>>> ObtenerTodas(int pagina, int tamanoPagina);
     }
 }

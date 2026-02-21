@@ -46,5 +46,7 @@ public partial class InventarioEquipo
     [JsonIgnore]
     public virtual Laboratorio? IdLaboratorioNavigation { get; set; }
 
+    public virtual ICollection<PrestamosEquipo> PrestamosEquipos { get; set; } = new List<PrestamosEquipo>();
+
     public virtual ICollection<SolicitudPrestamosDeEquipo> SolicitudPrestamosDeEquipos { get; set; } = new List<SolicitudPrestamosDeEquipo>();
 }

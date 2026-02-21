@@ -30,3 +30,4 @@ public partial class SolicitudPrestamosDeEquipo
     [JsonIgnore]
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
 }
+ 

@@ -11,105 +11,79 @@ namespace Reservas.Controllers
     [ApiController]
     public class SolicitudPrestamosDeEquiposController : ControllerBase
     {
-        private readonly IServicioSolicitudPrestamosDeEquipos _servicioSolicitudPrestamosDeEquipos;
-        private readonly DbErpContext _dbErpContext;
+        private readonly IServicioSolicitudPrestamosDeEquipos _servicio;
 
-        public SolicitudPrestamosDeEquiposController(IServicioSolicitudPrestamosDeEquipos servicioSolicitudPrestamosDeEquipos, DbErpContext dbErpContext)
+        public SolicitudPrestamosDeEquiposController(IServicioSolicitudPrestamosDeEquipos servicio)
         {
-            _servicioSolicitudPrestamosDeEquipos = servicioSolicitudPrestamosDeEquipos;
-            _dbErpContext = dbErpContext;
+            _servicio = servicio;
         }
 
         [HttpGet]
-        public async Task<IActionResult?> GetSolicitudPrestamos([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)
+        public async Task<IActionResult> ObtenerTodas([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)
         {
-            var prestamo = await _servicioSolicitudPrestamosDeEquipos.GetSolicitudPrestamos(pagina, tamanoPagina);
-            if (prestamo == null)
+            var resultado = await _servicio.ObtenerTodas(pagina, tamanoPagina);
+            if (!resultado.esExitoso)
+                return NotFound(new { error = resultado.MensajeError });
+
+            return Ok(new
             {
-                return NotFound("Su solicitud no se encuentra");
-            }
-           
-
-            var totalInventario = await _dbErpContext.SolicitudPrestamosDeEquipos.CountAsync();
-            var totalPaginas = (int)Math.Ceiling(totalInventario / (double)tamanoPagina);
-
-            var respuesta = new
-            {
-                paginacion = new
-                {
-                    paginaActual = pagina,
-                    tamanoPagina,
-                    totalInventario,
-                    totalPaginas
-                },
-                datos = prestamo
-            };
-            return Ok(respuesta);
-
+                paginacion = new { paginaActual = pagina, tamanoPagina },
+                datos = resultado.Valor
+            });
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdSolicitudPEquipos(int id)
+        public async Task<IActionResult> ObtenerPorId(int id)
         {
-            var prestamo = await _servicioSolicitudPrestamosDeEquipos.GetByIdSolicitudPEquipos(id);
-            if (prestamo == null)
-            {
-                return NotFound($"Su solicitud con el ID: {id} no se encuentra");
-            }
-            return Ok(prestamo);
+            var resultado = await _servicio.ObtenerPorId(id);
+            if (!resultado.esExitoso)
+                return NotFound(new { error = resultado.MensajeError });
+
+            return Ok(resultado.Valor);
         }
 
-        [HttpGet("mis-solicitudes-equipos")]
-        public async Task<IActionResult> ObtenerSolicitudEquiposUsuario([FromQuery] int usuario)
+        [HttpGet("mis-solicitudes")]
+        public async Task<IActionResult> ObtenerPorUsuario([FromQuery] int usuario)
         {
-            var resultado = await _servicioSolicitudPrestamosDeEquipos.ObtenerSolicitudEquiposUsuario(usuario);
+            var resultado = await _servicio.ObtenerPorUsuario(usuario);
             if (!resultado.esExitoso)
-            {
-                return BadRequest(new { error = resultado.MensajeError });
-            }
+                return NotFound(new { error = resultado.MensajeError });
+
             return Ok(resultado.Valor);
         }
 
         [HttpPost]
-        public async Task <IActionResult?> CrearSolicitudPEquipo(CrearSolicitudPrestamosDeEquiposDTO crearSolicitudPrestamosDeEquiposDTO)
+        public async Task<IActionResult> CrearMultiples([FromBody] CrearSolicitudPrestamosDeEquiposDTO dto)
         {
-            var prestamo = await _servicioSolicitudPrestamosDeEquipos.CrearSolicitudPEquipos(crearSolicitudPrestamosDeEquiposDTO);
-            if (prestamo == null)
-            {
-                return NotFound($"Su Solicitud no se pudo crear");
-            }
-            return Ok(prestamo);
+            var resultado = await _servicio.CrearMultiples(dto);
+
+            // Si todos fueron exitosos → 200 OK
+            // Si alguno falló → 422 Unprocessable Entity para que el frontend sepa que hay errores por ítem
+            if (!resultado.TodosExitosos)
+                return UnprocessableEntity(resultado);
+
+            return Ok(resultado);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult?> ActualizarSolicitudPEquipos(int id,ActualizarSolicitudPrestamosDeEquiposDTO actualizarSolicitudPrestamosDeEquiposDTO)
+        public async Task<IActionResult> Actualizar(int id, [FromBody] ActualizarSolicitudPrestamosDeEquiposDTO dto)
         {
-            var prestamo = await _servicioSolicitudPrestamosDeEquipos.ActualizarSolicitudPEquipos(id,actualizarSolicitudPrestamosDeEquiposDTO);
-            if (prestamo == null)
-            {
-                return NotFound($"Su solicitud con el ID: {id} no se pudo actualizar");
-            }
+            var resultado = await _servicio.Actualizar(id, dto);
+            if (!resultado.esExitoso)
+                return BadRequest(new { error = resultado.MensajeError });
 
-            // Verificar si el usuario tiene el rol adecuado
-            if (!User.TieneRol("1", "2"))
-            {
-                return Unauthorized("No tienes permiso para acceder a esta información");
-            }
-            return Ok(prestamo);
+            return Ok(resultado.Valor);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> CancelarSolicitudReserva(int id)
+        public async Task<IActionResult> Eliminar(int id)
         {
-            var prestamo = await _servicioSolicitudPrestamosDeEquipos.CancelarSolicitudReserva(id);
-            if (prestamo == null)
-            {
-                return NotFound($"Su solicitud con el ID: {id} no se encuantra");
-            }
+            var resultado = await _servicio.Eliminar(id);
+            if (!resultado.esExitoso)
+                return BadRequest(new { error = resultado.MensajeError });
 
-            return Ok(prestamo);
+            return Ok(new { mensaje = "Solicitud cancelada correctamente." });
         }
-
     }
     
 }

@@ -1,4 +1,5 @@
 ﻿using ERP.Data.Modelos;
+using Inventario.DTO.InventarioEquipoDTO;
 using Microsoft.EntityFrameworkCore;
 using Reservas.Abstraccion.Repositorio;
 using Reservas.DTO.DTOPrestamosEquipo;
@@ -10,212 +11,121 @@ namespace Reservas.Implementaciones.Repositorios
     public class RepositorioSolicitudPrestamosDeEquipos : IRepositorioSolicitudPrestamosDeEquipos
     {
         private readonly DbErpContext _context;
-        private readonly ServicioEmailReservas _servicioEmail;
 
-        public RepositorioSolicitudPrestamosDeEquipos(DbErpContext context, ServicioEmailReservas servicioEmail)
+        public RepositorioSolicitudPrestamosDeEquipos(DbErpContext context)
         {
             _context = context;
-            _servicioEmail = servicioEmail;
         }
 
-        //Optener las solicitudes de los pretamos de equipos
-        public async Task<List<SolicitudPrestamosDeEquipo>> GetSolicitudPrestamos(int pagina, int tamanoPagina)
+        public async Task<List<SolicitudPrestamosDeEquiposDTO>> ObtenerTodas(int pagina, int tamanoPagina)
+            => await ProyectarDTO(
+                _context.SolicitudPrestamosDeEquipos
+                    .OrderByDescending(s => s.FechaSolicitud)
+                    .Skip((pagina - 1) * tamanoPagina)
+                    .Take(tamanoPagina)
+            ).ToListAsync();
+
+        public async Task<SolicitudPrestamosDeEquiposDTO?> ObtenerPorIdTodo(int id)
+            => await ProyectarDTO(
+                _context.SolicitudPrestamosDeEquipos
+                    .Where(s => s.Id == id)
+            ).FirstOrDefaultAsync();
+
+        public async Task<SolicitudPrestamosDeEquipo?> ObtenerPorId(int id)
+    => await _context.SolicitudPrestamosDeEquipos
+            .Where(s => s.Id == id).FirstOrDefaultAsync();
+
+        public async Task<List<SolicitudPrestamosDeEquiposDTO>> ObtenerPorUsuario(int idUsuario)
+            => await ProyectarDTO(
+                _context.SolicitudPrestamosDeEquipos
+                    .Where(s => s.IdUsuario == idUsuario)
+                    .OrderByDescending(s => s.FechaSolicitud)
+            ).ToListAsync();
+
+        /// <summary>
+        /// Suma la cantidad total ya reservada de un equipo en un rango de fechas.
+        /// Esto permite validar si queda suficiente stock disponible.
+        /// </summary>
+        public async Task<int> ObtenerCantidadReservada(int idInventario, DateTime fechaInicio, DateTime fechaFinal, int? excludeId = null)
+            => await _context.PrestamosEquipos
+                .Where(s => s.IdInventario == idInventario)
+                .Where(s => excludeId == null || s.Id != excludeId)
+                .Where(s => s.IdEstado == 1)
+                .Where(s => s.FechaInicio < fechaFinal && s.FechaFinal > fechaInicio)
+                .SumAsync(s => s.Cantidad ?? 0);
+
+       public async Task<int> ObtenerCantidadReservadaEnRango(int idInventario, DateTime fechaInicio, DateTime fechaFinal, List<int> estados, int? excludeId = null)
+            => await _context.SolicitudPrestamosDeEquipos
+                .Where(s => s.IdInventario == idInventario)
+                .Where(s => excludeId == null || s.Id != excludeId)
+                .Where(s => estados.Contains(s.IdEstado ?? 0))
+                .Where(s => s.FechaInicio < fechaFinal && s.FechaFinal > fechaInicio)
+                .SumAsync(s => s.Cantidad ?? 0);
+
+        public async Task<InventarioEquipo?> ObtenerInventarioPorId(int id)
+            => await _context.InventarioEquipos.FindAsync(id);
+
+        public async Task<List<Usuario>> ObtenerAdmins()
+            => await _context.Usuarios
+                .Where(u => u.IdRol == 1 || u.IdRol == 2)
+                .ToListAsync();
+
+        public async Task<SolicitudPrestamosDeEquipo> Crear(SolicitudPrestamosDeEquipo solicitud)
         {
-            return await _context.SolicitudPrestamosDeEquipos.ToListAsync();
-
+            _context.SolicitudPrestamosDeEquipos.Add(solicitud);
+            return solicitud;
         }
 
-        //Método para obtener todas las Prestamos por id
-        public async Task<SolicitudPrestamosDeEquipo> GetByIdSolicitudPEquipos(int id)
+        public async Task<SolicitudPrestamosDeEquipo> Actualizar(SolicitudPrestamosDeEquipo solicitud)
         {
-            var reserva = await _context.SolicitudPrestamosDeEquipos.FirstOrDefaultAsync(s => s.Id == id);
-            if (reserva == null)
-            {
-                return null;
-            }
-            return reserva;
+            _context.SolicitudPrestamosDeEquipos.Update(solicitud);
+            return solicitud;
         }
 
-        public async Task<Resultado<List<SolicitudPrestamosDeEquipo>>> ObtenerSolicitudEquiposUsuario(int id)
+        public async Task Eliminar(int idSolicitud) {
+            var solicitud = await _context.SolicitudPrestamosDeEquipos.FindAsync(idSolicitud);
+
+            if (solicitud != null) {
+                _context.SolicitudPrestamosDeEquipos.Remove(solicitud);
+            }
+}
+
+        public async Task GuardarCambios()
+            => await _context.SaveChangesAsync();
+
+        private static IQueryable<SolicitudPrestamosDeEquiposDTO> ProyectarDTO(IQueryable<SolicitudPrestamosDeEquipo> query)
+    => query.Select(s => new SolicitudPrestamosDeEquiposDTO
+    {
+        Id = s.Id,
+        IdUsuario = s.IdUsuario,
+        IdInventario = s.IdInventario,
+        Inventario = new InventarioEquipoDTO  // EF hace el JOIN automáticamente
         {
-            var reserva = await _context.SolicitudPrestamosDeEquipos.Where(e => e.IdUsuario == id).ToListAsync();
-            if (reserva == null || reserva.Count == 0)
-            {
-                return Resultado<List<SolicitudPrestamosDeEquipo>>.Falla("No se encontraron solicitudes de equipos para el usuario especificado.");
-            }
-
-            return Resultado<List<SolicitudPrestamosDeEquipo>>.Exito(reserva);
-        }
-
-        public async Task<SolicitudPrestamosDeEquipo?> CrearSolicitudPEquipos(CrearSolicitudPrestamosDeEquiposDTO crearSolicitudPrestamosDeEquiposDTO)
-        {
-            bool conflitoDeSolicitud = await conflictoPrestamos(crearSolicitudPrestamosDeEquiposDTO.IdUsuario, crearSolicitudPrestamosDeEquiposDTO.IdInventario, crearSolicitudPrestamosDeEquiposDTO.FechaInicio, crearSolicitudPrestamosDeEquiposDTO.FechaFinal, crearSolicitudPrestamosDeEquiposDTO.FechaSolicitud);
-            if (!conflitoDeSolicitud)
-            {
-                return null;
-            }
-
-            var crearReservas = new SolicitudPrestamosDeEquipo
-            {
-                IdUsuario = crearSolicitudPrestamosDeEquiposDTO.IdUsuario,
-                IdInventario = crearSolicitudPrestamosDeEquiposDTO.IdInventario,
-                FechaInicio = crearSolicitudPrestamosDeEquiposDTO.FechaInicio,
-                FechaFinal = crearSolicitudPrestamosDeEquiposDTO.FechaFinal,
-                Motivo = crearSolicitudPrestamosDeEquiposDTO.Motivo,
-                FechaSolicitud = crearSolicitudPrestamosDeEquiposDTO.FechaSolicitud,
-                Cantidad = crearSolicitudPrestamosDeEquiposDTO.Cantidad,
-            };
-
-            //Convertirmos la fecha UTC a OFFSET
-            string fechaInicio = crearReservas.FechaInicio.ToString();
-            string fechaFinal = crearReservas.FechaFinal.ToString();
-
-            //Se parcea la fecha para que incluya la zona  horaria
-            DateTimeOffset dtoInicio = DateTimeOffset.Parse(fechaInicio);
-            DateTimeOffset dtoFinal = DateTimeOffset.Parse(fechaFinal);
-
-            //Ahora la hora local
-            DateTime fechaLocalInicio = dtoInicio.LocalDateTime;
-            DateTime fechaLocalFinal = dtoFinal.LocalDateTime;
-
-            //Formateamos personalizadamente
-
-            string fechaFormateadaInicio = fechaLocalInicio.ToString("dd/MM/yyyy h:mm tt");
-            string fechaFormateadaFinal = fechaLocalFinal.ToString("dd/MM/yyyy h:mm tt");
-
-            var roles = new int?[] { 1, 2 }; //Roles de administrador y superusuario.
-
-            var usuario = await _context.Usuarios.Where(u => roles.Contains(u.IdRol)).ToListAsync();
-            var inventario = await _context.InventarioEquipos.Where(i => i.Id == crearReservas.IdInventario).FirstOrDefaultAsync();
-
-
-            foreach (var usuarios in usuario)
-            {
-                await _servicioEmail.EnviarCorreoReservaEquipos(usuarios.CorreoInstitucional, inventario.Nombre, crearReservas.Cantidad.ToString(),fechaFormateadaInicio, fechaFormateadaFinal); //Agregar la url que porque el usuario aprobador podra acceder al id de la solicitud
-            }
-
-            _context.SolicitudPrestamosDeEquipos.Add(crearReservas);
-            await _context.SaveChangesAsync();
-            return crearReservas;
-        }
-
-        //Método para que el usuario Actualize una solicitud de Prestamos
-
-        public async Task<SolicitudPrestamosDeEquipo?> ActualizarSolicitudPEquipos(int id, ActualizarSolicitudPrestamosDeEquiposDTO actualizarSolicitudPrestamosDeEquiposDTO)
-        {
-            var prestamoEquipo = await GetByIdSolicitudPEquipos(id);
-            if (prestamoEquipo == null)
-            {
-                return null;
-            }
-
-            prestamoEquipo.IdUsuario = actualizarSolicitudPrestamosDeEquiposDTO.IdUsuario;
-            prestamoEquipo.IdInventario = actualizarSolicitudPrestamosDeEquiposDTO.IdInventario;
-            prestamoEquipo.FechaInicio = actualizarSolicitudPrestamosDeEquiposDTO.FechaInicio;
-            prestamoEquipo.FechaFinal = actualizarSolicitudPrestamosDeEquiposDTO.FechaFinal;
-            prestamoEquipo.Motivo = actualizarSolicitudPrestamosDeEquiposDTO.Motivo;
-            prestamoEquipo.FechaSolicitud = actualizarSolicitudPrestamosDeEquiposDTO.FechaSolicitud;
-            prestamoEquipo.Cantidad = actualizarSolicitudPrestamosDeEquiposDTO.Cantidad;
-            prestamoEquipo.IdEstado = actualizarSolicitudPrestamosDeEquiposDTO.idEstado;
-
-
-
-
-            //verificar si la reserva ya existe
-            bool conflicto = await conflictoReservaActualizar(prestamoEquipo.IdUsuario, prestamoEquipo.IdInventario, prestamoEquipo.FechaInicio, prestamoEquipo.FechaFinal, prestamoEquipo.FechaSolicitud);
-
-            if (!conflicto)
-            {
-                return null; //si la reserva ya existe retorna null
-            }
-
-            var usuario = await _context.Usuarios.Where(u => u.IdRol == 2).ToListAsync();
-
-            var usuarioSolicitante = await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == prestamoEquipo.IdUsuario);
-
-            foreach (var usuarios in usuario)
-            {
-                await _servicioEmail.EnviarCorreoReservaMoficación(usuarios.CorreoInstitucional, usuarioSolicitante.NombreUsuario, usuarioSolicitante.ApellidoUsuario);
-            }
-
-            //Actualizar la reserva
-            _context.Update(prestamoEquipo);
-            await _context.SaveChangesAsync();
-
-            // Obtener la solicitud de reserva actualizada
-            var solicitudActualizada = await GetByIdSolicitudPEquipos(id);
-            return solicitudActualizada;
-
-
-        }
-
-        //Método para que el usuario cancele una solicitud de reserva
-        public async Task<bool?> CancelarSolicitudReserva(int id)
-        {
-            var solicitudEquipo = await GetByIdSolicitudPEquipos(id);
-            if (solicitudEquipo == null)
-            {
-                return null;
-            }
-            _context.SolicitudPrestamosDeEquipos.Remove(solicitudEquipo);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-
-        public async Task<bool> conflictoPrestamos(int IdUsuario, int IdInventario, DateTime? FechaInicio, DateTime? FechaFinal, DateTime? FechaSolicitud)
-        {
-            var diaSemana = FechaSolicitud?.DayOfWeek.ToString();
-            var dia = diaSemana switch
-            {
-                "Monday" => "Lunes",
-                "Tuesday" => "Martes",
-                "Wednesday" => "Miércoles",
-                "Thursday" => "Jueves",
-                "Friday" => "Viernes",
-                "Saturday" => "Sábado",
-                "Sunday" => "Domingo",
-                _ => throw new ArgumentOutOfRangeException()
-            };
-
-
-            bool conflictoEquipo = await _context.PrestamosEquipos
-                .AnyAsync(h => h.IdInventario == IdInventario &&
-                               h.FechaInicio == FechaInicio &&
-                               h.FechaInicio < FechaFinal &&
-                               h.FechaFinal > FechaInicio);
-
-
-
-            return !(conflictoEquipo); // Si no hay conflicto, se puede crear la reserva
-        }
-
-        public async Task<bool> conflictoReservaActualizar(int IdUsuario, int IdInventario, DateTime? FechaInicio, DateTime? FechaFinal, DateTime? FechaSolicitud)
-        {
-            var diaSemana = FechaSolicitud?.DayOfWeek.ToString();
-            var dia = diaSemana switch
-            {
-                "Monday" => "Lunes",
-                "Tuesday" => "Martes",
-                "Wednesday" => "Miércoles",
-                "Thursday" => "Jueves",
-                "Friday" => "Viernes",
-                "Saturday" => "Sábado",
-                "Sunday" => "Domingo",
-                _ => throw new ArgumentOutOfRangeException()
-            };
-
-
-            bool conflictoHorario = await _context.PrestamosEquipos
-                .Where(h => h.IdInventario != IdInventario) // Excluir la reserva actual
-                .AnyAsync(h => h.IdInventario == IdInventario &&
-                               h.FechaInicio == FechaInicio &&
-                               h.FechaInicio < FechaFinal &&
-                               h.FechaFinal > FechaInicio);
-
-
-
-            return !(conflictoHorario); // Si no hay conflicto, se puede crear la reserva
-        }
+            Id = s.IdInventarioNavigation.Id,
+            Nombre = s.IdInventarioNavigation.Nombre,
+            NombreCorto = s.IdInventarioNavigation.NombreCorto,
+            Perfil = s.IdInventarioNavigation.Perfil,
+            IdLaboratorio = s.IdInventarioNavigation.IdLaboratorio,
+            Fabricante = s.IdInventarioNavigation.Fabricante,
+            Modelo = s.IdInventarioNavigation.Modelo,
+            Serial = s.IdInventarioNavigation.Serial,
+            DescripcionLarga = s.IdInventarioNavigation.DescripcionLarga,
+            FechaTransaccion = s.IdInventarioNavigation.FechaTransaccion,
+            Departamento = s.IdInventarioNavigation.Departamento,
+            ImporteActivo = s.IdInventarioNavigation.ImporteActivo,
+            ImagenEquipo = s.IdInventarioNavigation.ImagenEquipo,
+            Disponible = s.IdInventarioNavigation.Disponible,
+            IdEstadoFisico = s.IdInventarioNavigation.IdEstadoFisico,
+            ValidacionPrestamo = s.IdInventarioNavigation.ValidacionPrestamo,
+            Cantidad = s.IdInventarioNavigation.Cantidad,
+            Activado = s.IdInventarioNavigation.Activado,
+        },
+        FechaInicio = s.FechaInicio,
+        FechaFinal = s.FechaFinal,
+        Motivo = s.Motivo,
+        FechaSolicitud = s.FechaSolicitud,
+        IdEstado = s.IdEstado,
+        Cantidad = s.Cantidad,
+    });
     }
 }

@@ -519,8 +519,7 @@ public partial class DbErpContext : DbContext
                 .HasColumnName("estado_timeline_id");
             entity.Property(e => e.FechaSolicitud).HasColumnName("fecha_solicitud");
             entity.Property(e => e.FechaSubida).HasColumnName("fecha_subida");
-            entity.Property(e => e.ItemsCount)
-                .HasColumnName("items_count");
+            entity.Property(e => e.ItemsCount).HasColumnName("items_count");
             entity.Property(e => e.ItemsRecibidos)
                 .HasDefaultValue(0)
                 .HasColumnName("items_recibidos");
@@ -549,6 +548,8 @@ public partial class DbErpContext : DbContext
 
             entity.ToTable("prestamos_equipos");
 
+            entity.HasIndex(e => e.IdInventario, "fki_prestamos_equipos_id_inventario_fkey");
+
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Activado)
                 .HasDefaultValue(true)
@@ -570,6 +571,11 @@ public partial class DbErpContext : DbContext
                 .HasForeignKey(d => d.IdEstado)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("prestamos_equipos_id_estado_fkey");
+
+            entity.HasOne(d => d.IdInventarioNavigation).WithMany(p => p.PrestamosEquipos)
+                .HasForeignKey(d => d.IdInventario)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("fk_prestamos_equipos_inventario");
 
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.PrestamosEquipoIdUsuarioNavigations)
                 .HasForeignKey(d => d.IdUsuario)

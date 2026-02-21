@@ -32,6 +32,8 @@ public partial class PrestamosEquipo
     [JsonIgnore]
     public virtual Estado IdEstadoNavigation { get; set; } = null!;
     [JsonIgnore]
+    public virtual InventarioEquipo IdInventarioNavigation { get; set; } = null!;
+    [JsonIgnore]
     public virtual Usuario? IdUsuarioAprobadorNavigation { get; set; }
     [JsonIgnore]
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
