@@ -9,169 +9,140 @@ namespace Reservas.Implementaciones.Repositorios
 {
     public class RepositorioPrestamosEquipo : IRepositorioPrestamosEquipo
     {
-
-
         private readonly DbErpContext _context;
-        private readonly ServicioEmailReservas _servicioEmail;
 
-        public RepositorioPrestamosEquipo(DbErpContext context, ServicioEmailReservas servicioEmail)
+        public RepositorioPrestamosEquipo(DbErpContext context)
         {
             _context = context;
-            _servicioEmail = servicioEmail;
         }
 
 
-        public async Task<Resultado<List<PrestamosEquipo>>> ObtenerEquiposUsuario(int id)
-        {
-            var reserva = await _context.PrestamosEquipos.Where(e => e.IdUsuario == id).ToListAsync();
-            if (reserva == null || reserva.Count == 0)
-            {
-                return Resultado<List<PrestamosEquipo>>.Falla("No tienes equipos solicitados.");
-            }
+        public async Task<List<PrestamosEquipoDTO>> ObtenerTodos(int pagina, int tamanoPagina)
+            => await ProyectarDTO(
+                _context.PrestamosEquipos
+                    .Where(p => p.Activado == true)
+                    .OrderByDescending(p => p.FechaInicio)
+                    .Skip((pagina - 1) * tamanoPagina)
+                    .Take(tamanoPagina)
+            ).ToListAsync();
 
-            return Resultado<List<PrestamosEquipo>>.Exito(reserva);
+        public async Task<PrestamosEquipo?> ObtenerPorId(int id)
+            => await _context.PrestamosEquipos.FirstOrDefaultAsync(p => p.Id == id);
+
+        public async Task<List<PrestamosEquipoDTO>> ObtenerPorUsuario(int idUsuario)
+            => await ProyectarDTO(
+                _context.PrestamosEquipos
+                    .Where(p => p.IdUsuario == idUsuario && p.Activado == true)
+                    .OrderByDescending(p => p.FechaInicio)
+            ).ToListAsync();
+
+        public async Task<List<PrestamosEquipoDTO>> ObtenerPendientes()
+            => await ProyectarDTO(
+                _context.PrestamosEquipos
+                    .Where(p => p.IdEstado == 2 && p.Activado == true)
+                    .OrderBy(p => p.FechaInicio)
+            ).ToListAsync();
+
+        public async Task<List<PrestamosEquipoDTO>> ObtenerActivos()
+            => await ProyectarDTO(
+                _context.PrestamosEquipos
+                    .Where(p => p.IdEstado == 1
+                                && p.FechaInicio <= DateTime.Now
+                                && p.FechaFinal >= DateTime.Now
+                                && p.FechaEntrega == null
+                                && p.Activado == true)
+                    .OrderBy(p => p.FechaFinal)
+            ).ToListAsync();
+
+        public async Task<List<PrestamosEquipoDTO>> ObtenerAtrasados()
+            => await ProyectarDTO(
+                _context.PrestamosEquipos
+                    .Where(p => p.IdEstado == 1
+                                && p.FechaFinal < DateTime.Now
+                                && p.FechaEntrega == null
+                                && p.Activado == true)
+                    .OrderBy(p => p.FechaFinal)
+            ).ToListAsync();
+
+        public async Task<int> ContarTodos()
+            => await _context.PrestamosEquipos.Where(p => p.Activado == true).CountAsync();
+
+        public async Task<PrestamosEquipo> Crear(PrestamosEquipo prestamo)
+        {
+            _context.PrestamosEquipos.Add(prestamo);
+            return prestamo;
         }
 
-        public async Task<PrestamosEquipo?> Actualizar(int id, ActualizarPrestamosEquipoDTO actualizarPrestamosEquipoDTO)
+        public async Task<PrestamosEquipo> Actualizar(PrestamosEquipo prestamo)
         {
-           var pEquipoExiste = await GetById(id);
-
-            if (pEquipoExiste == null)
-            {
-                return null;
-            }
-
-            pEquipoExiste.IdUsuario = actualizarPrestamosEquipoDTO.IdUsuario;
-            pEquipoExiste.IdInventario = actualizarPrestamosEquipoDTO.IdInventario;
-            pEquipoExiste.IdEstado = actualizarPrestamosEquipoDTO.IdEstado;
-            pEquipoExiste.FechaInicio = actualizarPrestamosEquipoDTO.FechaInicio;
-            pEquipoExiste.FechaFinal = actualizarPrestamosEquipoDTO.FechaFinal;
-            pEquipoExiste.FechaEntrega = actualizarPrestamosEquipoDTO.FechaEntrega;
-            pEquipoExiste.IdUsuarioAprobador = actualizarPrestamosEquipoDTO.IdUsuarioAprobador;
-            pEquipoExiste.Motivo = actualizarPrestamosEquipoDTO.Motivo;
-            pEquipoExiste.ComentarioAprobacion = actualizarPrestamosEquipoDTO.ComentarioAprobacion;
-            pEquipoExiste.Cantidad =actualizarPrestamosEquipoDTO.Cantidad;
-            
-
-
-            _context.Update(pEquipoExiste);
-            await _context.SaveChangesAsync();
-            var pEquipoActualizado = await GetById(id);
-            return pEquipoActualizado;
-
-
+            _context.PrestamosEquipos.Update(prestamo);
+            return prestamo;
         }
 
-        public async Task<PrestamosEquipo?> Crear(CrearPrestamosEquipoDTO crearPrestamosEquipoDTO)
-        {
-            var pEquipo = new PrestamosEquipo
-            {
-                IdUsuario = crearPrestamosEquipoDTO.IdUsuario,
-                IdInventario = crearPrestamosEquipoDTO.IdInventario,
-                IdEstado = crearPrestamosEquipoDTO.IdEstado,
-                FechaInicio = crearPrestamosEquipoDTO.FechaInicio,
-                FechaFinal = crearPrestamosEquipoDTO.FechaFinal,
-                FechaEntrega = crearPrestamosEquipoDTO.FechaEntrega,
-                IdUsuarioAprobador = crearPrestamosEquipoDTO.IdUsuarioAprobador,
-                Motivo = crearPrestamosEquipoDTO.Motivo,
-                ComentarioAprobacion = crearPrestamosEquipoDTO.ComentarioAprobacion,
-                Cantidad = crearPrestamosEquipoDTO.Cantidad,
-                
+        public async Task Eliminar(PrestamosEquipo prestamo)
+            => _context.PrestamosEquipos.Remove(prestamo);
 
-            };
-
-            //Convertirmos la fecha UTC a OFFSET
-            string fechaInicio = crearPrestamosEquipoDTO.FechaInicio.ToString();
-            string fechaFinal = crearPrestamosEquipoDTO.FechaFinal.ToString();
-
-            //Se parcea la fecha para que incluya la zona  horaria
-            DateTimeOffset dtoInicio = DateTimeOffset.Parse(fechaInicio);
-            DateTimeOffset dtoFinal = DateTimeOffset.Parse(fechaFinal);
-
-            //Ahora la hora local
-            DateTime fechaLocalInicio = dtoInicio.LocalDateTime;
-            DateTime fechaLocalFinal = dtoFinal.LocalDateTime;
-
-            //Formateamos personalizadamente
-
-            string fechaFormateadaInicio = fechaLocalInicio.ToString("dd/MM/yyyy h:mm tt");
-            string fechaFormateadaFinal = fechaLocalFinal.ToString("dd/MM/yyyy h:mm tt");
-
-            _context.PrestamosEquipos.Add(pEquipo);
-            await _context.SaveChangesAsync();
-
-            var usuario = await _context.Usuarios.Where(u => u.Id == crearPrestamosEquipoDTO.IdUsuario).FirstOrDefaultAsync();
-            var inventario = await _context.InventarioEquipos.Where(i => i.Id == pEquipo.IdInventario).FirstOrDefaultAsync();
+        public async Task GuardarCambios()
+            => await _context.SaveChangesAsync();
 
 
-            if (crearPrestamosEquipoDTO.IdEstado == 1) // Si el estado es "Aprobado"
-            {
-                if (usuario != null | inventario != null)
-                {
-                    await _servicioEmail.EnviarCorreoAprobacionEquipos(usuario.CorreoInstitucional, usuario.NombreUsuario, pEquipo.Cantidad.ToString(), usuario.ApellidoUsuario, inventario.Nombre, fechaFormateadaInicio, fechaFormateadaFinal);
-                }
-            }
-            else if (crearPrestamosEquipoDTO.IdEstado == 3) // Si el estado es "Rechazado"
-            { 
-                if (usuario != null | inventario != null)
-                {
-                    await _servicioEmail.EnviarCorreoRechazoEquipos(usuario.CorreoInstitucional, usuario.NombreUsuario, pEquipo.Cantidad.ToString(), usuario.ApellidoUsuario, inventario.Nombre, crearPrestamosEquipoDTO.ComentarioAprobacion, fechaFormateadaInicio, fechaFormateadaFinal);
-                }
-            }
-            return pEquipo;
-        }
-
-        public async Task<bool?> Eliminar(int id)
-        {
-           var prestamos =   await GetById(id);
-
-            if (prestamos == null)
-            {
-                return null;
-            }
-            _context.Remove(prestamos);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        //Método para desactivar un equipo
-        public async Task<bool?> desactivarPrestamoEquipos(int id)
-        {
-            // Verificar si el equipo existe
-            var equipo = await GetById(id);
-            if (equipo == null)
-            {
-                return null;
-            }
-            // Desactivar el equipo
-            equipo.Activado = false;
-            // Guardar los cambios en la base de datos
-            _context.Update(equipo);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<PrestamosEquipo?> GetById(int id)
-        {
-            return await _context.PrestamosEquipos.Where(p => p.Id == id).FirstOrDefaultAsync();
-        }
-
-        
-
-        public async Task<List<PrestamosEquipo>?> GetPrestamosEquipo(int pagina, int tamanoPagina)
-        {
-            if (pagina <= 0) pagina = 1;
-            if (tamanoPagina <= 0) tamanoPagina = 20;
-
-            return await _context.PrestamosEquipos
-                .Where(p => p.Activado == true)
-                .OrderBy(i => i.Id)
-                .Skip((pagina - 1) * tamanoPagina)
-                .Take(tamanoPagina)
+        public async Task<List<ExtensionPrestamosEquipo>> ObtenerExtensionsPendientes()
+            => await _context.ExtensionPrestamosEquipos
+                .Where(e => e.IdEstado == 2)
+                .OrderBy(e => e.FechaSolicitud)
                 .ToListAsync();
+
+        public async Task<ExtensionPrestamosEquipo?> ObtenerExtensionPorId(int id)
+            => await _context.ExtensionPrestamosEquipos.FirstOrDefaultAsync(e => e.Id == id);
+
+        public async Task<List<ExtensionPrestamosEquipo>> ObtenerExtensionsPorPrestamo(int idPrestamo)
+            => await _context.ExtensionPrestamosEquipos
+                .Where(e => e.IdPrestamos == idPrestamo)
+                .OrderByDescending(e => e.FechaSolicitud)
+                .ToListAsync();
+
+        public async Task<ExtensionPrestamosEquipo> CrearExtension(ExtensionPrestamosEquipo extension)
+        {
+            _context.ExtensionPrestamosEquipos.Add(extension);
+            return extension;
         }
 
+        public async Task<ExtensionPrestamosEquipo> ActualizarExtension(ExtensionPrestamosEquipo extension)
+        {
+            _context.ExtensionPrestamosEquipos.Update(extension);
+            return extension;
+        }
 
-       
+        public async Task<Usuario?> ObtenerUsuarioPorId(int id)
+            => await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == id);
+
+        public async Task<List<Usuario>> ObtenerAdmins()
+            => await _context.Usuarios.Where(u => u.IdRol == 1 || u.IdRol == 2).ToListAsync();
+
+        public async Task<InventarioEquipo?> ObtenerInventarioPorId(int id)
+            => await _context.InventarioEquipos.FindAsync(id);
+
+
+        private static IQueryable<PrestamosEquipoDTO> ProyectarDTO(IQueryable<PrestamosEquipo> query)
+            => query.Select(p => new PrestamosEquipoDTO
+            {
+                Id = p.Id,
+                IdUsuario = p.IdUsuario,
+                IdInventario = p.IdInventario,
+                NombreEquipo = p.IdInventarioNavigation.Nombre,
+                IdEstado = p.IdEstado,
+                NombreEstado = p.IdEstadoNavigation.Estado1,
+                FechaInicio = p.FechaInicio,
+                FechaFinal = p.FechaFinal,
+                FechaEntrega = p.FechaEntrega,
+                IdUsuarioAprobador = p.IdUsuarioAprobador,
+                Motivo = p.Motivo,
+                ComentarioAprobacion = p.ComentarioAprobacion,
+                Activado = p.Activado,
+                Cantidad = p.Cantidad,
+                // EstaAtrasado y DiasAtraso se calculan en el servicio
+                EstaAtrasado = false,
+                DiasAtraso = null
+            });
     }
 }

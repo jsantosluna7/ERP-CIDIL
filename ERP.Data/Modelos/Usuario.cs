@@ -37,6 +37,8 @@ public partial class Usuario
 
     public virtual ICollection<ComentariosOrden> ComentariosOrdens { get; set; } = new List<ComentariosOrden>();
 
+    public virtual ICollection<ExtensionPrestamosEquipo> ExtensionPrestamosEquipos { get; set; } = new List<ExtensionPrestamosEquipo>();
+
     public virtual Role? IdRolNavigation { get; set; }
 
     public virtual ICollection<OrdenTimeline> OrdenTimelines { get; set; } = new List<OrdenTimeline>();

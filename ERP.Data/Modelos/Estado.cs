@@ -9,6 +9,8 @@ public partial class Estado
 
     public string Estado1 { get; set; } = null!;
 
+    public virtual ICollection<ExtensionPrestamosEquipo> ExtensionPrestamosEquipos { get; set; } = new List<ExtensionPrestamosEquipo>();
+
     public virtual ICollection<PrestamosEquipo> PrestamosEquipos { get; set; } = new List<PrestamosEquipo>();
 
     public virtual ICollection<ReservaDeEspacio> ReservaDeEspacios { get; set; } = new List<ReservaDeEspacio>();

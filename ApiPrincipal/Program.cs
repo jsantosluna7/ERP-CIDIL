@@ -90,6 +90,16 @@ builder.Services.AddScoped<IServicioOrdenTimeline, ServicioOrdenTimeline>();
 builder.Services.AddScoped<IServicioEspecializado, ServicioEspecializado>();
 
 
+var imageServiceBaseUrl = Environment.GetEnvironmentVariable("IMAGE_SERVICE_BASE_URL")!;
+var apiKey = Environment.GetEnvironmentVariable("IMAGE_SERVICE_API_KEY")!;
+
+builder.Services.AddHttpClient("ImageService", client =>
+{
+    client.BaseAddress = new Uri("https://imagenes.cidilipl.online/");
+    client.DefaultRequestHeaders.Add("x-api-key", "CIdil-Admin52");
+});
+
+
 //Añadimos el servicio de OTP
 builder.Services.AddScoped<ServicioOtp>();
 

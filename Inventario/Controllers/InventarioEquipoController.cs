@@ -109,7 +109,7 @@ namespace Inventario.Controllers
         }
         //Controlador para  incertar  los equipos
         [HttpPost]
-        public async Task<IActionResult?> CrearInventarioEquipo(CrearInventarioEquipoDTO crearInventarioEquipoDTO)
+        public async Task<IActionResult?> CrearInventarioEquipo([FromForm]CrearInventarioEquipoDTO crearInventarioEquipoDTO)
         {
             var resultado =await _servicioInventarioEquipo.Crear(crearInventarioEquipoDTO);
             if (resultado == null)
@@ -122,7 +122,7 @@ namespace Inventario.Controllers
         //Controlador para  Actualizar el inventario del los equipos
         [HttpPut("{id}")]
 
-        public async Task<IActionResult?> Actualizar(int id,ActualizarInventarioEquipoDTO actualizarInventarioEquipoDTO) 
+        public async Task<IActionResult?> Actualizar(int id, [FromForm]ActualizarInventarioEquipoDTO actualizarInventarioEquipoDTO) 
         {
             var resultado = await _servicioInventarioEquipo.Actualizar(id, actualizarInventarioEquipoDTO);
             if (resultado == null)
@@ -171,29 +171,5 @@ namespace Inventario.Controllers
             }
             return Ok();
         }
-
-        [HttpPost("subir-imagen")]
-        public async Task<IActionResult> SubirImagen(IFormFile archivo)
-        {
-            if (archivo == null || archivo.Length == 0)
-                return BadRequest("No se ha enviado ningún archivo.");
-
-            var archivoSubida = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "inventario");
-            if (!Directory.Exists(archivoSubida))
-                Directory.CreateDirectory(archivoSubida);
-
-            var nombreUnico = Guid.NewGuid().ToString() + Path.GetExtension(archivo.FileName);
-            var direccionArchivo = Path.Combine(archivoSubida, nombreUnico);
-
-            using (var stream = new FileStream(direccionArchivo, FileMode.Create))
-            {
-                await archivo.CopyToAsync(stream);
-            }
-
-            var relativePath = $"/inventario/{nombreUnico}"; // Esto es lo que se guarda en la BD y se envía al front
-            return Ok(new { ruta = relativePath });
-        }
-
-
     }
 }

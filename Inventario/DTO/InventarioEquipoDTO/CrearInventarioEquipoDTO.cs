@@ -27,6 +27,8 @@
 
         public string? ImagenEquipo { get; set; }
 
+        public IFormFile? Imagen { get; set; }
+
         public bool? Disponible { get; set; }
 
         public int IdEstadoFisico { get; set; }
@@ -34,5 +36,10 @@
         public bool? ValidacionPrestamo { get; set; }
         public int? Cantidad { get; set; }
         public bool? Activado { get; set; }
+    }
+
+    public class ImageResponse
+    {
+        public string url { get; set; }
     }
 }

@@ -37,4 +37,7 @@ public partial class PrestamosEquipo
     public virtual Usuario? IdUsuarioAprobadorNavigation { get; set; }
     [JsonIgnore]
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
+    [JsonIgnore]
+    public virtual ExtensionPrestamosEquipo IdPrestamosNavigation { get; set; } = null!;
+    public virtual ICollection<ExtensionPrestamosEquipo> ExtensionPrestamosEquipos { get; set; } = new List<ExtensionPrestamosEquipo>();
 }

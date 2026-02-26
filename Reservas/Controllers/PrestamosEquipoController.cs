@@ -12,135 +12,159 @@ namespace Reservas.Controllers
     [ApiController]
     public class PrestamosEquipoController : ControllerBase
     {
-        private readonly IServicioPrestamosEquipo _prestamosEquipo;
-        private readonly DbErpContext _context;
+        private readonly IServicioPrestamosEquipo _servicio;
 
-        public PrestamosEquipoController(IServicioPrestamosEquipo prestamosEquipo, DbErpContext context)
+        public PrestamosEquipoController(IServicioPrestamosEquipo servicio)
         {
-            this._prestamosEquipo = prestamosEquipo;
-            _context = context;
+            _servicio = servicio;
         }
 
-        [HttpGet("obtener-cantidad-prestamos-equipos")]
-        public async Task<IActionResult> cantidadPrestamosEquipos()
-        {
-            var totalPrestamosEquipos = await _context.SolicitudPrestamosDeEquipos.Where(p => p.IdEstado == 2).CountAsync();
-            // Devolver la cantidad de usuarios
-
-            var respuesta = new
-            {
-                totalPrestamosEquipos
-            };
-            return Ok(respuesta);
-        }
-
-
+        // GET /api/prestamos-equipo?pagina=1&tamanoPagina=20
         [HttpGet]
-        public async Task<IActionResult?> GetPrestamosEquipo([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)
+        public async Task<IActionResult> ObtenerTodos([FromQuery] int pagina = 1, [FromQuery] int tamanoPagina = 20)
         {
-            var resultado = await _prestamosEquipo.GetPrestamosEquipo(pagina, tamanoPagina);
-            if (resultado == null)
-            {
-                return NotFound("Lista de Prestamos no encontrada");
-            }
-
-            var totalPrestamos = await _context.PrestamosEquipos.CountAsync();
-            var totalPaginas = (int)Math.Ceiling(totalPrestamos / (double)tamanoPagina);
-
-            var respuesta = new
-            {
-                paginacion = new
-                {
-                    paginaActual = pagina,
-                    tamanoPagina,
-                    totalPrestamos,
-                    totalPaginas
-                },
-                datos = resultado
-            };
-            return Ok(respuesta);
-        }
-
-        [HttpGet("mis-equipos")]
-        public async Task<IActionResult> ObtenerSolicitudEquiposUsuario([FromQuery] int usuario)
-        {
-            var resultado = await _prestamosEquipo.ObtenerEquiposUsuario(usuario);
-            if (!resultado.esExitoso)
-            {
-                return BadRequest(new { error = resultado.MensajeError });
-            }
+            var resultado = await _servicio.ObtenerTodos(pagina, tamanoPagina);
             return Ok(resultado.Valor);
         }
 
-        [HttpPost]
-        public async Task<IActionResult?> Crear(CrearPrestamosEquipoDTO crearPrestamosEquipoDTO)
+        // GET /api/prestamos-equipo/resumen — contadores para el dashboard
+        [HttpGet("resumen")]
+        public async Task<IActionResult> ObtenerResumen()
         {
-            var resultado = await _prestamosEquipo.Crear(crearPrestamosEquipoDTO);
-            if (resultado == null)
-            {
-                return NotFound("No se pudo crear su solicitud");
-            }
-            return Ok(resultado);
+            var resultado = await _servicio.ObtenerResumen();
+            return Ok(resultado.Valor);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult?> Actualizar(int id, ActualizarPrestamosEquipoDTO actualizarPrestamosEquipoDTO)
+        // GET /api/prestamos-equipo/pendientes
+        [HttpGet("pendientes")]
+        public async Task<IActionResult> ObtenerPendientes()
         {
-            var resultado = await _prestamosEquipo.Actualizar(id, actualizarPrestamosEquipoDTO);
-            if (resultado == null)
-            {
-                return NotFound("No se pudo actualizar su solicitud");
-            }
-
-            if (!User.TieneRol("1", "2"))
-            {
-                return Unauthorized("No tienes permiso para acceder a esta información");
-            }
-            return Ok(resultado);
+            var resultado = await _servicio.ObtenerPendientes();
+            return Ok(resultado.Valor);
         }
 
+        // GET /api/prestamos-equipo/activos
+        [HttpGet("activos")]
+        public async Task<IActionResult> ObtenerActivos()
+        {
+            var resultado = await _servicio.ObtenerActivos();
+            return Ok(resultado.Valor);
+        }
+
+        // GET /api/prestamos-equipo/atrasados
+        [HttpGet("atrasados")]
+        public async Task<IActionResult> ObtenerAtrasados()
+        {
+            var resultado = await _servicio.ObtenerAtrasados();
+            return Ok(resultado.Valor);
+        }
+
+        // GET /api/prestamos-equipo/mis-equipos?usuario=3
+        [HttpGet("mis-equipos")]
+        public async Task<IActionResult> ObtenerPorUsuario([FromQuery] int usuario)
+        {
+            var resultado = await _servicio.ObtenerPorUsuario(usuario);
+            if (!resultado.esExitoso)
+                return NotFound(new { error = resultado.MensajeError });
+            return Ok(resultado.Valor);
+        }
+
+        // GET /api/prestamos-equipo/5
         [HttpGet("{id}")]
-        public async Task<IActionResult?> GetById(int id)
+        public async Task<IActionResult> ObtenerPorId(int id)
         {
-            var resultado = await _prestamosEquipo.GetById(id);
-            if (resultado == null)
-            {
-                return NotFound("La Lista de Prestamos de Equipos no fue encontrada");
-            }
-            return Ok(resultado);
-            
+            var resultado = await _servicio.ObtenerPorId(id);
+            if (!resultado.esExitoso)
+                return NotFound(new { error = resultado.MensajeError });
+            return Ok(resultado.Valor);
         }
 
-        [HttpDelete("{id}")]
-        public async  Task<IActionResult?> DeleteById(int id)
+        // PATCH /api/prestamos-equipo/5/aprobar-rechazar
+        // Body: { "idUsuarioAprobador": 1, "aprobado": true, "comentarioAprobacion": "..." }
+        [HttpPost("procesar-solicitud")]
+        public async Task<IActionResult> ProcesarSolicitud([FromBody] AprobarRechazarSolicitudDTO dto)
         {
-            await _prestamosEquipo.Eliminar(id);
-
-            // JWT Authorization
-            if (!User.TieneRol("1"))
-            {
-                return Unauthorized("No tienes permiso para acceder a esta información");
-            }
-            return Ok();
-        }
-
-        [HttpPatch("{id}")]
-        public async Task<IActionResult> DesactivarPrestamoEquipos(int id)
-        {
-            // Llamar al servicio para desactivar un equipo por su ID
-            var prestamoEquiposDesactivado = await _prestamosEquipo.DesactivarPrestamoEquipos(id);
-            // Verificar si el equipo fue desactivado
-            if (prestamoEquiposDesactivado == null)
-            {
-                return NotFound($"Usuario con ID {id} no encontrado");
-            }
-
             if (!User.TieneRol("1", "2"))
-            {
-                return Unauthorized("No tienes permiso para acceder a esta información");
-            }
-            // Devolver una respuesta exitosa
-            return Ok($"Usuario con ID {id} desactivado");
+                return Unauthorized("No tienes permiso para realizar esta acción.");
+
+            var resultado = await _servicio.ProcesarSolicitud(dto);
+            if (!resultado.esExitoso)
+                return BadRequest(new { error = resultado.MensajeError });
+
+            if (resultado.Valor == null)
+                return Ok(new { mensaje = "Solicitud rechazada correctamente." });
+
+            return Ok(resultado.Valor);
+        }
+
+        // PATCH /api/prestamos-equipo/5/marcar-devuelto
+        // Body: { "fechaEntrega": "2025-02-01T10:00:00" }
+        [HttpPatch("{id}/marcar-devuelto")]
+        public async Task<IActionResult> MarcarDevuelto(int id, [FromBody] MarcarDevueltoDTO dto)
+        {
+            if (!User.TieneRol("1", "2"))
+                return Unauthorized("No tienes permiso para realizar esta acción.");
+
+            var resultado = await _servicio.MarcarDevuelto(id, dto);
+            if (!resultado.esExitoso)
+                return BadRequest(new { error = resultado.MensajeError });
+            return Ok(resultado.Valor);
+        }
+
+        // DELETE /api/prestamos-equipo/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Eliminar(int id)
+        {
+            if (!User.TieneRol("1"))
+                return Unauthorized("No tienes permiso para realizar esta acción.");
+
+            var resultado = await _servicio.Eliminar(id);
+            if (!resultado.esExitoso)
+                return NotFound(new { error = resultado.MensajeError });
+            return Ok(new { mensaje = "Préstamo eliminado correctamente." });
+        }
+
+        // ─── Extensiones ──────────────────────────────────────────────────────────
+
+        // GET /api/prestamos-equipo/extensiones/pendientes
+        [HttpGet("extensiones/pendientes")]
+        public async Task<IActionResult> ObtenerExtensionsPendientes()
+        {
+            var resultado = await _servicio.ObtenerExtensionsPendientes();
+            return Ok(resultado.Valor);
+        }
+
+        // GET /api/prestamos-equipo/5/extensiones
+        [HttpGet("{idPrestamo}/extensiones")]
+        public async Task<IActionResult> ObtenerExtensionsPorPrestamo(int idPrestamo)
+        {
+            var resultado = await _servicio.ObtenerExtensionsPorPrestamo(idPrestamo);
+            return Ok(resultado.Valor);
+        }
+
+        // POST /api/prestamos-equipo/5/extensiones
+        // Body: { "fechaExtensionSolicitada": "2025-02-10T00:00:00", "motivo": "..." }
+        [HttpPost("{idPrestamo}/extensiones")]
+        public async Task<IActionResult> SolicitarExtension(int idPrestamo, [FromBody] CrearExtensionDTO dto)
+        {
+            var resultado = await _servicio.SolicitarExtension(idPrestamo, dto);
+            if (!resultado.esExitoso)
+                return BadRequest(new { error = resultado.MensajeError });
+            return Ok(resultado.Valor);
+        }
+
+        // PATCH /api/prestamos-equipo/extensiones/3/aprobar-rechazar
+        // Body: { "idUsuarioAprobador": 1, "aprobado": true, "comentarioAprobacion": "..." }
+        [HttpPatch("extensiones/{idExtension}/aprobar-rechazar")]
+        public async Task<IActionResult> AprobarRechazarExtension(int idExtension, [FromBody] AprobarRechazarExtensionDTO dto)
+        {
+            if (!User.TieneRol("1", "2"))
+                return Unauthorized("No tienes permiso para realizar esta acción.");
+
+            var resultado = await _servicio.AprobarRechazarExtension(idExtension, dto);
+            if (!resultado.esExitoso)
+                return BadRequest(new { error = resultado.MensajeError });
+            return Ok(resultado.Valor);
         }
     }
 }

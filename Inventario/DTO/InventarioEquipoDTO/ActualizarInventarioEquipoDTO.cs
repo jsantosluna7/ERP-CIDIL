@@ -27,6 +27,8 @@
 
         public string? ImagenEquipo { get; set; }
 
+        public IFormFile? Imagen { get; set; }
+
         public bool? Disponible { get; set; }
 
         public int IdEstadoFisico { get; set; }

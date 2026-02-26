@@ -5,13 +5,24 @@ namespace Reservas.Abstraccion.Repositorio
 {
     public interface IRepositorioPrestamosEquipo
     {
-        //Task<List<PrestamosEquipo>?> GetPrestamosEquipo();
-        Task<PrestamosEquipo?> GetById(int id);
-        Task<PrestamosEquipo?> Crear(CrearPrestamosEquipoDTO crearPrestamosEquipoDTO);
-        Task<PrestamosEquipo?> Actualizar(int  id, ActualizarPrestamosEquipoDTO actualizarPrestamosEquipoDTO);
-        Task<bool?> Eliminar(int id);
-        Task<bool?> desactivarPrestamoEquipos(int id);
-        Task<List<PrestamosEquipo>?> GetPrestamosEquipo(int pagina, int tamanoPagina);
-        Task<Resultado<List<PrestamosEquipo>>> ObtenerEquiposUsuario(int id);
+        Task<PrestamosEquipo> Actualizar(PrestamosEquipo prestamo);
+        Task<ExtensionPrestamosEquipo> ActualizarExtension(ExtensionPrestamosEquipo extension);
+        Task<int> ContarTodos();
+        Task<PrestamosEquipo> Crear(PrestamosEquipo prestamo);
+        Task<ExtensionPrestamosEquipo> CrearExtension(ExtensionPrestamosEquipo extension);
+        Task Eliminar(PrestamosEquipo prestamo);
+        Task GuardarCambios();
+        Task<List<PrestamosEquipoDTO>> ObtenerActivos();
+        Task<List<Usuario>> ObtenerAdmins();
+        Task<List<PrestamosEquipoDTO>> ObtenerAtrasados();
+        Task<ExtensionPrestamosEquipo?> ObtenerExtensionPorId(int id);
+        Task<List<ExtensionPrestamosEquipo>> ObtenerExtensionsPendientes();
+        Task<List<ExtensionPrestamosEquipo>> ObtenerExtensionsPorPrestamo(int idPrestamo);
+        Task<InventarioEquipo?> ObtenerInventarioPorId(int id);
+        Task<List<PrestamosEquipoDTO>> ObtenerPendientes();
+        Task<PrestamosEquipo?> ObtenerPorId(int id);
+        Task<List<PrestamosEquipoDTO>> ObtenerPorUsuario(int idUsuario);
+        Task<List<PrestamosEquipoDTO>> ObtenerTodos(int pagina, int tamanoPagina);
+        Task<Usuario?> ObtenerUsuarioPorId(int id);
     }
 }

@@ -29,6 +29,8 @@ public partial class DbErpContext : DbContext
 
     public virtual DbSet<EstadosTimeline> EstadosTimelines { get; set; }
 
+    public virtual DbSet<ExtensionPrestamosEquipo> ExtensionPrestamosEquipos { get; set; }
+
     public virtual DbSet<Horario> Horarios { get; set; }
 
     public virtual DbSet<InventarioEquipo> InventarioEquipos { get; set; }
@@ -238,6 +240,46 @@ public partial class DbErpContext : DbContext
                 .HasColumnName("nombre");
         });
 
+        modelBuilder.Entity<ExtensionPrestamosEquipo>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("extension_prestamos_equipo_pkey");
+
+            entity.ToTable("extension_prestamos_equipo");
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("nextval('\"ExtensionPrestamosEquipo_id_seq\"'::regclass)")
+                .HasColumnName("id");
+            entity.Property(e => e.ComentarioAprobacion)
+                .HasMaxLength(500)
+                .HasColumnName("comentario_aprobacion");
+            entity.Property(e => e.FechaExtensionSolicitada)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fecha_extensionSolicitada");
+            entity.Property(e => e.FechaSolicitud)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("fecha_solicitud");
+            entity.Property(e => e.IdEstado).HasColumnName("id_estado");
+            entity.Property(e => e.IdPrestamos).HasColumnName("id_prestamos");
+            entity.Property(e => e.IdUsuarioAprobador).HasColumnName("id_usuario_aprobador");
+            entity.Property(e => e.Motivo)
+                .HasMaxLength(500)
+                .HasColumnName("motivo");
+
+            entity.HasOne(d => d.IdEstadoNavigation).WithMany(p => p.ExtensionPrestamosEquipos)
+                .HasForeignKey(d => d.IdEstado)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("extension_prestamos_equipo_idEstado_fkey");
+
+            entity.HasOne(d => d.IdPrestamosNavigation).WithMany(p => p.ExtensionPrestamosEquipos)
+                .HasForeignKey(d => d.IdPrestamos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("extension_prestamos_equipo_idPrestamos_fkey");
+
+            entity.HasOne(d => d.IdUsuarioAprobadorNavigation).WithMany(p => p.ExtensionPrestamosEquipos)
+                .HasForeignKey(d => d.IdUsuarioAprobador)
+                .HasConstraintName("extension_prestamos_equipo_idUsuarioAprobador_fkey");
+        });
+
         modelBuilder.Entity<Horario>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("horario_pkey");
@@ -301,7 +343,7 @@ public partial class DbErpContext : DbContext
                 .HasColumnName("id_estado_fisico");
             entity.Property(e => e.IdLaboratorio).HasColumnName("id_laboratorio");
             entity.Property(e => e.ImagenEquipo)
-                .HasMaxLength(100)
+                .HasMaxLength(500)
                 .HasColumnName("imagen_equipo");
             entity.Property(e => e.ImporteActivo)
                 .HasPrecision(12, 2)
