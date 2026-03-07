@@ -12,7 +12,13 @@
         public string? Nombre { get; set; }
 
         public int? Piso { get; set; }
+        public string? ImagenLaboratorio { get; set; }
+        public IFormFile? Imagen { get; set; }
 
-        
+    }
+
+    public class ImageResponse
+    {
+        public string url { get; set; }
     }
 }

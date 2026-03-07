@@ -12,5 +12,6 @@
         public string? Nombre { get; set; }
 
         public int? Piso { get; set; }
+        public string? ImagenLaboratorio { get; set; }
     }
 }

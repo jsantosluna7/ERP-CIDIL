@@ -11,8 +11,6 @@ public partial class Curriculum
 
     public string Email { get; set; } = null!;
 
-    public string? Telefono { get; set; }
-
     public string? ArchivoUrl { get; set; }
 
     public DateTime? Fecha { get; set; }
@@ -24,6 +22,8 @@ public partial class Curriculum
     public bool? EsExterno { get; set; }
 
     public int? AnuncioId { get; set; }
+
+    public string? AnuncioTitulo { get; set; }
 
     public virtual Anuncio? Anuncio { get; set; }
 }

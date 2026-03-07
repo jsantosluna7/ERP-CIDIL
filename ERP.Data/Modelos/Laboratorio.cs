@@ -19,6 +19,8 @@ public partial class Laboratorio
 
     public bool? Activado { get; set; }
 
+    public string? ImagenLaboratorio { get; set; }
+
     public virtual ICollection<Horario> Horarios { get; set; } = new List<Horario>();
 
     public virtual ICollection<InventarioEquipo> InventarioEquipos { get; set; } = new List<InventarioEquipo>();

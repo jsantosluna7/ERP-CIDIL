@@ -3,6 +3,7 @@ using Inventario.Abstraccion.Repositorio;
 using Inventario.Abstraccion.Servicios;
 using Inventario.DTO.LaboratorioDTO;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Http.Headers;
 
 namespace Inventario.Implementaciones.Servicios
 {
@@ -10,45 +11,110 @@ namespace Inventario.Implementaciones.Servicios
     {
         //Hacemos una inyeccion de dependencia
         private readonly IRepositorioLaboratorio repositorioLaboratorio;
+        private readonly HttpClient _httpClient;
 
-        public ServicioLaboratorio(IRepositorioLaboratorio repositorio)
+        public ServicioLaboratorio(IRepositorioLaboratorio repositorio, IHttpClientFactory httpClientFactory)
         {
             repositorioLaboratorio = repositorio;
+            _httpClient = httpClientFactory.CreateClient("ImageService");
         }   
 
         //Metodo para actualizar los laboratorios
-        public async Task<LaboratorioDTO?> Actualizar(int id, ActualizarLaboratorioDTO actualizarlaboratorioDTO)
+        public async Task<LaboratorioDTO?> Actualizar(int id, ActualizarLaboratorioDTO dto)
         {
-           var laboratorio =await repositorioLaboratorio.Actualizar(id,actualizarlaboratorioDTO);
+           var laboratorio = await repositorioLaboratorio.GetById(id);
             if (laboratorio == null)
             {
                 return null;
             }
+
+            if (dto.Imagen != null)
+            {
+
+                using var content = new MultipartFormDataContent();
+                using var streamContent = new StreamContent(dto.Imagen.OpenReadStream());
+
+                streamContent.Headers.ContentType = new MediaTypeHeaderValue(dto.Imagen.ContentType);
+
+                content.Add(streamContent, "file", dto.Imagen.FileName);
+
+                var response = await _httpClient.PostAsync("api/Imagenes/upload/laboratorios", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Error API Imagenes: {response.StatusCode} - {error}");
+                }
+
+                var result = await response.Content.ReadFromJsonAsync<ImageResponse>();
+                dto.ImagenLaboratorio = result?.url;
+            }
+            else
+            {
+                dto.ImagenLaboratorio = laboratorio.ImagenLaboratorio;
+            }
+
+            var actualizado = await repositorioLaboratorio.Actualizar(id, dto);
+
             var laboratorioDTO = new LaboratorioDTO
             {
-                CodigoDeLab = laboratorio.CodigoDeLab,
-                Capacidad = laboratorio.Capacidad,
-                Descripcion = laboratorio.Descripcion,
+                Id = actualizado.Id,
+                CodigoDeLab = actualizado.CodigoDeLab,
+                Capacidad = actualizado.Capacidad,
+                Descripcion = actualizado.Descripcion,
+                ImagenLaboratorio = actualizado.ImagenLaboratorio,
+                Nombre = actualizado.Nombre,
+                Piso = actualizado.Piso
+
                 
             };
             return laboratorioDTO;
         }
 
         //Metodo para crear los espcacios de los laboratorios
-        public async Task<LaboratorioDTO?> Crear(CrearLaboratorioDTO crearlaboratorioDTO)
+        public async Task<LaboratorioDTO?> Crear(CrearLaboratorioDTO dto)
         {
-            var laboratorio = await repositorioLaboratorio .Crear(crearlaboratorioDTO);
+            string? imageUrl = null;
+
+            if (dto.Imagen != null)
+            {
+
+                using var content = new MultipartFormDataContent();
+                using var streamContent = new StreamContent(dto.Imagen.OpenReadStream());
+
+                streamContent.Headers.ContentType = new MediaTypeHeaderValue(dto.Imagen.ContentType);
+
+                content.Add(streamContent, "file", dto.Imagen.FileName);
+
+                var response = await _httpClient.PostAsync("api/Imagenes/upload/laboratorios", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Error ImageService: {response.StatusCode} - {errorBody}");
+                }
+
+                var result = await response.Content.ReadFromJsonAsync<ImageResponse>();
+                imageUrl = result?.url;
+            }
+
+            dto.ImagenLaboratorio = imageUrl;
+
+            var laboratorio = await repositorioLaboratorio.Crear(dto);
+
             if (laboratorio == null)
             {
                 return null;
             }
             var laboratorioDTO = new LaboratorioDTO
             {
+                Id = laboratorio.Id,
                 CodigoDeLab = laboratorio .CodigoDeLab,
                 Capacidad = laboratorio.Capacidad,
                 Descripcion = laboratorio.Descripcion,
                 Nombre= laboratorio.Nombre,
                 Piso = laboratorio.Piso,
+                ImagenLaboratorio = laboratorio.ImagenLaboratorio
             };
             return laboratorioDTO;
         }
@@ -87,7 +153,8 @@ namespace Inventario.Implementaciones.Servicios
                 Capacidad = lab.Capacidad,
                 Descripcion = lab.Descripcion,
                 Nombre = lab.Nombre,
-                Piso = lab.Piso
+                Piso = lab.Piso,
+                ImagenLaboratorio = lab.ImagenLaboratorio
             };
         }
 
@@ -109,7 +176,8 @@ namespace Inventario.Implementaciones.Servicios
                     Nombre = laboratorio1.Nombre,
                     Piso = laboratorio1.Piso,
                     Descripcion = laboratorio1.Descripcion,
-                     
+                    ImagenLaboratorio = laboratorio1.ImagenLaboratorio
+
                 };
                 laboratorioDTO.Add(nuevolaboratorioDTO);
             }
@@ -136,6 +204,7 @@ namespace Inventario.Implementaciones.Servicios
                     Descripcion = pisos.Descripcion,
                     Piso = pisos.Piso,
                     Nombre = pisos.Nombre,
+                    ImagenLaboratorio = pisos.ImagenLaboratorio
                 };
                 pDTO.Add(nuevopDTO);
             }

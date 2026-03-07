@@ -35,7 +35,7 @@ namespace Inventario.Controllers
         }
         //Controlador para  incertar los equipos en el inventario 
         [HttpPost]
-        public async Task<IActionResult?> Crear(CrearLaboratorioDTO crearLaboratorioDTO)
+        public async Task<IActionResult?> Crear([FromForm] CrearLaboratorioDTO crearLaboratorioDTO)
         {
             var resultado =await _servicioLaboratorio.Crear(crearLaboratorioDTO);
             if (resultado == null)
@@ -47,7 +47,7 @@ namespace Inventario.Controllers
 
         //Controlador para  Actualizar el inventario del los equipos
         [HttpPut("{id}")]
-        public async Task<IActionResult?> Actualizar(int id,ActualizarLaboratorioDTO actualizarLaboratorioDTO)
+        public async Task<IActionResult?> Actualizar(int id, [FromForm] ActualizarLaboratorioDTO actualizarLaboratorioDTO)
         {
             var resultado =await _servicioLaboratorio.Actualizar(id, actualizarLaboratorioDTO);
             if (resultado == null)

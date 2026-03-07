@@ -32,9 +32,10 @@ namespace Inventario.Implementaciones.Repositorios
             laboratorioExistente.Descripcion= actualizarLaboratorioDTO.Descripcion;
             laboratorioExistente.Nombre= actualizarLaboratorioDTO.Nombre;
             laboratorioExistente.Piso= actualizarLaboratorioDTO.Piso;
-            
+            laboratorioExistente.ImagenLaboratorio = actualizarLaboratorioDTO.ImagenLaboratorio;
 
-             _context.Update(laboratorioExistente);
+
+            _context.Update(laboratorioExistente);
             await _context.SaveChangesAsync();
             var laboratorioActualizado = await GetById(id);
             return laboratorioActualizado;
@@ -50,7 +51,8 @@ namespace Inventario.Implementaciones.Repositorios
                 Descripcion = crearlaboratorioDTO.Descripcion,
                 Nombre = crearlaboratorioDTO.Nombre,
                 Piso = crearlaboratorioDTO.Piso,
-               
+                ImagenLaboratorio = crearlaboratorioDTO.ImagenLaboratorio,
+
 
             };
             _context.Laboratorios.Add(laboratorio);
@@ -111,7 +113,7 @@ namespace Inventario.Implementaciones.Repositorios
         //Se optienen todos los registros
         public async Task<List<Laboratorio>?> GetLaboratorio()
         {
-           return await _context.Laboratorios.Where(l => l.Activado == true).ToListAsync();
+           return await _context.Laboratorios.Where(l => l.Activado == true).OrderBy(l => l.Id).ToListAsync();
         }
     }
 }

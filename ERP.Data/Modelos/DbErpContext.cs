@@ -160,6 +160,9 @@ public partial class DbErpContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AnuncioId).HasColumnName("anuncio_id");
+            entity.Property(e => e.AnuncioTitulo)
+                .HasMaxLength(255)
+                .HasColumnName("anuncio_titulo");
             entity.Property(e => e.ArchivoUrl).HasColumnName("archivo_url");
             entity.Property(e => e.Email)
                 .HasMaxLength(150)
@@ -423,6 +426,9 @@ public partial class DbErpContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("codigo_de_lab");
             entity.Property(e => e.Descripcion).HasColumnName("descripcion");
+            entity.Property(e => e.ImagenLaboratorio)
+                .HasMaxLength(500)
+                .HasColumnName("imagen_laboratorio");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(100)
                 .HasColumnName("nombre");
