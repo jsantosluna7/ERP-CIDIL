@@ -78,4 +78,20 @@
         public int TotalAtrasados { get; set; }
         public int TotalExtensionsSolicitadas { get; set; }
     }
+
+    public class ProcesarPrestamosEquipoDTO
+    {
+        /// <summary>"solicitud" | "extension"</summary>
+        public string TipoAccion { get; set; } = null!;
+
+        // Requerido si TipoAccion = "solicitud"
+        public int? IdSolicitud { get; set; }
+
+        // Requerido si TipoAccion = "extension"
+        public int? IdExtension { get; set; }
+
+        public int IdUsuarioAprobador { get; set; }
+        public bool Aprobado { get; set; }
+        public string? ComentarioAprobacion { get; set; }
+    }
 }

@@ -61,6 +61,7 @@ builder.Services.AddScoped<IRepositorioComentariosOrden, RepositorioComentariosO
 builder.Services.AddScoped<IRepositorioOrdenItem, RepositorioOrdenItem>();
 builder.Services.AddScoped<IRepositorioOrdenTimeline, RepositorioOrdenTimeline>();
 builder.Services.AddScoped<IRepositorioEspecializado, RepositorioEspecializado>();
+builder.Services.AddScoped<IRepositorioTotalReservaDeEspacio, RepositorioTotalReservaDeEspacio>();
 
 
 
@@ -88,6 +89,7 @@ builder.Services.AddScoped<IServicioComentariosOrden, ServicioComentariosOrden>(
 builder.Services.AddScoped<IServicioOrdenItem, ServicioOrdenItem>();
 builder.Services.AddScoped<IServicioOrdenTimeline, ServicioOrdenTimeline>();
 builder.Services.AddScoped<IServicioEspecializado, ServicioEspecializado>();
+builder.Services.AddScoped<IServicioTotalReservaDeEspacio, ServicioTotalReservaDeEspacio>();
 
 
 var imageServiceBaseUrl = Environment.GetEnvironmentVariable("IMAGE_SERVICE_BASE_URL")!;
@@ -165,7 +167,29 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 
 
 // Redis config
-builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisHost)); //Servidor de Redis
+// Redis config (Upstash / Redis seguro)
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    try
+    {
+        var options = ConfigurationOptions.Parse(redisHost);
+
+        options.Ssl = true;
+        options.AbortOnConnectFail = false;
+        options.ConnectRetry = 5;
+        options.ConnectTimeout = 10000;
+
+        return ConnectionMultiplexer.Connect(options);
+    }
+    catch (Exception ex)
+    {
+        var logger = sp.GetRequiredService<ILogger<Program>>();
+        logger.LogError("Redis no disponible al iniciar: {Error}", ex.Message);
+
+        // Evita que el API se caiga
+        return null!;
+    }
+});
 
 // Agregar política CORS global que permite todo
 builder.Services.AddCors(options =>
