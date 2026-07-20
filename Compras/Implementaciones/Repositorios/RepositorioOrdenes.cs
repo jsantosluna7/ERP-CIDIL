@@ -1,0 +1,116 @@
+﻿using Compras.Abstraccion.Repositorios;
+using Compras.DTO.OrdenesDTO;
+using ERP.Data.Modelos;
+using Microsoft.EntityFrameworkCore;
+
+namespace Compras.Implementaciones.Repositorios
+{
+    public class RepositorioOrdenes : IRepositorioOrdenes
+    {
+        private readonly DbErpContext _context;
+
+        public RepositorioOrdenes(DbErpContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<Resultado<List<Ordene>>> OrdenesAll()
+        {
+            var resultado = await _context.Ordenes.OrderBy(o => o.Id).ToListAsync();
+
+            if(resultado == null || resultado.Count == 0)
+            {
+                return Resultado<List<Ordene>>.Falla("No se encontraron ordenes.");
+            }
+
+            return Resultado<List<Ordene>>.Exito(resultado);
+        }
+
+        public async Task<Resultado<Ordene>> ObtenerPorId(int id)
+        {
+            var ordenes = await _context.Ordenes.FirstOrDefaultAsync(o => o.Id == id);
+            if(ordenes == null)
+            {
+                return Resultado<Ordene>.Falla("No se encontró una orden con ese ID");
+            }
+
+            return Resultado<Ordene>.Exito(ordenes);
+        }
+
+        public async Task<Resultado<Ordene>> CrearOrdenes(CrearOrdenesDTO ordene)
+        {
+            if (ordene == null)
+            {
+                return Resultado<Ordene>.Falla("No se pueden dejar campos vacios.");
+            }
+
+            var existeOrden = await _context.Ordenes.FirstOrDefaultAsync(u => u.Codigo == ordene.Codigo);
+            if (existeOrden != null)
+            {
+                return Resultado<Ordene>.Falla("Ya existe una orden con el Código.");
+            }
+
+            var ordenes = new Ordene
+            {
+                Codigo = ordene.Codigo,
+                Nombre = ordene.Nombre,
+                Departamento = ordene.Departamento,
+                UnidadNegocio = ordene.UnidadNegocio,
+                SolicitadoPor = ordene.SolicitadoPor,
+                ItemsCount = ordene.ItemsCount,
+                Comentario = ordene.Comentario,
+                CreadoPor = ordene.CreadoPor
+            };
+
+            _context.Ordenes.Add(ordenes);
+            await _context.SaveChangesAsync();
+            return Resultado<Ordene>.Exito(ordenes);
+        }
+
+        public async Task<Resultado<Ordene>> ActualizarOrdenes(int id, CrearOrdenesDTO ordenesDTO)
+        {
+            var existeOrden = await ObtenerPorId(id);
+            var orden = existeOrden.Valor;
+
+            if (orden == null)
+            {
+                return Resultado<Ordene>.Falla(existeOrden.MensajeError);
+            }
+
+            var ordenes = new Ordene
+            {
+                Codigo = ordenesDTO.Codigo,
+                Nombre = ordenesDTO.Nombre,
+                Departamento = ordenesDTO.Departamento,
+                UnidadNegocio = ordenesDTO.UnidadNegocio,
+                SolicitadoPor = ordenesDTO.SolicitadoPor,
+                ItemsCount = ordenesDTO.ItemsCount,
+                Comentario = ordenesDTO.Comentario,
+                CreadoPor = ordenesDTO.CreadoPor
+            };
+
+            _context.Update(ordenes);
+            _context.SaveChanges();
+            var ordenesActualizadas = await ObtenerPorId(id);
+            var ordenesAct = ordenesActualizadas.Valor!;
+            return Resultado<Ordene>.Exito(ordenesAct);
+        }
+
+        public async Task<Resultado<bool?>> Eliminar(int id)
+        {
+            var ordenesPorId = await ObtenerPorId(id);
+            var ordenes = ordenesPorId.Valor!;
+
+            if(ordenes == null)
+            {
+                return Resultado<bool?>.Falla(ordenesPorId.MensajeError);
+            }
+
+            _context.Remove(ordenesPorId);
+            _context.SaveChanges();
+            return Resultado<bool?>.Exito(true);
+        }
+
+        //Hacer la parte de desactivar una orden.
+    }
+}

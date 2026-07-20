@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Solicitud de Reserva</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    margin: 0; padding: 0;
+  }
+  .container {
+    max-width: 480px;
+    background: white;
+    margin: 40px auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border: 1px solid #ddd;
+    overflow: hidden;
+  }
+  .header {
+    background-color: #1976d2;
+    color: white;
+    text-align: center;
+    padding: 20px 15px;
+    font-size: 22px;
+    font-weight: bold;
+  }
+  .content {
+    padding: 25px 20px;
+    color: #333;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .btn {
+    display: inline-block;
+    background-color: #1976d2;
+    color: white !important;
+    text-decoration: none;
+    padding: 14px 28px;
+    border-radius: 6px;
+    font-weight: bold;
+    margin: 20px 0;
+    font-size: 16px;
+  }
+  .footer {
+    background-color: #f4f6f8;
+    font-size: 12px;
+    color: #888;
+    text-align: center;
+    padding: 15px 10px;
+  }
+  @media screen and (max-width: 520px) {
+    .container {
+      margin: 20px 10px;
+      width: auto !important;
+    }
+    .btn {
+      padding: 12px 22px;
+      font-size: 15px;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">Solicitud para reservar un laboratorio</div>
+    <div class="content">
+      <p>Hola,</p>
+      <p>Has recibido una solicitud para reservar un laboratorio.</p>
+      <p>Para revisar la solicitud, haz clic en el siguiente enlace:</p>
+      <p style="text-align:center;">
+        <a href="{{FRONTEND_RESERVA_URL}}" class="btn" target="_blank" rel="noopener">Ver solicitud</a>
+      </p>
+      <p>Si no esperabas esta notificación, por favor ignórala o contacta al administrador.</p>
+    </div>
+    <div class="footer">&copy; 2025 ERP CIDIL. Todos los derechos reservados.</div>
+  </div>
+</body>
+</html>

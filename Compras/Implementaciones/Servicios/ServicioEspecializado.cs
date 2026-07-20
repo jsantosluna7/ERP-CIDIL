@@ -1,0 +1,332 @@
+﻿using Compras.Abstraccion.Repositorios;
+using Compras.Abstraccion.Servicios;
+using Compras.DTO.EspecializadosDTO;
+using Compras.DTO.PdfExtractionDTO;
+using ERP.Data.Modelos;
+using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Text.Json;
+
+namespace Compras.Implementaciones.Servicios
+{
+    public class ServicioEspecializado : IServicioEspecializado
+    {
+        private readonly IRepositorioEspecializado _repositorioEspecializado;
+        private readonly DbErpContext _context;
+        public ServicioEspecializado(IRepositorioEspecializado repositorioEspecializado, DbErpContext context)
+        {
+            _repositorioEspecializado = repositorioEspecializado;
+            _context = context;
+        }
+
+        public async Task<Resultado<object>> ActualizarEstadoOrden(int ordenId, ActualizarEstadoOrdenDTO actualizarEstadoOrdenDTO)
+        {
+            var orden = await _repositorioEspecializado.ObtenerOrdenPorId(ordenId);
+            if (orden == null)
+            {
+                return Resultado<object>.Falla("Orden no encontrada.");
+            }
+
+            orden.EstadoTimelineId = actualizarEstadoOrdenDTO.EstadoTimelineId;
+            orden.ActualizadoEn = DateTime.Now;
+            orden.Departamento = actualizarEstadoOrdenDTO.Departamento ?? orden.Departamento;
+
+            _repositorioEspecializado.InsertarTimeline(new OrdenTimeline
+            {
+                OrdenId = ordenId,
+                EstadoTimelineId = actualizarEstadoOrdenDTO.EstadoTimelineId,
+                Evento = actualizarEstadoOrdenDTO.Evento ?? "Cambio Manual",
+                FechaEvento = DateTime.Now,
+                CreadoPor = actualizarEstadoOrdenDTO.UsuarioId
+            });
+
+            await _repositorioEspecializado.GuardarCambios();
+
+            return Resultado<object>.Exito(new
+            {
+                estadoActual = actualizarEstadoOrdenDTO.EstadoTimelineId
+            });
+        }
+
+        public async Task<Resultado<object>> ActualizarItemRecepcion(int itemId, ActualizarItemRecepcionDTO actualizarItemRecepcionDTO)
+        {
+            var item = await _repositorioEspecializado.ObtenerItemPorId(itemId);
+
+            if (item == null)
+            {
+                return Resultado<object>.Falla("Item no encontrado.");
+            }
+
+            var estadoAnterior = item.EstadoTimelineId;
+
+            if(actualizarItemRecepcionDTO.CantidadRecibida > item.Cantidad)
+            {
+                return Resultado<object>.Falla("La cantidad recibida es mayor a la cantidad del item.");
+            }
+
+            item.CantidadRecibida = actualizarItemRecepcionDTO.CantidadRecibida;
+            item.ActualizadoEn = DateTime.UtcNow;
+            item.Comentario = actualizarItemRecepcionDTO.Comentario ?? item.Comentario;
+
+            if (actualizarItemRecepcionDTO.CantidadRecibida == 0)
+            {
+                item.EstadoTimelineId = 1; // Registrado
+            }
+            else if (actualizarItemRecepcionDTO.CantidadRecibida < item.Cantidad)
+            {
+                item.EstadoTimelineId = 6; // Parcialmente Recibido
+            }
+            else
+            {
+                item.EstadoTimelineId = 7; // Recibido 
+            }
+
+            var orden = await _repositorioEspecializado.ObtenerOrdenPorId(item.OrdenId);
+            if (orden == null)
+            {
+                return Resultado<object>.Falla("Orden no encontrada.");
+            }
+
+            if(estadoAnterior != 7 && item.EstadoTimelineId == 7)
+            {
+                if(orden.ItemsRecibidos < orden.ItemsCount)
+                {
+                    orden.ItemsRecibidos++;
+                }
+            }
+
+            if(estadoAnterior == 7 && item.EstadoTimelineId != 7)
+            {
+                if(orden.ItemsRecibidos > 0)
+                {
+                    orden.ItemsRecibidos--;
+                }
+            }
+
+            if(orden.ItemsRecibidos > orden.ItemsCount)
+            {
+                orden.ItemsRecibidos = orden.ItemsCount;
+            }
+
+            await _repositorioEspecializado.GuardarCambios();
+
+            var recalculado = await RecalcularEstadoOrden(item.OrdenId, actualizarItemRecepcionDTO.UsuarioId);
+
+            return Resultado<object>.Exito(new
+            {
+                item = new
+                {
+                    item.Id,
+                    item.CantidadRecibida,
+                    item.EstadoTimelineId
+                },
+                orden = recalculado.Valor!
+            });
+        }
+
+        public async Task<Resultado<object>> RecalcularEstadoOrden(int ordenId, int usuarioId)
+        {
+            var orden = await _repositorioEspecializado.ObtenerOrdenPorId(ordenId);
+
+            if (orden == null)
+                return Resultado<object>.Falla("Orden no encontrada.");
+
+            // SOLO PARA SABER SI EXISTE ALGÚN PARCIAL
+            bool existeParcial = await _context.OrdenItems
+                .AnyAsync(i => i.OrdenId == ordenId && i.EstadoTimelineId == 6);
+
+            int nuevoEstadoId;
+
+            if (orden.ItemsRecibidos == orden.ItemsCount && orden.ItemsCount > 0)
+            {
+                nuevoEstadoId = 7; // Completamente Recibido
+            }
+            else if (orden.ItemsRecibidos > 0 || existeParcial)
+            {
+                nuevoEstadoId = 6; // Parcialmente Recibido
+            }
+            else
+            {
+                nuevoEstadoId = 1; // Registrado
+            }
+
+            if (orden.EstadoTimelineId != nuevoEstadoId)
+            {
+                orden.EstadoTimelineId = nuevoEstadoId;
+                orden.ActualizadoEn = DateTime.Now;
+
+                _repositorioEspecializado.InsertarTimeline(new OrdenTimeline
+                {
+                    OrdenId = ordenId,
+                    EstadoTimelineId = nuevoEstadoId,
+                    Evento = "Actualización automática por recepción de ítems",
+                    FechaEvento = DateTime.Now,
+                    CreadoPor = usuarioId
+                });
+
+                await _repositorioEspecializado.GuardarCambios();
+            }
+
+            return Resultado<object>.Exito(new
+            {
+                estadoActual = nuevoEstadoId
+            });
+        }
+
+
+        public async Task<Resultado<List<TimelineDTO>>> ObtenerTimeline(int ordenId)
+        {
+            var timeline = await _repositorioEspecializado.ObtenerTimeline(ordenId);
+
+            var resultado = timeline.Select(t => new TimelineDTO
+            {
+                FechaEvento = t.FechaEvento,
+                Evento = t.Evento,
+                EstadoTimelineId = t.EstadoTimelineId,
+                Usuario = t.CreadoPorNavigation != null ? $"{t.CreadoPorNavigation.NombreUsuario} {t.CreadoPorNavigation.ApellidoUsuario}" : "Desconocido"
+            }).ToList();
+
+            return Resultado<List<TimelineDTO>>.Exito(resultado);
+        }
+
+        public async Task<Resultado<List<OrdenItem>>> ObtenerItems(int ordenId)
+        {
+            var items = await _repositorioEspecializado.ObtenerItemsPorOrden(ordenId);
+            return Resultado<List<OrdenItem>>.Exito(items);
+        }
+
+        public async Task<Resultado<object>> PdfExtraction(IFormFile file, int usuarioId)
+        {
+            if(file == null || file.Length == 0)
+            {
+                return Resultado<object>.Falla("Debe adjuntar un PDF");
+            }
+
+            //Enviar PDF al API de Python
+            using var client = new HttpClient();
+            using var form = new MultipartFormDataContent();
+
+            var stream = file.OpenReadStream();
+            form.Add(new StreamContent(stream), "file", file.FileName);
+
+            var response = await client.PostAsync(
+                "https://pdf.cidilipl.online/extract-requisition",
+                form);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return Resultado<object>.Falla("Error al procesar el PDF");
+                throw new Exception("Error al procesar el PDF");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var data = JsonSerializer.Deserialize<RequisicionDTO>(
+                json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+
+            if (data == null)
+            {
+                throw new Exception("No se pudo deserializar la respuesta del PDF.");
+            }
+
+            string[] formatos = {
+                "M/d/yy",
+                "MM/dd/yy",
+                "M/d/yyyy",
+                "MM/dd/yyyy",
+                "dd/MM/yyyy",
+                "d/M/yy"
+            };
+            
+            if (!DateOnly.TryParseExact(data.entered_date.Trim(), formatos, CultureInfo.InvariantCulture, DateTimeStyles.None, out var fechaSolicitud))
+            {
+                throw new Exception($"Formato de fecha inválido: {data.entered_date}");
+            }
+
+
+            //Crear la orden
+            var orden = new Ordene
+            {
+                Codigo = data.requisition_id,
+                Nombre = data.requisition_name,
+                UnidadNegocio = data.business_unit,
+                SolicitadoPor = data.requested_by,
+                ItemsCount = data.lines?.Count ?? 0,
+                Comentario = data.header_comments,
+                FechaSolicitud = fechaSolicitud,
+                EstadoTimelineId = 1, // Registrado
+                CreadoPor = usuarioId,
+                FechaSubida = DateOnly.FromDateTime(DateTime.Now),
+                Departamento = "Compras"
+            };
+
+            _context.Ordenes.Add(orden);
+            await _context.SaveChangesAsync();
+
+            //Crear los items
+            foreach (var linea in data.lines)
+            {
+                var item = new OrdenItem
+                {
+                    Nombre = linea.item_description,
+                    OrdenId = orden.Id,
+                    NumeroLista = linea.line_number.ToString(),
+                    Cantidad = ((int)linea.quantity),
+                    CantidadRecibida = 0,
+                    Comentario = linea.line_comments,
+                    EstadoTimelineId = 1, // Registrado
+                };
+
+                _context.OrdenItems.Add(item);
+            }
+
+            await _context.SaveChangesAsync();
+
+            //Timeline inicial
+            _context.OrdenTimelines.Add(new OrdenTimeline
+            {
+                OrdenId = orden.Id,
+                EstadoTimelineId = 1,
+                Evento = "Orden creada desde extracción de PDF",
+                FechaEvento = DateTime.Now,
+                CreadoPor = usuarioId
+            });
+
+            await _context.SaveChangesAsync();
+
+            //Respuesta al frontend
+            return Resultado<object>.Exito(new
+            {
+                ordenId = orden.Id,
+                ordenCodigo = orden.Codigo,
+                items = data.lines.Count
+            });
+        }
+
+        public async Task<Resultado<int>> CantidadDeOrdenes()
+        {
+            var resultado = await _repositorioEspecializado.CantidadDeOrdenes();
+            if (resultado <= 0)
+            {
+                return Resultado<int>.Falla("No se pudo obtener la cantidad de órdenes.");
+            }
+
+            return Resultado<int>.Exito(resultado);
+        }
+
+        public async Task<Resultado<List<Ordene>>> BuscarOrdenes(string termino, string filtro)
+        {
+            var resultado = await _repositorioEspecializado.BuscarOrdenes(termino, filtro);
+
+            if (!resultado.esExitoso)
+            {
+                return Resultado<List<Ordene>>.Falla(resultado.MensajeError ?? "Error en la búsqueda de ordenes.");
+            }
+
+            var ordenes = resultado.Valor!;
+
+            return Resultado<List<Ordene>>.Exito(ordenes);
+        }
+    }
+}

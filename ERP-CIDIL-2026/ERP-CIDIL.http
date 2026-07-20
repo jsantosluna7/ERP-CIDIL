@@ -1,0 +1,6 @@
+@ERP_CIDIL_HostAddress = http://localhost:5225
+
+GET {{ERP_CIDIL_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
