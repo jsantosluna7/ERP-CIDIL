@@ -62,5 +62,24 @@ namespace Usuarios.Implementaciones.Servicios
             return Resultado<Token?>.Exito(usuario);
         }
 
+        public async Task<Resultado<GoogleAuthResultDTO?>> AutenticarConGoogle(GoogleAuthDTO googleAuthDto)
+        {
+            var resultado = await _repositorioLogin.AutenticarConGoogle(googleAuthDto);
+            if (!resultado.esExitoso)
+            {
+                return Resultado<GoogleAuthResultDTO?>.Falla(resultado.MensajeError ?? "Error al autenticar con Google.");
+            }
+            return Resultado<GoogleAuthResultDTO?>.Exito(resultado.Valor!);
+        }
+
+        public async Task<Resultado<Token?>> CompletarRegistroGoogle(CompletarRegistroGoogleDTO dto)
+        {
+            var resultado = await _repositorioLogin.CompletarRegistroGoogle(dto);
+            if (!resultado.esExitoso)
+            {
+                return Resultado<Token?>.Falla(resultado.MensajeError ?? "Error al completar el registro.");
+            }
+            return Resultado<Token?>.Exito(resultado.Valor!);
+        }
     }
 }

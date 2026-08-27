@@ -850,8 +850,6 @@ public partial class DbErpContext : DbContext
             entity.Property(e => e.UltimaSesion)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("ultima_sesion");
-            entity.Property(e => e.GoogleId).HasColumnName("google_id");
-            entity.Property(e => e.FotoPerfil).HasColumnName("foto_perfil");
 
             entity.HasOne(d => d.IdRolNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.IdRol)

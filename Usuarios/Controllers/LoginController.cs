@@ -51,5 +51,27 @@ namespace Usuarios.Controllers
             }
             return Ok(resultado.Valor);
         }
+
+        [HttpPost("google")]
+        public async Task<IActionResult> LoginConGoogle([FromBody] GoogleAuthDTO dto)
+        {
+            var resultado = await _servicioLogin.AutenticarConGoogle(dto);
+            if (!resultado.esExitoso)
+            {
+                return BadRequest(new { mensaje = resultado.MensajeError });
+            }
+            return Ok(resultado.Valor);
+        }
+
+        [HttpPost("google/completar-registro")]
+        public async Task<IActionResult> CompletarRegistroGoogle([FromBody] CompletarRegistroGoogleDTO dto)
+        {
+            var resultado = await _servicioLogin.CompletarRegistroGoogle(dto);
+            if (!resultado.esExitoso)
+            {
+                return BadRequest(new { mensaje = resultado.MensajeError });
+            }
+            return Ok(resultado.Valor);
+        }
     }
 }

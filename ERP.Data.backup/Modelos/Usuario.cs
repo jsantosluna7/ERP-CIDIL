@@ -15,7 +15,7 @@ public partial class Usuario
 
     public string CorreoInstitucional { get; set; } = null!;
 
-    public string? ContrasenaHash { get; set; }
+    public string ContrasenaHash { get; set; } = null!;
 
     public string? Telefono { get; set; }
 
@@ -34,10 +34,6 @@ public partial class Usuario
     public bool? Activado { get; set; }
 
     public DateTime? UltimaSesion { get; set; }
-
-    public string? GoogleId { get; set; }
-
-    public string? FotoPerfil { get; set; }
 
     public virtual ICollection<ComentariosOrden> ComentariosOrdens { get; set; } = new List<ComentariosOrden>();
 

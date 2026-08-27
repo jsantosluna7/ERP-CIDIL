@@ -1,11 +1,13 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using ERP.Data.Modelos;
+﻿using ERP.Data.Modelos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Sprache;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 using Usuarios.Abstraccion.Repositorios;
 using Usuarios.DTO.LoginDTO;
 using Usuarios.Implementaciones.Servicios;
@@ -18,12 +20,14 @@ namespace Usuarios.Implementaciones.Repositorios
         private readonly DbErpContext _context;
         private readonly ServicioOtp _servicioOtp;
         private readonly ServicioEmailUsuarios _email;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public RepositorioLogin(DbErpContext context, ServicioOtp servicioOtp, ServicioEmailUsuarios emailUsuarios)
+        public RepositorioLogin(DbErpContext context, ServicioOtp servicioOtp, ServicioEmailUsuarios emailUsuarios, IHttpClientFactory httpClientFactory)
         {
             _context = context;
             _servicioOtp = servicioOtp;
             _email = emailUsuarios;
+            _httpClientFactory = httpClientFactory;
 
         }
 
@@ -381,6 +385,163 @@ namespace Usuarios.Implementaciones.Repositorios
             };
 
             return tokenResult;
+        }
+
+        public async Task<Resultado<GoogleAuthResultDTO?>> AutenticarConGoogle(GoogleAuthDTO googleAuthDto)
+        {
+            var googleUser = await ObtenerInfoDeGoogleAsync(googleAuthDto.AccessToken);
+
+            if (googleUser is null || !googleUser.email_verified)
+            {
+                return Resultado<GoogleAuthResultDTO?>.Falla("Token de Google inválido o correo no verificado.");
+            }
+
+            if (!googleUser.email.EndsWith("@ipl.edu.do", StringComparison.OrdinalIgnoreCase))
+            {
+                return Resultado<GoogleAuthResultDTO?>.Falla("Debe iniciar sesión con su correo institucional (@ipl.edu.do).");
+            }
+
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.GoogleId == googleUser.sub);
+
+            // Fallback: si se registró antes de forma local con el mismo correo, lo vinculamos
+            usuario ??= await _context.Usuarios.FirstOrDefaultAsync(u => u.CorreoInstitucional == googleUser.email);
+
+            if (usuario is not null)
+            {
+                if (string.IsNullOrEmpty(usuario.GoogleId))
+                {
+                    usuario.GoogleId = googleUser.sub;
+                    usuario.FotoPerfil = googleUser.picture;
+                }
+
+                usuario.UltimaSesion = DateTime.UtcNow;
+                _context.Usuarios.Update(usuario);
+                await _context.SaveChangesAsync();
+
+                return Resultado<GoogleAuthResultDTO?>.Exito(new GoogleAuthResultDTO
+                {
+                    Existe = true,
+                    Token = GenerarTokenUsuario(usuario)
+                });
+            }
+
+            // No existe: el front debe pasar a la vista de completar registro
+            return Resultado<GoogleAuthResultDTO?>.Exito(new GoogleAuthResultDTO
+            {
+                Existe = false,
+                Token = null,
+                CorreoInstitucional = googleUser.email,
+                NombreUsuario = googleUser.given_name,
+                ApellidoUsuario = googleUser.family_name,
+                FotoPerfil = googleUser.picture
+            });
+        }
+
+        public async Task<Resultado<Token?>> CompletarRegistroGoogle(CompletarRegistroGoogleDTO dto)
+        {
+            var googleUser = await ObtenerInfoDeGoogleAsync(dto.AccessToken);
+
+            if (googleUser is null || !googleUser.email_verified)
+            {
+                return Resultado<Token?>.Falla("Sesión de Google expirada. Inicie el proceso nuevamente.");
+            }
+
+            if (!googleUser.email.EndsWith("@ipl.edu.do", StringComparison.OrdinalIgnoreCase))
+            {
+                return Resultado<Token?>.Falla("Debe registrarse con su correo institucional (@ipl.edu.do).");
+            }
+
+            var yaExiste = await _context.Usuarios.AnyAsync(u =>
+                u.GoogleId == googleUser.sub || u.CorreoInstitucional == googleUser.email);
+
+            if (yaExiste)
+            {
+                return Resultado<Token?>.Falla("Este usuario ya está registrado.");
+            }
+
+            var matriculaExistente = await _context.Usuarios.AnyAsync(u => u.IdMatricula == dto.IdMatricula);
+            if (matriculaExistente)
+            {
+                return Resultado<Token?>.Falla("La matrícula ya está en uso.");
+            }
+
+            // Misma regla que ya usás en RegistrarUsuario para asignar el rol
+            char primerCaracter = googleUser.email[0];
+            int idRol = char.IsDigit(primerCaracter) ? 4 : 3;
+
+            var nuevoUsuario = new Usuario
+            {
+                IdMatricula = dto.IdMatricula,
+                NombreUsuario = googleUser.given_name,
+                ApellidoUsuario = googleUser.family_name,
+                CorreoInstitucional = googleUser.email,
+                ContrasenaHash = null, // autenticado por Google, sin contraseña local
+                GoogleId = googleUser.sub,
+                FotoPerfil = googleUser.picture,
+                Telefono = dto.Telefono,
+                Direccion = dto.Direccion,
+                FechaCreacion = DateTime.UtcNow,
+                IdRol = idRol,
+                Activado = true, // el correo ya viene verificado por Google
+                UltimaSesion = DateTime.UtcNow
+            };
+
+            await _context.Usuarios.AddAsync(nuevoUsuario);
+            await _context.SaveChangesAsync();
+
+            return Resultado<Token?>.Exito(GenerarTokenUsuario(nuevoUsuario));
+        }
+
+        private async Task<GoogleUserInfoDTO?> ObtenerInfoDeGoogleAsync(string accessToken)
+        {
+            var client = _httpClientFactory.CreateClient();
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://www.googleapis.com/oauth2/v3/userinfo");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await client.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<GoogleUserInfoDTO>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+        }
+
+        // Extraje la generación del JWT a un método propio porque la repetís
+        // igual en IniciarSecion y verificarOtp; ahora también la usa Google.
+        private Token GenerarTokenUsuario(Usuario usuario)
+        {
+            var claims = new[]
+            {
+            new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
+            new Claim("idRol", usuario.IdRol.ToString() ?? ""),
+            new Claim("nombreUsuario", usuario.NombreUsuario),
+            new Claim("apellidoUsuario", usuario.ApellidoUsuario),
+            new Claim("correoInstitucional", usuario.CorreoInstitucional),
+            new Claim("idMatricula", usuario.IdMatricula.ToString()),
+            new Claim("telefono", usuario.Telefono ?? ""),
+            new Claim("direccion", usuario.Direccion ?? ""),
+            new Claim("fechaCreacion", usuario.FechaCreacion.ToString() ?? ""),
+            new Claim("fechaUltimaModificacion", usuario.FechaUltimaModificacion.ToString() ?? ""),
+            new Claim("ultimaSesion", usuario.UltimaSesion.ToString() ?? ""),
+        };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("8aSX$jhE6WX2&jW9XaZUT4LiEP#TK!VyC^wt3ZqdRWJYtcv75J%cCRZd867JjXqtAAZgL%"));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: "cidilipl.online",
+                audience: "cidilipl.online",
+                claims: claims,
+                expires: DateTime.UtcNow.AddDays(1),
+                signingCredentials: creds
+            );
+
+            return new Token { TokenId = new JwtSecurityTokenHandler().WriteToken(token) };
         }
     }
 }

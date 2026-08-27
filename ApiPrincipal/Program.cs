@@ -101,6 +101,9 @@ builder.Services.AddHttpClient("ImageService", client =>
     client.DefaultRequestHeaders.Add("x-api-key", "CIdil-Admin52");
 });
 
+//Habilitar IHttpClientFactory para llamar a google
+builder.Services.AddHttpClient();
+
 
 //Añadimos el servicio de OTP
 builder.Services.AddScoped<ServicioOtp>();

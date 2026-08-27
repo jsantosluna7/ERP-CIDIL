@@ -6,6 +6,8 @@ namespace Usuarios.Abstraccion.Repositorios
 {
     public interface IRepositorioLogin
     {
+        Task<Resultado<GoogleAuthResultDTO?>> AutenticarConGoogle(GoogleAuthDTO googleAuthDto);
+        Task<Resultado<Token?>> CompletarRegistroGoogle(CompletarRegistroGoogleDTO dto);
         Task<Resultado<Token?>> IniciarSecion(Login login);
         Task<Resultado<Token?>> RegistrarUsuario(CrearRegistroDTO crearRegistroDTO);
         Task<Resultado<Token?>> verificarOtp(VerificarOtpDTO verificarOtp);
