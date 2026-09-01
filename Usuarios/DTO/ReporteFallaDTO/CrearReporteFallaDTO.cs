@@ -9,5 +9,7 @@
         public int Estado { get; set; }
 
         public int IdUsuario { get; set; }
+
+        public string Categoria { get; set; } = null!;
     }
 }

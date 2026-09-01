@@ -16,5 +16,7 @@
 
         public int IdUsuario { get; set; }
 
+        public string Categoria { get; set; } = null!;
+
     }
 }

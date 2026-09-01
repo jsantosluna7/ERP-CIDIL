@@ -658,6 +658,7 @@ public partial class DbErpContext : DbContext
                 .HasColumnName("fecha_ultima_actualizacion");
             entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
             entity.Property(e => e.Lugar).HasColumnName("lugar");
+            entity.Property(e => e.Categoria).HasColumnName("categoria");
 
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.ReporteFallas)
                 .HasForeignKey(d => d.IdUsuario)

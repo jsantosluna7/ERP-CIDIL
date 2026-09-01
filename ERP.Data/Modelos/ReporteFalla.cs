@@ -20,6 +20,8 @@ public partial class ReporteFalla
 
     public int IdUsuario { get; set; }
 
+    public string Categoria { get; set; } = null!;
+
     [JsonIgnore]
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
 }

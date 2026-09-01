@@ -65,7 +65,8 @@ namespace Usuarios.Implementaciones.Servicios
                 Estado = reporte.Estado,
                 FechaCreacion = DateTime.UtcNow,
                 IdUsuario = reporte.IdUsuario,
-                FechaUltimaActualizacion = reporte.FechaUltimaActualizacion
+                FechaUltimaActualizacion = reporte.FechaUltimaActualizacion,
+                Categoria = reporte.Categoria
 
             };
             return Resultado<ReporteFallaDTO?>.Exito(reporteFallaDTO);
@@ -117,7 +118,8 @@ namespace Usuarios.Implementaciones.Servicios
                     FechaCreacion = r.FechaCreacion,
                     FechaUltimaActualizacion =r.FechaUltimaActualizacion,
                     Estado = r.Estado,
-                    IdUsuario = r.IdUsuario
+                    IdUsuario = r.IdUsuario,
+                    Categoria = r.Categoria
                 };
                 reporteFallaDTO.Add(nuevoReporte);
             }

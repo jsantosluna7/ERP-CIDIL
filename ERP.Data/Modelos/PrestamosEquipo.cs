@@ -38,6 +38,5 @@ public partial class PrestamosEquipo
     [JsonIgnore]
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
     [JsonIgnore]
-    public virtual ExtensionPrestamosEquipo IdPrestamosNavigation { get; set; } = null!;
     public virtual ICollection<ExtensionPrestamosEquipo> ExtensionPrestamosEquipos { get; set; } = new List<ExtensionPrestamosEquipo>();
 }

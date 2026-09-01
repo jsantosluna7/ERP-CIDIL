@@ -73,7 +73,8 @@ namespace Usuarios.Implementaciones.Repositorios
                     Descripcion = crearReporteFallaDTO.Descripcion,
                     Lugar = crearReporteFallaDTO.Lugar,
                     Estado = crearReporteFallaDTO.Estado,
-                    IdUsuario = crearReporteFallaDTO.IdUsuario
+                    IdUsuario = crearReporteFallaDTO.IdUsuario,
+                    Categoria = crearReporteFallaDTO.Categoria,
                 };
 
                 var roles = new int?[] { 1, 2 }; //Roles de administrador y superusuario.
