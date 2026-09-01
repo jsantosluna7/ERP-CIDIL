@@ -17,7 +17,7 @@ namespace Usuarios.Implementaciones.Servicios
 
         public async Task EnviarCorreoRecuperacion(string destinatario, string token)
         {
-            var link = $"https://cidilipl.online/cambiar-contrasena?token={token}";
+            var link = $"https://cidil.ipl.edu.do/cambiar-contrasena?token={token}";
             // Cargar la plantilla HTML desde un archivo
             var basePath = AppContext.BaseDirectory;
             var templatePath = Path.Combine(basePath, "Templates", "cambiar_contrasena_plantilla.html");
@@ -164,7 +164,7 @@ namespace Usuarios.Implementaciones.Servicios
             var basePath = AppContext.BaseDirectory;
             var templatePath = Path.Combine(basePath, "Templates", "nuevo_reporte_plantilla.html");
             string htmlTemplate = File.ReadAllText(templatePath);
-            string urlPlataforma = "https://cidilipl.online/home/vista-reportes";
+            string urlPlataforma = "https://cidil.ipl.edu.do/home/vista-reportes";
 
             // Reemplazar el marcador de posición en la plantilla con el OTP
             string html = htmlTemplate.Replace("{{DESCRIPCION}}", descripcion).Replace("{{LUGAR}}", lugar).Replace("{{NOMBRE_REPORTANTE}}", nombreReportante).Replace("{{URL_CAMBIAR_ESTADO}}", urlPlataforma);

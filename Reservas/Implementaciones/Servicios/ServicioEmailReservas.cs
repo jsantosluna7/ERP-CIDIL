@@ -23,7 +23,7 @@ namespace Reservas.Implementaciones.Servicios
             var templatePath = Path.Combine(basePath, "Templates", "solicitud_reserva_plantilla.html");
             string htmlTemplate = File.ReadAllText(templatePath);
 
-            var link = $"https://cidilipl.online/home/solicitud-laboratorio";
+            var link = $"https://cidil.ipl.edu.do/home/solicitud-laboratorio";
 
             // Reemplazar el marcador de posición en la plantilla con el OTP
             string html = htmlTemplate.Replace("{{FRONTEND_RESERVA_URL}}", link);
@@ -213,7 +213,7 @@ namespace Reservas.Implementaciones.Servicios
             var templatePath = Path.Combine(basePath, "Templates", "solicitud_reserva_equipo_plantilla.html");
             string htmlTemplate = File.ReadAllText(templatePath);
 
-            var link = $"https://cidilipl.online/home/solicitud-equipo";
+            var link = $"https://cidil.ipl.edu.do/home/solicitud-equipo";
 
             // Reemplazar el marcador de posición en la plantilla con el OTP
             string html = htmlTemplate.Replace("{{NOMBRE_EQUIPO}}", nombreEquipo).Replace("{{CANTIDAD}}", cantidad).Replace("{{FECHA_INICIO}}", fechaInicio).Replace("{{FECHA_FINAL}}", fechaFinal).Replace("{{FRONTEND_EQUIPO_URL}}", link);
