@@ -1,4 +1,5 @@
-﻿using Compras.DTO.EspecializadosDTO;
+﻿using Microsoft.AspNetCore.Http;
+using Compras.DTO.EspecializadosDTO;
 using ERP.Data.Modelos;
 
 namespace Compras.Abstraccion.Servicios
