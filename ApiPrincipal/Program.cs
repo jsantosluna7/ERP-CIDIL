@@ -162,8 +162,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = "cidilipl.online",
-        ValidAudience = "cidilipl.online",
+        ValidIssuer = "cidil.ipl.edu.do",
+        ValidAudience = "cidil.ipl.edu.do",
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("8aSX$jhE6WX2&jW9XaZUT4LiEP#TK!VyC^wt3ZqdRWJYtcv75J%cCRZd867JjXqtAAZgL%"))
     };
 });
@@ -200,7 +200,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("PermitirSoloMiApp", policy =>
     {
         policy
-            .WithOrigins("https://cidilipl.online",
+            .WithOrigins("https://cidil.ipl.edu.do",
                          "http://localhost:4200") // Reemplaza con el dominio real de tu frontend
             .AllowAnyMethod()
             .AllowAnyHeader();

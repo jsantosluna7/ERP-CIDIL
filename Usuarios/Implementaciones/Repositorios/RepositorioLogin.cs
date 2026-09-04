@@ -78,8 +78,8 @@ namespace Usuarios.Implementaciones.Repositorios
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: "cidilipl.online",
-                audience: "cidilipl.online",
+                issuer: "cidil.ipl.edu.do",
+                audience: "cidil.ipl.edu.do",
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: creds
@@ -177,8 +177,8 @@ namespace Usuarios.Implementaciones.Repositorios
 
 
             var token = new JwtSecurityToken(
-                issuer: "cidilipl.online",
-                audience: "cidilipl.online",
+                issuer: "cidil.ipl.edu.do",
+                audience: "cidil.ipl.edu.do",
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: creds
@@ -368,8 +368,8 @@ namespace Usuarios.Implementaciones.Repositorios
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: "cidilipl.online",
-                audience: "cidilipl.online",
+                issuer: "cidil.ipl.edu.do",
+                audience: "cidil.ipl.edu.do",
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: creds
@@ -534,8 +534,8 @@ namespace Usuarios.Implementaciones.Repositorios
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: "cidilipl.online",
-                audience: "cidilipl.online",
+                issuer: "cidil.ipl.edu.do",
+                audience: "cidil.ipl.edu.do",
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: creds
