@@ -41,6 +41,8 @@ public partial class DbErpContext : DbContext
 
     public virtual DbSet<Like> Likes { get; set; }
 
+    public virtual DbSet<Noticia> Noticias { get; set; }
+
     public virtual DbSet<OrdenItem> OrdenItems { get; set; }
 
     public virtual DbSet<OrdenTimeline> OrdenTimelines { get; set; }
@@ -460,6 +462,30 @@ public partial class DbErpContext : DbContext
             entity.HasOne(d => d.Anuncio).WithMany(p => p.Likes)
                 .HasForeignKey(d => d.AnuncioId)
                 .HasConstraintName("like_anuncio_fkey");
+        });
+
+        modelBuilder.Entity<Noticia>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("noticias_pkey");
+
+            entity.ToTable("noticias");
+
+            entity.HasIndex(e => e.Id, "unico_id").IsUnique();
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
+            entity.Property(e => e.Categoria)
+                .HasMaxLength(50)
+                .HasColumnName("categoria");
+            entity.Property(e => e.CreadoEn)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnName("creado_en");
+            entity.Property(e => e.Descripcion).HasColumnName("descripcion");
+            entity.Property(e => e.Fecha).HasColumnName("fecha");
+            entity.Property(e => e.Foto).HasColumnName("foto");
+            entity.Property(e => e.Propio).HasColumnName("propio");
+            entity.Property(e => e.Titulo).HasColumnName("titulo");
         });
 
         modelBuilder.Entity<OrdenItem>(entity =>

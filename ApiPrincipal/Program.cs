@@ -62,6 +62,7 @@ builder.Services.AddScoped<IRepositorioOrdenItem, RepositorioOrdenItem>();
 builder.Services.AddScoped<IRepositorioOrdenTimeline, RepositorioOrdenTimeline>();
 builder.Services.AddScoped<IRepositorioEspecializado, RepositorioEspecializado>();
 builder.Services.AddScoped<IRepositorioTotalReservaDeEspacio, RepositorioTotalReservaDeEspacio>();
+builder.Services.AddScoped<IRepositorioNoticias, RepositorioNoticias>();
 
 
 
@@ -90,6 +91,7 @@ builder.Services.AddScoped<IServicioOrdenItem, ServicioOrdenItem>();
 builder.Services.AddScoped<IServicioOrdenTimeline, ServicioOrdenTimeline>();
 builder.Services.AddScoped<IServicioEspecializado, ServicioEspecializado>();
 builder.Services.AddScoped<IServicioTotalReservaDeEspacio, ServicioTotalReservaDeEspacio>();
+builder.Services.AddScoped<IServicioNoticias, ServicioNoticias>();
 
 
 var imageServiceBaseUrl = Environment.GetEnvironmentVariable("IMAGE_SERVICE_BASE_URL")!;
