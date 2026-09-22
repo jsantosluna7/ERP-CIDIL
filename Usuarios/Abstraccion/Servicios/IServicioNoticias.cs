@@ -1,9 +1,9 @@
-﻿using Usuarios.DTO.NoticiasDTO;
+﻿using ERP.Data.Modelos;
 
 namespace Usuarios.Abstraccion.Servicios
 {
     public interface IServicioNoticias
     {
-        Task<List<NoticiasDTO>?> ObtenerNoticias();
+        Task<List<Noticia>?> ObtenerNoticias();
     }
 }

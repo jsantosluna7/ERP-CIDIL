@@ -13,7 +13,7 @@ namespace Usuarios.Implementaciones.Servicios
             _repositorioNoticias = repositorioNoticias;
         }
         // Método para obtener todas las noticias
-        public async Task<List<NoticiasDTO>?> ObtenerNoticias()
+        public async Task<List<Noticia>?> ObtenerNoticias()
         {
             // Obtener todas las noticias
             var noticias = await _repositorioNoticias.ObtenerNoticias();
@@ -22,12 +22,13 @@ namespace Usuarios.Implementaciones.Servicios
                 return null;
             }
             //Inicializar la lista de noticias DTO
-            var noticiasDTO = new List<NoticiasDTO>();
+            var noticiasDTO = new List<Noticia>();
             // Mapear las noticias a DTOs
             foreach (Noticia noticia in noticias)
             {
-                var noticiaDTO = new NoticiasDTO
+                var noticiaDTO = new Noticia
                 {
+                    Id = noticia.Id,
                     Titulo = noticia.Titulo,
                     Descripcion = noticia.Descripcion,
                     Categoria = noticia.Categoria,
